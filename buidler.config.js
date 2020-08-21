@@ -1,7 +1,8 @@
 require("dotenv").config();
 
-usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nomiclabs/buidler-ethers");
+usePlugin("buidler-gas-reporter");
+usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nomiclabs/buidler-etherscan");
 usePlugin("buidler-deploy");
 usePlugin("solidity-coverage");
@@ -21,7 +22,6 @@ module.exports = {
     buidlerevm: {
       gasPrice: 0,
       blockGasLimit: 100000000,
-      allowUnlimitedContractSize: false,
     },
     coverage: {
       url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
@@ -42,9 +42,6 @@ module.exports = {
   namedAccounts: {
     agent: {
       default: 0,
-    },
-    finance: {
-      default: 2,
     },
   },
 };

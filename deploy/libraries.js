@@ -7,15 +7,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   const storageLib = await deploy("StorageLib", {
     from: agent,
-    libraries: {
-      StorageLib: storageLib.address,
-    },
   });
 
-  if (
-    storageLib.newlyDeployed &&
-  ) {
-    log(`##### PanDAO: StorageHelper has been deployed: ${storageLib.address}`);
+  if (storageLib.newlyDeployed) {
+    log(`##### ElasticDAO: StorageLib has been deployed: ${storageLib.address}`);
   }
 };
 module.exports.tags = ["Libraries"];

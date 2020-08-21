@@ -2,7 +2,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const StorageLibraryDeployment = await deployments.get("StorageHelper");
+  const StorageLibraryDeployment = await deployments.get("StorageLib");
 
   const storage = await deploy("EternalStorage", {
     from: agent,
