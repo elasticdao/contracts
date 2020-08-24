@@ -48,4 +48,10 @@ module.exports = {
       default: 0,
     },
   },
+  gasReporter: {
+    coinmarketcap: "a69aea8b-8dce-45e5-ab8e-0e4577f27efd",
+    currency: "USD",
+    showTimeSpent: "true",
+    //enabled: (process.env.REPORT_GAS) ? true : false
+  },
 };
