@@ -27,6 +27,9 @@ module.exports = {
       url: "http://127.0.0.1:8555", // Coverage launches its own ganache-cli client
     },
   },
+  gasReporter: {
+    src: "src",
+  },
   etherscan: {
     url: "https://api.etherscan.io/api",
     apiKey: ETHERSCAN_API_KEY,
