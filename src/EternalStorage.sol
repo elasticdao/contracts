@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPLv3
-
-pragma solidity 0.6.10;
+pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/StorageLib.sol";

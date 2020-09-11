@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: GPLv3
 pragma solidity 0.7.0;
 
 // Contracts
 import "./EternalStorage.sol";
+import "./tokens/ElasticGovernanceToken.sol";
 
 // Libraries
 import "./libraries/StorageLib.sol";
@@ -10,7 +12,6 @@ import "./libraries/SafeMath.sol";
 
 contract ElasticDAO {
   EternalStorage internal eternalStorage;
-  uint256 public SHARE_DECIMAL_PRECISION = 68;
 
   modifier onlyAfterSummoning() {
     require(
@@ -37,6 +38,7 @@ contract ElasticDAO {
 
   constructor(
     string memory _name,
+    string memory _tokenName,
     string memory _tokenSymbol,
     address[] _summoners,
     uint256 _baseTokenRatio,
@@ -74,6 +76,9 @@ contract ElasticDAO {
 
     uint256 totalShares = SafeMath.mul(_summoningShare, _summoners.length);
     eternalStorage.setUint(StorageLib.formatLocation("dao.totalShares"), totalShares);
+
+    eternalStorage.setString(StorageLib.formatLocation("dao.token.name"), _tokenName);
+    eternalStorage.setString(StorageLib.formatLocation("dao.token.symbol"), _tokenSymbol);
   }
 
   function joinDAO(uint256 _shareAmountToPurchase) public payable onlyAfterSummoning {
@@ -99,7 +104,7 @@ contract ElasticDAO {
     uint256 m = eternalStorage.getUint(StorageLib.formatLocation("dao.shareModifier"));
     uint256 revamp = SafeMath.add(priceToTokenInflationRate, SafeMath.pow(10, 18));
     uint256 capitalDelta = eternalStorage.getUint(StorageLib.formatLocation("dao.tokenPrice"));
-    uint256 capitalDeltaDash = SafeMath.mul(tokenPrice, revamp);
+    uint256 capitalDeltaDash = SafeMath.mul(capitalDelta, revamp);
     uint256 deltaLambda = _shareAmountToPurchase;
     uint256 k = baseTokenRatio;
     uint256 lambda = totalShares;
@@ -134,10 +139,7 @@ contract ElasticDAO {
       StorageLib.formatAddress("dao.shares", msg.sender)
     );
     uint256 ethValue = msg.value;
-    uint256 newShareAmount = SafeMath.mul(
-      SafeMath.div(SafeMath.div(ethValue, initialTokenPrice), baseTokenRatio),
-      SafeMath.pow(10, 50)
-    );
+    uint256 newShareAmount = SafeMath.div(SafeMath.div(ethValue, initialTokenPrice), baseTokenRatio);
     uint256 totalShares = SafeMath.add(existingShareAmount, newShareAmount);
 
     eternalStorage.setUint(StorageLib.formatAddress("dao.shares", msg.sender), totalShares);
@@ -154,11 +156,13 @@ contract ElasticDAO {
       StorageLib.formatLocation("dao.baseTokenRatio")
     );
     uint256 totalSupply = SafeMath.mul(totalShares, baseTokenRatio);
-
-    eternalStorage.setUint(StorageLib.formatLocation("dao.shareModifier"), 1);
     uint256 tokenPrice = SafeMath.div(vaultBalance, totalSupply);
 
+    eternalStorage.setUint(StorageLib.formatLocation("dao.shareModifier"), 1);
     eternalStorage.setUint(StorageLib.formatLocation("dao.tokenPrice"), tokenPrice);
+
+    ElasticGovernanceToken token = new ElasticGovernanceToken(eternalStorage.address);
+
     eternalStorage.setBool(StorageLib.formatLocation("dao.summoned"), true);
   }
 }
