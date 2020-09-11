@@ -29,6 +29,7 @@ module.exports = {
   },
   gasReporter: {
     src: "src",
+    artifactType: "buidler-v1",
   },
   etherscan: {
     url: "https://api.etherscan.io/api",

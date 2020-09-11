@@ -25,13 +25,4 @@ describe("ElasticDAO: Eternal Storage Contract", () => {
     EternalStorage = await deployments.get("EternalStorage");
     eternalStorage = new ethers.Contract(EternalStorage.address, EternalStorage.abi, agent);
   });
-
-  it("EternalStorage Gas Test", async () => {
-    const transaction = await eternalStorage.functions.setAddress(
-      storageFormat(["string", "address"], ["elastic.dao.member", agent._address]),
-      agent._address
-    );
-
-    expect(transaction.hash).to.exist;
-  });
 });

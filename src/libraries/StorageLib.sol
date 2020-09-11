@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPLv3
 
-pragma solidity ^0.6.10;
+pragma solidity ^0.7.0;
 
 library StorageLib {
   /// @notice Format Storage Locations into bytes32
@@ -40,8 +40,7 @@ library StorageLib {
     return keccak256(abi.encode(_storageLocation, _value));
   }
 
-  // Getter Format
-  function formatGet(string memory _location) external pure returns (bytes32) {
+  function formatLocation(string memory _location) external pure returns (bytes32) {
     return keccak256(abi.encode(_location));
   }
 }
