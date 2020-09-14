@@ -43,11 +43,11 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function balanceOf(address _owner) external override view returns (uint256) {
-    uint256 localLambda = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", _owner));
+    uint256 walletLambda = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", _owner));
     uint256 k = eternalStorage.getUint(StorageLib.formatLocation("dao.baseTokenRatio"));
     uint256 m = eternalStorage.getUint(StorageLib.formatLocation("dao.shareModifier"));
 
-    return SafeMath.mul(localLambda, SafeMath.mul(k, m));
+    return SafeMath.mul(walletLambda, SafeMath.mul(k, m));
   }
 
   function allowance(address owner, address spender)
@@ -112,36 +112,38 @@ contract ElasticGovernanceToken is IERC20 {
     address _to,
     uint256 _amount
   ) internal {
-    uint256 fromLocalLambda = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", _from));
+    uint256 fromWalletLambda = eternalStorage.getUint(
+      StorageLib.formatAddress("dao.shares", _from)
+    );
     uint256 k = eternalStorage.getUint(StorageLib.formatLocation("dao.baseTokenRatio"));
     uint256 m = eternalStorage.getUint(StorageLib.formatLocation("dao.shareModifier"));
-    uint256 localLambda = SafeMath.div(_amount, SafeMath.div(k, m));
+    uint256 walletLambda = SafeMath.div(_amount, SafeMath.div(k, m));
 
-    require(fromLocalLambda >= localLambda, "ElasticDAO: Insufficient Balance");
+    require(fromWalletLambda >= walletLambda, "ElasticDAO: Insufficient Balance");
 
-    uint256 toLocalLambda = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", _to));
+    uint256 toWalletLambda = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", _to));
     eternalStorage.setUint(
       StorageLib.formatAddress("dao.shares", _to),
-      SafeMath.add(toLocalLambda, localLamda)
+      SafeMath.add(toWalletLambda, walletLambda)
     );
     eternalStorage.setUint(
-      StorageLIb.formatAddress("dao.share", _from),
-      SafeMath.sub(fromLocalLambda, localLambda)
+      StorageLib.formatAddress("dao.share", _from),
+      SafeMath.sub(fromWalletLambda, walletLambda)
     );
 
     emit Transfer(_from, _to, _amount);
   }
 
   function _approve(
-    address owner,
-    address spender,
-    uint256 amount
+    address _owner,
+    address _spender,
+    uint256 _amount
   ) internal virtual {
-    require(owner != address(0), "ERC20: approve from the zero address");
-    require(spender != address(0), "ERC20: approve to the zero address");
+    require(_owner != address(0), "ERC20: approve from the zero address");
+    require(_spender != address(0), "ERC20: approve to the zero address");
 
-    _allowances[owner][spender] = amount;
+    _allowances[_owner][_spender] = _amount;
 
-    emit Approval(owner, spender, amount);
+    emit Approval(_owner, _spender, _amount);
   }
 }
