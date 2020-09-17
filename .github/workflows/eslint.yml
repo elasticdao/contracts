@@ -2,7 +2,7 @@ name: Lint
 
 on:
   pull_request:
-    branches: [ '*' ]
+    branches: ["*"]
 
 jobs:
   lint:
@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v2.0.2
         with:
           cmd: install # will run `yarn install` command
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: borales/actions-yarn@v2.0.2
         with:
           cmd: lint # will run `yarn lint` command
 
