@@ -11,12 +11,9 @@ import "../interfaces/IERC20.sol";
 contract ElasticGovernanceToken is IERC20 {
   EternalStorage internal eternalStorage;
 
-  event Approval(address indexed _owner, address indexed _spender, uint256 _amount);
-  event Transfer(address indexed _from, address indexed _to, uint256 _amount);
-
   mapping(address => mapping(address => uint256)) private _allowances;
 
-  constructor(address _eternalStorageAddress) public IERC20() {
+  constructor(address _eternalStorageAddress) IERC20() {
     eternalStorage = EternalStorage(_eternalStorageAddress);
 
     eternalStorage.setAddress(StorageLib.formatLocation("dao.token.address"), address(this));
@@ -30,7 +27,7 @@ contract ElasticGovernanceToken is IERC20 {
     return eternalStorage.getString(StorageLib.formatLocation("dao.token.symbol"));
   }
 
-  function decimals() external view returns (string memory) {
+  function decimals() external pure returns (uint256) {
     return 18;
   }
 
@@ -66,7 +63,7 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-    _approve(msg.sender, spender, _allowances[msg.sender][spender].add(addedValue));
+    _approve(msg.sender, spender, SafeMath.add(_allowances[msg.sender][spender], addedValue));
     return true;
   }
 
@@ -75,15 +72,19 @@ contract ElasticGovernanceToken is IERC20 {
     virtual
     returns (bool)
   {
+    uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][spender], subtractedValue);
+
+    require(newAllowance > 0, "ElasticDAO: Allowance decrease less than 0");
+
     _approve(
       msg.sender,
       spender,
-      _allowances[msg.sender][spender].sub(subtractedValue, "ERC20: decreased allowance below zero")
+      newAllowance
     );
     return true;
   }
 
-  function transfer(address _to, uint256 _amount) external override view returns (bool) {
+  function transfer(address _to, uint256 _amount) external override returns (bool) {
     _transfer(msg.sender, _to, _amount);
 
     return true;

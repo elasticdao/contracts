@@ -8,7 +8,7 @@ contract ElasticVote {
   EternalStorage internal eternalStorage;
 
   modifier onlyMinShares() {
-    uint256 voteMinSharesToCreate = eternalStorage.getBool(
+    uint256 voteMinSharesToCreate = eternalStorage.getUint(
       StorageLib.formatLocation("dao.vote.minSharesToCreate")
     );
     uint256 memberShares = eternalStorage.getUint(
@@ -26,7 +26,7 @@ contract ElasticVote {
     eternalStorage = EternalStorage(_eternalStorageAddress);
   }
 
-  function createVoteInformation(string _voteProposal, uint256 _blockNumber) public onlyMinShares {
+  function createVoteInformation(string memory _voteProposal, uint256 _blockNumber) public view onlyMinShares {
     uint256 voteMinBlocksInformation = eternalStorage.getUint(
       StorageLib.formatLocation("dao.vote.minBlocksInformation")
     );

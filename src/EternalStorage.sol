@@ -13,7 +13,6 @@ contract EternalStorage {
     mapping(bytes32 => uint256) uIntStorage;
     mapping(bytes32 => string) stringStorage;
     mapping(bytes32 => address) addressStorage;
-    mapping(bytes32 => address[]) addressArrayStorage;
     mapping(bytes32 => bool) boolStorage;
     mapping(bytes32 => int256) intStorage;
     mapping(bytes32 => bytes) bytesStorage;
@@ -46,13 +45,6 @@ contract EternalStorage {
   /// @return address _value from storage _key location
   function getAddress(bytes32 _key) external view returns (address) {
     return s.addressStorage[_key];
-  }
-
-  /// @notice Get stored contract data in address format
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @return address[] _value from storage _key location
-  function getAddressArray(bytes32 _key) external view returns (address[]) {
-    return s.addressArrayStorage[_key];
   }
 
   /// @notice Get stored contract data in bool format
@@ -106,14 +98,6 @@ contract EternalStorage {
     s.addressStorage[_key] = _value;
   }
 
-  /// @notice Store contract data in address format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @param _value address value
-  function setAddressArray(bytes32 _key, address[] _value) external {
-    s.addressArrayStorage[_key] = _value;
-  }
-
   /// @notice Store contract data in bool format
   /// @dev restricted to latest ElasticDAO Networks contracts
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
@@ -163,13 +147,6 @@ contract EternalStorage {
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   function deleteAddress(bytes32 _key) external {
     delete s.addressStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in address format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteAddressArray(bytes32 _key) external {
-    delete s.addressArrayStorage[_key];
   }
 
   /// @notice Delete stored contract data in bool format
