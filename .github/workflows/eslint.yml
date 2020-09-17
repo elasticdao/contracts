@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: elasticdao/actions-yarn@44f32a976de93ca2f4e001f8b1805746bc776611
+      - uses: elasticdao/actions-yarn@6e25adaba0ac59f40287a501d45393b5b5a10d1f
         with:
           cmd: install # will run `yarn install` command
-      - uses: elasticdao/actions-yarn@44f32a976de93ca2f4e001f8b1805746bc776611
+      - uses: elasticdao/actions-yarn@6e25adaba0ac59f40287a501d45393b5b5a10d1f
         with:
           cmd: lint # will run `yarn lint` command
 
