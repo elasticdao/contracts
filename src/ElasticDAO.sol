@@ -52,6 +52,27 @@ contract ElasticDAO {
     eternalStorage.setBool(StorageLib.formatLocation("dao.summoned"), false);
   }
 
+  /// Purchase a specific amount of shares.
+  /// @param shareAmountToPurchase is the amount of shares to be purchased.
+  /*******************************************************************************
+   
+   // m = DAO share modifier, initial value is 1
+   // k = The base token ratio, decided initially by the DAO
+   // revamp =   ( 1 + elasticity ), elasticity is initially set by the DAO, hence revamp is set initially by the DAO
+   // capitalDelta = The DAO token price at a given state
+   // capitalDeltaDash = ( capitalDelta * revamp ), represents the DAO token price after the share has been purchased
+   // lambda = The total shares of the DAO at a given state
+   // voteMaxSharesPerWallet = The maximum number of shares an individual wallet can have, decided initially by the dao
+   // walletLambda = The amount of shares currently held by an individual wallet
+   // deltaLambda = 'shareAmountToPurchase'
+   // lambdaDash = lambda + deltaLambda 
+   // mDash = ( ( lambdaDash / lambda) * m )
+  
+   ******************************************************************************/
+
+
+  /// @dev initially checks if @param shareAmountToPurchase can be bought by the individual address, and if so purchases it
+  /// resulting in the values of capitalDeltaDash, lambdaDash and mDash
   function joinDAO(uint256 shareAmountToPurchase) public payable onlyAfterSummoning {
     uint256 voteMaxSharesPerWallet = eternalStorage.getUint(
       StorageLib.formatLocation("dao.voteMaxSharesPerWallet")
