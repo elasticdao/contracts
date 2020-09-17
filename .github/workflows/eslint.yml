@@ -2,7 +2,7 @@ name: Lint
 
 on:
   pull_request:
-    branches: [ '*' ]
+    branches: ["*"]
 
 jobs:
   lint:
@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: elasticdao/actions-yarn@fafb2e03d1d4345bb8ee37eb2af5774a2af45d02
+      - uses: elasticdao/actions-yarn@b7b56e2dafbc4bb4d2dcc7025c91b9e900ea33b9
         with:
           cmd: install # will run `yarn install` command
-      - uses: elasticdao/actions-yarn@fafb2e03d1d4345bb8ee37eb2af5774a2af45d02
+      - uses: elasticdao/actions-yarn@b7b56e2dafbc4bb4d2dcc7025c91b9e900ea33b9
         with:
           cmd: lint # will run `yarn lint` command
 
