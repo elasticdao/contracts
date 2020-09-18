@@ -43,7 +43,7 @@ library ElasticMathLib {
 
   /**
    * @dev calculates the value of deltaE
-   * @param shareAmountToPurchase is deltaLambda
+   * @param amount is deltaLambda
    * deltaLambda = lambdaDash - lambda
    * @param capitalDelta is the Eth/Egt ratio
    * @param k is a constant, initially set by the DAO
@@ -55,14 +55,14 @@ library ElasticMathLib {
    * @return deltaEValue uint256
    */
   function deltaE(
-    uint256 shareAmountToPurchase,
+    uint256 amount,
     uint256 capitalDelta,
     uint256 k,
     uint256 elasticity,
     uint256 lambda,
     uint256 m
   ) internal pure returns (uint256 deltaEValue) {
-    uint256 lambdaDash = SafeMath.add(shareAmountToPurchase, lambda);
+    uint256 lambdaDash = SafeMath.add(amount, lambda);
     deltaEValue = SafeMath.mul(
       SafeMath.mul(capitalDelta, k),
       SafeMath.sub(
