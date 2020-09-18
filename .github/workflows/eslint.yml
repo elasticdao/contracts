@@ -1,0 +1,24 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  lint:
+    name: with eslint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.20.0]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: elasticdao/actions-yarn@00c1f8ea60785dbe2c3ee9f7c2d0803f07429893
+        with:
+          cmd: install # will run `yarn install` command
+      - uses: elasticdao/actions-yarn@00c1f8ea60785dbe2c3ee9f7c2d0803f07429893
+        with:
+          cmd: lint # will run `yarn lint` command
+

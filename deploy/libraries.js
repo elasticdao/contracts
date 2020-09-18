@@ -1,11 +1,11 @@
-const ethers = require("ethers");
-const bre = require("@nomiclabs/buidler").ethers;
+// const ethers = require('ethers');
+// const bre = require('@nomiclabs/buidler').ethers;
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const storageLib = await deploy("StorageLib", {
+  const storageLib = await deploy('StorageLib', {
     from: agent,
   });
 
@@ -13,4 +13,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log(`##### ElasticDAO: StorageLib has been deployed: ${storageLib.address}`);
   }
 };
-module.exports.tags = ["Libraries"];
+module.exports.tags = ['Libraries'];

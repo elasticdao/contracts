@@ -2,9 +2,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const StorageLibraryDeployment = await deployments.get("StorageLib");
+  const StorageLibraryDeployment = await deployments.get('StorageLib');
 
-  const storage = await deploy("EternalStorage", {
+  const storage = await deploy('EternalStorage', {
     from: agent,
     args: [],
     libraries: {
@@ -16,5 +16,5 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log(`##### ElasticDAO: STORAGE has been deployed: ${storage.address}`);
   }
 };
-module.exports.tags = ["EternalStorage"];
-module.exports.dependencies = ["Libraries"];
+module.exports.tags = ['EternalStorage'];
+module.exports.dependencies = ['Libraries'];

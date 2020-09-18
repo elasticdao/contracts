@@ -31,10 +31,10 @@ library ShareLib {
     uint256 shareTransactionCounter = _eternalStorage.getUint(
       StorageLib.formatAddress("dao.shares.counter", _memberAddress)
     );
-    string counter = StringLib.toStringUint(shareTransactionCounter);
-    string blockNumberLocation = StringLib.concat("dao.shares.blockNumber.", counter);
-    string directionLocation = StringLib.concat("dao.shares.direction.", counter);
-    string shiftLocation = StringLib.concat("dao.shares.shift.", counter);
+    string memory counter = StringLib.toStringUint(shareTransactionCounter);
+    string memory blockNumberLocation = StringLib.concat("dao.shares.blockNumber.", counter);
+    string memory directionLocation = StringLib.concat("dao.shares.direction.", counter);
+    string memory shiftLocation = StringLib.concat("dao.shares.shift.", counter);
 
     _eternalStorage.setUint(
       StorageLib.formatAddress(blockNumberLocation, _memberAddress),
@@ -46,8 +46,11 @@ library ShareLib {
     );
     _eternalStorage.setUint(StorageLib.formatAddress(shiftLocation, _memberAddress), _amount);
     _eternalStorage.setUint(
-      StorageLib.formatAddress("dao.shares.counter", SafeMath.add(shareTransactionCounter, 1))
+      StorageLib.formatAddress("dao.shares.counter", _memberAddress),
+      SafeMath.add(shareTransactionCounter, 1)
     );
+
+    // add total share update to storage
   }
 
   function balanceAtBlock(
@@ -62,9 +65,15 @@ library ShareLib {
       StorageLib.formatAddress("dao.shares.blockNumber.0", _memberAddress)
     );
 
-    while (shareBlockNumber < _blockNumber && shareBlockNumber != address(0)) {
-      string directionLocation = StringLib.concat("dao.shares.direction.", i);
-      string shiftLocation = StringLib.concat("dao.shares.shift.", i);
+    while (shareBlockNumber < _blockNumber && shareBlockNumber != 0) {
+      string memory directionLocation = StringLib.concat(
+        "dao.shares.direction.",
+        StringLib.toStringUint(i)
+      );
+      string memory shiftLocation = StringLib.concat(
+        "dao.shares.shift.",
+        StringLib.toStringUint(i)
+      );
 
       bool balanceDirection = _eternalStorage.getBool(
         StorageLib.formatAddress(directionLocation, _memberAddress)
@@ -81,7 +90,10 @@ library ShareLib {
 
       i = SafeMath.add(i, 1);
 
-      string shareBlockNumberLocation = StringLib.concat("dao.shares.blockNumber.", i);
+      string memory shareBlockNumberLocation = StringLib.concat(
+        "dao.shares.blockNumber.",
+        StringLib.toStringUint(i)
+      );
 
       shareBlockNumber = _eternalStorage.getUint(
         StorageLib.formatAddress(shareBlockNumberLocation, _memberAddress)
