@@ -7,9 +7,11 @@ import "./EternalStorage.sol";
 import "./tokens/ElasticGovernanceToken.sol";
 
 // Libraries
+import "./libraries/ElasticMathLib.sol";
 import "./libraries/StorageLib.sol";
 import "./libraries/StringLib.sol";
 import "./libraries/SafeMath.sol";
+
 
 contract ElasticDAO {
   EternalStorage internal eternalStorage;
@@ -67,27 +69,19 @@ contract ElasticDAO {
       "ElasticDAO: Cannot purchase that many shares"
     );
 
-    uint256 priceToTokenInflationRate = eternalStorage.getUint(
+    uint256 elasticity = eternalStorage.getUint(
       StorageLib.formatLocation("dao.priceToTokenInflationRate")
     );
     uint256 m = eternalStorage.getUint(StorageLib.formatLocation("dao.shareModifier"));
-    uint256 revamp = SafeMath.add(priceToTokenInflationRate, SafeMath.pow(10, 18));
     uint256 capitalDelta = eternalStorage.getUint(StorageLib.formatLocation("dao.tokenPrice"));
-    uint256 deltaLambda = shareAmountToPurchase;
-    uint256 lambdaDash = SafeMath.add(lambda, deltaLambda);
-    uint256 mDash = SafeMath.mul(SafeMath.div(lambdaDash, lambda), m);
-
-    uint256 a = SafeMath.mul(lambdaDash, SafeMath.mul(mDash, revamp));
-    uint256 b = SafeMath.mul(lambda, m);
-    uint256 c = SafeMath.sub(a, b);
-    uint256 deltaE = SafeMath.mul(SafeMath.mul(capitalDelta, k), c);
-
+    uint256 deltaE = ElasticMathLib.deltaE(shareAmountToPurchase, capitalDelta, k, elasticity, lambda, m);
+    
     require(deltaE == msg.value, "ElasticDAO: Incorrect ETH amount");
 
-    eternalStorage.setUint(StorageLib.formatLocation("dao.totalShares"), lambdaDash);
+    eternalStorage.setUint(StorageLib.formatLocation("dao.totalShares"), SafeMath.add(lambda, shareAmountToPurchase));
     eternalStorage.setUint(
       StorageLib.formatAddress("dao.shares", msg.sender),
-      SafeMath.add(walletLambda, deltaLambda)
+      SafeMath.add(walletLambda, shareAmountToPurchase)
     );
   }
 
