@@ -2,22 +2,22 @@
 pragma solidity 0.7.0;
 
 // Contracts
-import "./EternalStorage.sol";
+import './EternalStorage.sol';
 
 contract ElasticVote {
   EternalStorage internal eternalStorage;
 
   modifier onlyMinShares() {
     uint256 voteMinSharesToCreate = eternalStorage.getUint(
-      StorageLib.formatLocation("dao.vote.minSharesToCreate")
+      StorageLib.formatLocation('dao.vote.minSharesToCreate')
     );
     uint256 memberShares = eternalStorage.getUint(
-      StorageLib.formatAddress("dao.shares", msg.sender)
+      StorageLib.formatAddress('dao.shares', msg.sender)
     );
 
     require(
       memberShares >= voteMinSharesToCreate,
-      "ElasticDAO: Not enough shares to create a vote"
+      'ElasticDAO: Not enough shares to create a vote'
     );
     _;
   }
@@ -26,13 +26,17 @@ contract ElasticVote {
     eternalStorage = EternalStorage(_eternalStorageAddress);
   }
 
-  function createVoteInformation(string memory _voteProposal, uint256 _blockNumber) public view onlyMinShares {
+  function createVoteInformation(string memory _voteProposal, uint256 _blockNumber)
+    public
+    view
+    onlyMinShares
+  {
     uint256 voteMinBlocksInformation = eternalStorage.getUint(
-      StorageLib.formatLocation("dao.vote.minBlocksInformation")
+      StorageLib.formatLocation('dao.vote.minBlocksInformation')
     );
-    uint256 voteQuorum = eternalStorage.getUint(StorageLib.formatLocation("dao.vote.quorum"));
-    uint256 voteReward = eternalStorage.getUint(StorageLib.formatLocation("dao.vote.reward"));
-    uint256 userShares = eternalStorage.getUint(StorageLib.formatAddress("dao.shares", msg.sender));
+    uint256 voteQuorum = eternalStorage.getUint(StorageLib.formatLocation('dao.vote.quorum'));
+    uint256 voteReward = eternalStorage.getUint(StorageLib.formatLocation('dao.vote.reward'));
+    uint256 userShares = eternalStorage.getUint(StorageLib.formatAddress('dao.shares', msg.sender));
 
     // adjust blockNumber to blocks till expiration and store block vote is created on
     // all vote settings

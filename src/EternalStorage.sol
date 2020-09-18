@@ -2,10 +2,11 @@
 pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
-import "./libraries/StorageLib.sol";
+import './libraries/StorageLib.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
-/// @title  Implementation of Eternal Storage(https://fravoll.github.io/solidity-patterns/eternal_storage.html)
+/// @title  Implementation of Eternal Storage
+///         (https://fravoll.github.io/solidity-patterns/eternal_storage.html)
 /// @notice This contract is used for storing contract network data
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract EternalStorage {
@@ -35,7 +36,7 @@ contract EternalStorage {
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @return string _value from storage _key location
   function getString(bytes32 _key) external view returns (string memory) {
-    require(_key[0] != 0, "ElasticDAO: Zero Address");
+    require(_key[0] != 0, 'ElasticDAO: Zero Address');
 
     return s.stringStorage[_key];
   }
@@ -65,7 +66,7 @@ contract EternalStorage {
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @return bytes _value from storage _key location
   function getBytes(bytes32 _key) external view returns (bytes memory) {
-    require(_key[0] != 0, "ElasticDAO: Zero Address");
+    require(_key[0] != 0, 'ElasticDAO: Zero Address');
 
     return s.bytesStorage[_key];
   }
@@ -137,7 +138,7 @@ contract EternalStorage {
   /// @dev restricted to latest ElasticDAO Networks contracts
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   function deleteString(bytes32 _key) external {
-    require(_key[0] != 0, "ElasticDAO: Zero Address");
+    require(_key[0] != 0, 'ElasticDAO: Zero Address');
 
     delete s.stringStorage[_key];
   }
