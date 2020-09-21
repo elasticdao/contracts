@@ -74,14 +74,7 @@ contract ElasticDAO {
     );
     uint256 m = eternalStorage.getUint(StorageLib.formatLocation('dao.shareModifier'));
     uint256 capitalDelta = eternalStorage.getUint(StorageLib.formatLocation('dao.tokenPrice'));
-    uint256 deltaE = ElasticMathLib.deltaE(
-      _amount,
-      capitalDelta,
-      k,
-      elasticity,
-      lambda,
-      m
-    );
+    uint256 deltaE = ElasticMathLib.deltaE(_amount, capitalDelta, k, elasticity, lambda, m);
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
@@ -104,10 +97,8 @@ contract ElasticDAO {
     require(e > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
     uint256 lambda = eternalStorage.getUint(StorageLib.formatLocation('dao.totalShares'));
-    uint256 k = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.baseTokenRatio')
-    );
-    uint256 t = SafeMath.mul(lambda, k); // m = 1.0 
+    uint256 k = eternalStorage.getUint(StorageLib.formatLocation('dao.baseTokenRatio'));
+    uint256 t = SafeMath.mul(lambda, k); // m = 1.0
     uint256 capitalDelta = SafeMath.div(e, t);
 
     eternalStorage.setUint(StorageLib.formatLocation('dao.shareModifier'), 1);
@@ -127,22 +118,10 @@ contract ElasticDAO {
   }
 
   function storeBoolData(bool[4] memory _data) internal returns (bool) {
-    eternalStorage.setBool(
-      StorageLib.formatLocation('dao.vote.contract.penalty'),
-      _data[0]
-    );
-    eternalStorage.setBool(
-      StorageLib.formatLocation('dao.vote.finance.penalty'),
-      _data[1]
-    );
-    eternalStorage.setBool(
-      StorageLib.formatLocation('dao.vote.information.penalty'),
-      _data[2]
-    );
-    eternalStorage.setBool(
-      StorageLib.formatLocation('dao.vote.permission.penalty'),
-      _data[3]
-    );
+    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.contract.penalty'), _data[0]);
+    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.finance.penalty'), _data[1]);
+    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.information.penalty'), _data[2]);
+    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.permission.penalty'), _data[3]);
 
     return true;
   }
@@ -154,10 +133,7 @@ contract ElasticDAO {
     eternalStorage.setUint(StorageLib.formatLocation('dao.baseTokenRatio'), _data[0]);
     eternalStorage.setUint(StorageLib.formatLocation('dao.initialTokenPrice'), _data[1]);
 
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.priceToTokenInflationRate'),
-      _data[2]
-    );
+    eternalStorage.setUint(StorageLib.formatLocation('dao.priceToTokenInflationRate'), _data[2]);
 
     for (uint256 i = 0; i < _summoners.length; i++) {
       eternalStorage.setBool(StorageLib.formatAddress('dao.summoner', _summoners[i]), true);
@@ -170,32 +146,13 @@ contract ElasticDAO {
   function storeUintVoteData(uint256[15] memory _data) internal returns (bool) {
     // Initialize Vote
     eternalStorage.setUint(StorageLib.formatLocation('dao.vote.approval'), _data[4]);
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.maxSharesPerWallet'),_data[5]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.contract.minBlocks'),_data[6]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.finance.minBlocks'),
-      _data[7]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.information.minBlocks'),
-      _data[8]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.minBlocksForPenalty'),
-      _data[9]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.permission.minBlocks'),
-      _data[10]
-    );
-    eternalStorage.setUint(
-      StorageLib.formatLocation('dao.vote.minSharesToCreate'),
-      _data[11]
-    );
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.maxSharesPerWallet'), _data[5]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.contract.minBlocks'), _data[6]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.finance.minBlocks'), _data[7]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.information.minBlocks'), _data[8]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.minBlocksForPenalty'), _data[9]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.permission.minBlocks'), _data[10]);
+    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.minSharesToCreate'), _data[11]);
     eternalStorage.setUint(StorageLib.formatLocation('dao.vote.penalty'), _data[12]);
     eternalStorage.setUint(StorageLib.formatLocation('dao.vote.quorum'), _data[13]);
     eternalStorage.setUint(StorageLib.formatLocation('dao.vote.reward'), _data[14]);
