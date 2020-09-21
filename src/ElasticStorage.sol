@@ -72,6 +72,12 @@ contract ElasticStorage is EternalStorage {
     uint256 minBlocks;
   }
 
+  function canCreateVote(address _uuid) external view returns (bool hasPermission) {
+    uint256 lambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
+    uint256 minSharesToCreate = getUint('dao.vote.minSharesToCreate');
+    return lambda >= minSharesToCreate;
+  }
+
   function daoSummoned() external view returns (bool isSummoned) {
     return getBool('dao.summoned');
   }
@@ -291,8 +297,8 @@ contract ElasticStorage is EternalStorage {
     returns (VoteType memory voteType)
   {
     voteType.name = name;
-    voteType.penalty = getBool(keccak256(abi.encode('dao.vote.type', name)));
-    voteType.minBlocks = getUint(keccak256(abi.encode('dao.vote.type', name)));
+    voteType.penalty = getBool(keccak256(abi.encode('dao.vote.type', name, 'penalty')));
+    voteType.minBlocks = getUint(keccak256(abi.encode('dao.vote.type', name, 'minBlocks')));
     return voteType;
   }
 
@@ -369,7 +375,7 @@ contract ElasticStorage is EternalStorage {
   }
 
   function _serializeVoteType(VoteType memory voteType) internal {
-    setBool(keccak256(abi.encode('dao.vote.type', voteType.name)), voteType.penalty);
-    setUint(keccak256(abi.encode('dao.vote.type', voteType.name)), voteType.minBlocks);
+    setBool(keccak256(abi.encode('dao.vote.type', voteType.name, 'penalty')), voteType.penalty);
+    setUint(keccak256(abi.encode('dao.vote.type', voteType.name, 'minBlocks')), voteType.minBlocks);
   }
 }

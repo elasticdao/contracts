@@ -2,43 +2,34 @@
 pragma solidity 0.7.0;
 
 // Contracts
-import './EternalStorage.sol';
+import './ElasticStorage.sol';
 
 contract ElasticVote {
-  EternalStorage internal eternalStorage;
+  ElasticStorage internal elasticStorage;
 
-  modifier onlyMinShares() {
-    uint256 voteMinSharesToCreate = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.vote.minSharesToCreate')
-    );
-    uint256 memberShares = eternalStorage.getUint(
-      StorageLib.formatAddress('dao.shares', msg.sender)
-    );
-
+  modifier onlyVoteCreators() {
     require(
-      memberShares >= voteMinSharesToCreate,
+      elasticStorage.canCreateVote(msg.sender),
       'ElasticDAO: Not enough shares to create a vote'
     );
     _;
   }
 
-  constructor(address _eternalStorageAddress) {
-    eternalStorage = EternalStorage(_eternalStorageAddress);
+  constructor(address _elasticStorageAddress) {
+    elasticStorage = ElasticStorage(_elasticStorageAddress);
   }
 
-  function createVoteInformation(string memory _voteProposal, uint256 _blockNumber)
+  function createVoteInformation(string calldata _voteProposal, uint256 _finalBlockNumber)
     public
     view
-    onlyMinShares
+    onlyVoteCreators
   {
-    uint256 voteMinBlocksInformation = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.vote.minBlocksInformation')
+    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
+      msg.sender
     );
-    uint256 voteQuorum = eternalStorage.getUint(StorageLib.formatLocation('dao.vote.quorum'));
-    uint256 voteReward = eternalStorage.getUint(StorageLib.formatLocation('dao.vote.reward'));
-    uint256 userShares = eternalStorage.getUint(StorageLib.formatAddress('dao.shares', msg.sender));
+    ElasticStorage.VoteSettings memory voteSettings = elasticStorage.getVoteSettings();
+    ElasticStorage.VoteType memory voteType = elasticStorage.getVoteType('information');
 
-    // adjust blockNumber to blocks till expiration and store block vote is created on
     // all vote settings
   }
 }
