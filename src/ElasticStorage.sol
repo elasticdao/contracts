@@ -11,13 +11,14 @@ contract ElasticStorage is EternalStorage {
     address account;
     uint256 counter;
     uint256 e;
-    uint256 lambda;
     uint256 t;
+    uint256 lambda;
   }
 
   struct DAO {
     bool summoned;
     string name;
+    uint256 lambda;
   }
 
   struct ShareUpdate {
@@ -35,6 +36,7 @@ contract ElasticStorage is EternalStorage {
     uint256 elasticity;
     uint256 k;
     uint256 m;
+    uint256 capitalDelta;
   }
 
   struct VoteSettings {
@@ -57,8 +59,12 @@ contract ElasticStorage is EternalStorage {
 
   function daoSummoned() external view returns (bool isSummoned) {}
 
+  function getAccountBalance(address _account) external view returns (AccountBalance memory accountBalance) {
+    return _deserializeAccountBalance(_account);
+  }
+
   function getDAO() external view returns (DAO memory dao) {
-    return _deserializeDao();
+    return _deserializeDAO();
   }
 
   function getToken() external view returns (Token memory token) {
@@ -69,8 +75,8 @@ contract ElasticStorage is EternalStorage {
     return _deserializeVoteSettings();
   }
 
-  function getVoteType(string memory name) external view returns (VoteType memory voteType) {
-    return _deserializeVoteType(name);
+  function getVoteType(string memory _name) external view returns (VoteType memory voteType) {
+    return _deserializeVoteType(_name);
   }
 
   function isSummoner(address _account) external view returns (bool accountIsSummoner) {
@@ -78,7 +84,7 @@ contract ElasticStorage is EternalStorage {
   }
 
   function setDAO(DAO memory dao) external {
-    _serializeDao(dao);
+    _serializeDAO(dao);
   }
 
   function setSummoners(address[] calldata _summoners, uint256 _initialSummonerShare) external {
@@ -105,15 +111,13 @@ contract ElasticStorage is EternalStorage {
     bool _isIncreasing,
     uint256 _deltaLambda // amount
   ) internal {
-    uint256 lambda = getUint(keccak256(abi.encode('dao.totalShares')));
     AccountBalance memory accountBalance = _deserializeAccountBalance(_account);
+    DAO memory dao = _deserializeDAO();
 
     if (_isIncreasing) {
-      accountBalance.lambda = SafeMath.add(accountBalance.lambda, _deltaLambda);
-      lambda = SafeMath.add(lambda, _deltaLambda);
+      dao.lambda = SafeMath.add(dao.lambda, _deltaLambda);
     } else {
-      accountBalance.lambda = SafeMath.sub(accountBalance.lambda, _deltaLambda);
-      lambda = SafeMath.sub(lambda, _deltaLambda);
+      dao.lambda = SafeMath.sub(dao.lambda, _deltaLambda);
     }
 
     ShareUpdate memory shareUpdate;
@@ -123,8 +127,8 @@ contract ElasticStorage is EternalStorage {
     shareUpdate.deltaLambda = _deltaLambda;
     shareUpdate.isIncreasing = _isIncreasing;
 
-    _serializeAccountBalance(accountBalance);
     _serializeShareUpdate(shareUpdate);
+    _serializeDAO(dao);
   }
 
   function _deserializeAccountBalance(address _account)
@@ -137,9 +141,10 @@ contract ElasticStorage is EternalStorage {
     accountBalance.lambda = getUint(keccak256(abi.encode('dao.shares', _account)));
   }
 
-  function _deserializeDao() internal view returns (DAO memory dao) {
+  function _deserializeDAO() internal view returns (DAO memory dao) {
     dao.name = getString('dao.name');
     dao.summoned = getBool('dao.summoned');
+    dao.lambda = getUint('dao.totalShares');
   }
 
   function _deserializeShareUpdate(address _account, uint256 _counter)
@@ -201,9 +206,10 @@ contract ElasticStorage is EternalStorage {
     );
   }
 
-  function _serializeDao(DAO memory dao) internal {
+  function _serializeDAO(DAO memory dao) internal {
     setString('dao.name', dao.name);
     setBool('dao.summoned', dao.summoned);
+    setUint('dao.totalShares', dao.lambda);
   }
 
   function _serializeShareUpdate(ShareUpdate memory shareUpdate) internal {

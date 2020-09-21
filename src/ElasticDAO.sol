@@ -43,6 +43,7 @@ contract ElasticDAO {
     string memory name = _stringData[0];
     dao.name = name;
     dao.summoned = false;
+    dao.lambda = 0;
 
     ElasticStorage.Token memory token;
     string memory tokenName = _stringData[1];
@@ -92,30 +93,24 @@ contract ElasticDAO {
   }
 
   function joinDAO(uint256 _amount) public payable onlyAfterSummoning {
-    uint256 voteMaxSharesPerWallet = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.vote.maxSharesPerWallet')
-    );
-    uint256 walletLambda = eternalStorage.getUint(
-      StorageLib.formatAddress('dao.shares', msg.sender)
-    );
-    uint256 k = eternalStorage.getUint(StorageLib.formatLocation('dao.baseTokenRatio'));
-    uint256 lambda = eternalStorage.getUint(StorageLib.formatLocation('dao.totalShares'));
+    ElasticStorage.VoteSettings voteSettings = elasticStorage.getVoteSettings();
+    ElasticStorage.Token token = elasticStorage.getToken();
+    ElasticStorage.AccountBalance accountBalance = elasticStorage.getAccountBalance(msg.sender);
+    ElasticStorage.DAO dao = elasticStorage.getDAO();
 
     require(
-      SafeMath.add(_amount, walletLambda) <= voteMaxSharesPerWallet,
+      SafeMath.add(_amount, accountBalance.walletLambda) <= voteSettings.maxSharesPerAccount,
       'ElasticDAO: Cannot purchase that many shares'
     );
 
-    uint256 elasticity = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.priceToTokenInflationRate')
-    );
-    uint256 m = eternalStorage.getUint(StorageLib.formatLocation('dao.shareModifier'));
-    uint256 capitalDelta = eternalStorage.getUint(StorageLib.formatLocation('dao.tokenPrice'));
-    uint256 deltaE = ElasticMathLib.deltaE(_amount, capitalDelta, k, elasticity, lambda, m);
+    // dao.tokenPrice
+    // elasticStorage.getUint('dao.token.capitalDelta');
+    uint256 capitalDelta = token.capitalDelta;
+    uint256 deltaE = ElasticMathLib.deltaE(_amount, capitalDelta, token.k, token.elasticity, dao.lambda, token.m);
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
-    ShareLib.updateBalance(msg.sender, true, _amount, eternalStorage);
+    elasticStorage.updateBalance(msg.sender, true, _amount);
   }
 
   function seedSummoning() public payable onlyBeforeSummoning onlySummoners {
