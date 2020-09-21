@@ -41,6 +41,9 @@ contract ElasticStorage is EternalStorage {
     uint256 blockNumber;
     uint256 counter;
     uint256 deltaLambda;
+    uint256 deltaT;
+    uint256 k;
+    uint256 m;
   }
 
   struct Token {
@@ -79,6 +82,33 @@ contract ElasticStorage is EternalStorage {
     returns (AccountBalance memory accountBalance)
   {
     return _deserializeAccountBalance(_uuid);
+  }
+
+  function getBalanceAtBlock(address _uuid, uint256 _blockNumber)
+    external
+    view
+    returns (uint256 t)
+  {
+    uint256 i = 0;
+    t = 0;
+
+    uint256 counter = getUint(keccak256(abi.encode('dao.shares.counter', _uuid)));
+
+    ShareUpdate memory shareUpdate = _deserializeShareUpdate(_uuid, i);
+
+    while (i <= counter && shareUpdate.blockNumber != 0 && shareUpdate.blockNumber < _blockNumber) {
+      if (shareUpdate.isIncreasing) {
+        t = SafeMath.add(t, shareUpdate.deltaT);
+      } else {
+        t = SafeMath.sub(t, shareUpdate.deltaT);
+      }
+
+      i = SafeMath.add(i, 1);
+
+      shareUpdate = _deserializeShareUpdate(_uuid, i);
+    }
+
+    return t;
   }
 
   function getDAO() external view returns (DAO memory dao) {
@@ -165,6 +195,8 @@ contract ElasticStorage is EternalStorage {
     shareUpdate.counter = accountBalance.counter;
     shareUpdate.deltaLambda = _deltaLambda;
     shareUpdate.isIncreasing = _isIncreasing;
+    shareUpdate.k = accountBalance.k;
+    shareUpdate.m = accountBalance.m;
     shareUpdate.uuid = _uuid;
 
     _serializeAccountBalance(accountBalance);
@@ -223,6 +255,10 @@ contract ElasticStorage is EternalStorage {
     shareUpdate.isIncreasing = getBool(
       keccak256(abi.encode('dao.shares.isIncreasing', _counter, _uuid))
     );
+    shareUpdate.k = getUint(keccak256(abi.encode('dao.shares.constant', _counter, _uuid)));
+    shareUpdate.m = getUint(keccak256(abi.encode('dao.shares.modifier', _counter, _uuid)));
+    shareUpdate.deltaT = ElasticMathLib.t(shareUpdate.deltaLambda, shareUpdate.m, shareUpdate.k);
+
     shareUpdate.uuid = _uuid;
     return shareUpdate;
   }
@@ -281,16 +317,24 @@ contract ElasticStorage is EternalStorage {
 
   function _serializeShareUpdate(ShareUpdate memory shareUpdate) internal {
     setBool(
-      keccak256(abi.encode('dao.shares.isIncreasing', shareUpdate.counter)),
+      keccak256(abi.encode('dao.shares.isIncreasing', shareUpdate.counter, shareUpdate.uuid)),
       shareUpdate.isIncreasing
     );
     setUint(
-      keccak256(abi.encode('dao.shares.blockNumber', shareUpdate.counter)),
+      keccak256(abi.encode('dao.shares.blockNumber', shareUpdate.counter, shareUpdate.uuid)),
       shareUpdate.blockNumber
     );
     setUint(
-      keccak256(abi.encode('dao.shares.deltaLambda', shareUpdate.counter)),
+      keccak256(abi.encode('dao.shares.deltaLambda', shareUpdate.counter, shareUpdate.uuid)),
       shareUpdate.deltaLambda
+    );
+    setUint(
+      keccak256(abi.encode('dao.shares.modifier', shareUpdate.counter, shareUpdate.uuid)),
+      shareUpdate.m
+    );
+    setUint(
+      keccak256(abi.encode('dao.shares.constant', shareUpdate.counter, shareUpdate.uuid)),
+      shareUpdate.k
     );
   }
 

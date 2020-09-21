@@ -9,8 +9,6 @@ import './tokens/ElasticGovernanceToken.sol';
 // Libraries
 import './libraries/ElasticMathLib.sol';
 import './libraries/SafeMath.sol';
-import './libraries/ShareLib.sol';
-import './libraries/StorageLib.sol';
 import './libraries/StringLib.sol';
 
 contract ElasticDAO {
@@ -37,8 +35,6 @@ contract ElasticDAO {
   ) {
     elasticStorage = new ElasticStorage();
 
-    elasticStorage.setSummoners(_summoners, _uintData[3]);
-
     ElasticStorage.DAO memory dao;
     string memory name = _stringData[0];
     dao.name = name;
@@ -54,6 +50,8 @@ contract ElasticDAO {
     token.m = 1;
     token.name = tokenName;
     token.symbol = tokenSymbol;
+
+    elasticStorage.setSummoners(_summoners, _uintData[3]);
 
     ElasticStorage.VoteSettings memory voteSettings;
     voteSettings.approval = _uintData[4];
