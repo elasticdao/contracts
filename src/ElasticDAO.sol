@@ -49,8 +49,9 @@ contract ElasticDAO {
     string memory tokenName = _stringData[1];
     string memory tokenSymbol = _stringData[2];
     token.elasticity = _uintData[2];
+    token.capitalDelta = _uintData[1];
     token.k = _uintData[0];
-    token.m = _uintData[1];
+    token.m = 1;
     token.name = tokenName;
     token.symbol = tokenSymbol;
 
@@ -92,52 +93,52 @@ contract ElasticDAO {
     elasticStorage.setVoteType(permissionVoteType);
   }
 
-  function joinDAO(uint256 _amount) public payable onlyAfterSummoning {
-    ElasticStorage.VoteSettings voteSettings = elasticStorage.getVoteSettings();
-    ElasticStorage.Token token = elasticStorage.getToken();
+  function joinDAO(uint256 _deltaLambda) public payable onlyAfterSummoning {
     ElasticStorage.AccountBalance accountBalance = elasticStorage.getAccountBalance(msg.sender);
-    ElasticStorage.DAO dao = elasticStorage.getDAO();
+    ElasticStorage.MathData mathData = elasticStorage.getMathData(address(this).balance);
+
+    uint256 lambdaDash = SafeMath.add(_deltaLambda, accountBalance.lambda);
 
     require(
-      SafeMath.add(_amount, accountBalance.walletLambda) <= voteSettings.maxSharesPerAccount,
+      lambdaDash <= mathData.maxSharesPerAccount,
       'ElasticDAO: Cannot purchase that many shares'
     );
 
-    // dao.tokenPrice
-    // elasticStorage.getUint('dao.token.capitalDelta');
-    uint256 capitalDelta = token.capitalDelta;
-    uint256 deltaE = ElasticMathLib.deltaE(_amount, capitalDelta, token.k, token.elasticity, dao.lambda, token.m);
+    uint256 deltaE = ElasticMathLib.deltaE(
+      _deltaLambda,
+      mathData.capitalDelta,
+      mathData.k,
+      mathData.elasticity,
+      mathData.lambda,
+      mathData.m
+    );
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
-    elasticStorage.updateBalance(msg.sender, true, _amount);
+    mathData.m = ElasticMathLib.mDash(lambdaDash, mathData.lambda, mathData.m);
+    mathData.lambda = lambdaDash;
+
+    elasticStorage.updateBalance(accountBalance.uuid, true, _deltaLambda);
+    elasticStorage.updateMathData(mathData);
   }
 
   function seedSummoning() public payable onlyBeforeSummoning onlySummoners {
-    uint256 capitalDelta = eternalStorage.getUint(
-      StorageLib.formatLocation('dao.initialTokenPrice')
-    );
-    uint256 k = eternalStorage.getUint(StorageLib.formatLocation('dao.baseTokenRatio'));
+    ElasticStorage.AccountBalance accountBalance = elasticStorage.getAccountBalance(msg.sender);
+    ElasticStorage.Token token = elasticStorage.getToken();
+
     uint256 deltaE = msg.value;
-    uint256 deltaLambda = SafeMath.div(SafeMath.div(deltaE, capitalDelta), k);
-    ShareLib.updateBalance(msg.sender, true, deltaLambda, eternalStorage);
+    uint256 deltaLambda = SafeMath.div(SafeMath.div(deltaE, token.capitalDelta), token.k);
+    elasticStorage.updateBalance(msg.sender, true, deltaLambda);
   }
 
   function summon() public onlyBeforeSummoning onlySummoners {
-    uint256 e = address(this).balance;
+    require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
-    require(e > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
+    ElasticStorage.Token memory token = elasticStorage.getToken();
 
-    uint256 lambda = eternalStorage.getUint(StorageLib.formatLocation('dao.totalShares'));
-    uint256 k = eternalStorage.getUint(StorageLib.formatLocation('dao.baseTokenRatio'));
-    uint256 t = SafeMath.mul(lambda, k); // m = 1.0
-    uint256 capitalDelta = SafeMath.div(e, t);
+    token.uuid = new ElasticGovernanceToken(address(elasticStorage));
 
-    eternalStorage.setUint(StorageLib.formatLocation('dao.shareModifier'), 1);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.tokenPrice'), capitalDelta);
-
-    new ElasticGovernanceToken(address(eternalStorage));
-
-    eternalStorage.setBool(StorageLib.formatLocation('dao.summoned'), true);
+    elasticStorage.setToken(token);
+    elasticStorage.setSummoned();
   }
 }

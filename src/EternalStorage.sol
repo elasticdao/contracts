@@ -85,7 +85,7 @@ contract EternalStorage {
   /// @dev restricted to latest ElasticDAO Networks contracts
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @param _value string value
-  function setString(bytes32 _key, string calldata _value) internal {
+  function setString(bytes32 _key, string memory _value) internal {
     s.stringStorage[_key] = _value;
   }
 
@@ -117,7 +117,7 @@ contract EternalStorage {
   /// @dev restricted to latest ElasticDAO Networks contracts
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @param _value bytes value
-  function setBytes(bytes32 _key, bytes calldata _value) internal {
+  function setBytes(bytes32 _key, bytes memory _value) internal {
     s.bytesStorage[_key] = _value;
   }
 

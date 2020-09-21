@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.7.0;
 
-import "./SafeMath.sol";
+import './SafeMath.sol';
 
 /**
  * This library does the Elastic math
@@ -9,17 +9,40 @@ import "./SafeMath.sol";
 
 library ElasticMathLib {
   /**
-   * @dev returns the value of revamp
-   * @param elasticity is the value of elasticity initially set by the DAO
-   * upto 18 decimal points of precision
-   *
-   * Essentially takes in the value of elasticity and
-   * and returns the value of ( 1 + elasticity ) with 18 decimals of precision
-   * @return revampValue uint256
+   * @dev calculates the value of deltaE
+   * @param deltaLambda lambdaDash - lambda
+   * @param capitalDelta is the Eth/Egt ratio
+   * @param k is a constant, initially set by the DAO
+   * @param elasticity is the value of elasticity, initially set by the DAO
+   * @param lambda = Current outstanding shares
+   * @param m = Current share modifier
+   * mDash = ( lambdaDash / lambda ) * m
+   * deltaE =  ( capitalDelta * k ( ( lambdaDash * mDash * ( 1 + elasticity ) ) - lambda * m )
+   * @return deltaEValue uint256
    */
-  function revamp(uint256 elasticity) internal pure returns (uint256 revampValue) {
-    revampValue = SafeMath.add(elasticity, SafeMath.pow(10, 18));
-    return revampValue;
+  function deltaE(
+    uint256 deltaLambda,
+    uint256 capitalDelta,
+    uint256 k,
+    uint256 elasticity,
+    uint256 lambda,
+    uint256 m
+  ) internal pure returns (uint256 deltaEValue) {
+    uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
+    deltaEValue = SafeMath.mul(
+      SafeMath.mul(capitalDelta, k),
+      SafeMath.sub(
+        SafeMath.mul(
+          lambdaDash,
+          SafeMath.mul(
+            ElasticMathLib.mDash(lambdaDash, lambda, m),
+            ElasticMathLib.revamp(elasticity)
+          )
+        ),
+        SafeMath.mul(lambda, m)
+      )
+    );
+    return deltaEValue;
   }
 
   /**
@@ -42,40 +65,24 @@ library ElasticMathLib {
   }
 
   /**
-   * @dev calculates the value of deltaE
-   * @param amount is deltaLambda
-   * deltaLambda = lambdaDash - lambda
-   * @param capitalDelta is the Eth/Egt ratio
-   * @param k is a constant, initially set by the DAO
-   * @param elasticity is the value of elasticity, initially set by the DAO
-   * @param lambda = Current outstanding shares
-   * @param m = Current share modifier
-   * mDash = ( lambdaDash / lambda ) * m
-   * deltaE =  ( capitalDelta * k ( ( lambdaDash * mDash * ( 1 + elasticity ) ) - lambda * m )
-   * @return deltaEValue uint256
+   * @dev returns the value of revamp
+   * @param elasticity is the value of elasticity initially set by the DAO
+   * upto 18 decimal points of precision
+   *
+   * Essentially takes in the value of elasticity and
+   * and returns the value of ( 1 + elasticity ) with 18 decimals of precision
+   * @return revampValue uint256
    */
-  function deltaE(
-    uint256 amount,
-    uint256 capitalDelta,
-    uint256 k,
-    uint256 elasticity,
+  function revamp(uint256 elasticity) internal pure returns (uint256 revampValue) {
+    revampValue = SafeMath.add(elasticity, SafeMath.pow(10, 18));
+    return revampValue;
+  }
+
+  function t(
     uint256 lambda,
+    uint256 k,
     uint256 m
-  ) internal pure returns (uint256 deltaEValue) {
-    uint256 lambdaDash = SafeMath.add(amount, lambda);
-    deltaEValue = SafeMath.mul(
-      SafeMath.mul(capitalDelta, k),
-      SafeMath.sub(
-        SafeMath.mul(
-          lambdaDash,
-          SafeMath.mul(
-            ElasticMathLib.mDash(lambdaDash, lambda, m),
-            ElasticMathLib.revamp(elasticity)
-          )
-        ),
-        SafeMath.mul(lambda, m)
-      )
-    );
-    return deltaEValue;
+  ) internal pure returns (uint256 tokens) {
+    return SafeMath.mul(SafeMath.mul(lambda, k), m);
   }
 }
