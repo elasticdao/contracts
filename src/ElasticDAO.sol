@@ -17,17 +17,11 @@ contract ElasticDAO {
   ElasticStorage internal elasticStorage;
 
   modifier onlyAfterSummoning() {
-    require(
-      elasticStorage.daoSummoned(),
-      'ElasticDAO: DAO must be summoned'
-    );
+    require(elasticStorage.daoSummoned(), 'ElasticDAO: DAO must be summoned');
     _;
   }
   modifier onlyBeforeSummoning() {
-    require(
-      elasticStorage.daoSummoned() == false,
-      'ElasticDAO: DAO must not be summoned'
-    );
+    require(elasticStorage.daoSummoned() == false, 'ElasticDAO: DAO must not be summoned');
     _;
   }
   modifier onlySummoners() {
@@ -36,22 +30,65 @@ contract ElasticDAO {
   }
 
   constructor(
-    address[] memory _summoners,
-    string[3] memory _stringData,
-    bool[4] memory _boolData,
-    uint256[15] memory _uintData
+    address[] calldata _summoners,
+    string[3] calldata _stringData,
+    bool[4] calldata _boolData,
+    uint256[15] calldata _uintData
   ) {
     elasticStorage = new ElasticStorage();
 
-    elasticStorage.storeSummoners()
+    elasticStorage.setSummoners(_summoners, _uintData[3]);
 
-    // require(storeStringData(_stringData));
-    // require(storeBoolData(_boolData));
-    // require(storeUintDAOData(_uintData, _summoners));
-    // require(storeUintVoteData(_uintData));
+    ElasticStorage.DAO memory dao;
+    string memory name = _stringData[0];
+    dao.name = name;
+    dao.summoned = false;
 
-    // Initialize DAO
-    // eternalStorage.setBool(StorageLib.formatLocation('dao.summoned'), false);
+    ElasticStorage.Token memory token;
+    string memory tokenName = _stringData[1];
+    string memory tokenSymbol = _stringData[2];
+    token.elasticity = _uintData[2];
+    token.k = _uintData[0];
+    token.m = _uintData[1];
+    token.name = tokenName;
+    token.symbol = tokenSymbol;
+
+    ElasticStorage.VoteSettings memory voteSettings;
+    voteSettings.approval = _uintData[4];
+    voteSettings.maxSharesPerAccount = _uintData[5];
+    voteSettings.minBlocksForPenalty = _uintData[9];
+    voteSettings.minSharesToCreate = _uintData[11];
+    voteSettings.penalty = _uintData[12];
+    voteSettings.quorum = _uintData[13];
+    voteSettings.reward = _uintData[14];
+
+    ElasticStorage.VoteType memory contractVoteType;
+    contractVoteType.minBlocks = _uintData[6];
+    contractVoteType.name = 'contract';
+    contractVoteType.penalty = _boolData[0];
+
+    ElasticStorage.VoteType memory financeVoteType;
+    contractVoteType.minBlocks = _uintData[7];
+    contractVoteType.name = 'finance';
+    contractVoteType.penalty = _boolData[1];
+
+    ElasticStorage.VoteType memory informationVoteType;
+    contractVoteType.minBlocks = _uintData[8];
+    contractVoteType.name = 'information';
+    contractVoteType.penalty = _boolData[2];
+
+    ElasticStorage.VoteType memory permissionVoteType;
+    contractVoteType.minBlocks = _uintData[10];
+    contractVoteType.name = 'permission';
+    contractVoteType.penalty = _boolData[3];
+
+    elasticStorage.setDAO(dao);
+    elasticStorage.setToken(token);
+    elasticStorage.setVoteSettings(voteSettings);
+    elasticStorage.setVoteType(contractVoteType);
+    elasticStorage.setVoteType(financeVoteType);
+    elasticStorage.setVoteType(informationVoteType);
+    elasticStorage.setVoteType(permissionVoteType);
   }
 
   function joinDAO(uint256 _amount) public payable onlyAfterSummoning {
@@ -107,56 +144,5 @@ contract ElasticDAO {
     new ElasticGovernanceToken(address(eternalStorage));
 
     eternalStorage.setBool(StorageLib.formatLocation('dao.summoned'), true);
-  }
-
-  function storeStringData(string[3] memory _data) internal returns (bool) {
-    eternalStorage.setString(StorageLib.formatLocation('dao.name'), _data[0]);
-    eternalStorage.setString(StorageLib.formatLocation('dao.token.name'), _data[1]);
-    eternalStorage.setString(StorageLib.formatLocation('dao.token.symbol'), _data[2]);
-
-    return true;
-  }
-
-  function storeBoolData(bool[4] memory _data) internal returns (bool) {
-    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.contract.penalty'), _data[0]);
-    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.finance.penalty'), _data[1]);
-    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.information.penalty'), _data[2]);
-    eternalStorage.setBool(StorageLib.formatLocation('dao.vote.permission.penalty'), _data[3]);
-
-    return true;
-  }
-
-  function storeUintDAOData(uint256[15] memory _data, address[] memory _summoners)
-    internal
-    returns (bool)
-  {
-    eternalStorage.setUint(StorageLib.formatLocation('dao.baseTokenRatio'), _data[0]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.initialTokenPrice'), _data[1]);
-
-    eternalStorage.setUint(StorageLib.formatLocation('dao.priceToTokenInflationRate'), _data[2]);
-
-    for (uint256 i = 0; i < _summoners.length; i++) {
-      eternalStorage.setBool(StorageLib.formatAddress('dao.summoner', _summoners[i]), true);
-      ShareLib.updateBalance(_summoners[i], true, _data[3], eternalStorage);
-    }
-
-    return true;
-  }
-
-  function storeUintVoteData(uint256[15] memory _data) internal returns (bool) {
-    // Initialize Vote
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.approval'), _data[4]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.maxSharesPerWallet'), _data[5]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.contract.minBlocks'), _data[6]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.finance.minBlocks'), _data[7]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.information.minBlocks'), _data[8]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.minBlocksForPenalty'), _data[9]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.permission.minBlocks'), _data[10]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.minSharesToCreate'), _data[11]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.penalty'), _data[12]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.quorum'), _data[13]);
-    eternalStorage.setUint(StorageLib.formatLocation('dao.vote.reward'), _data[14]);
-
-    return true;
   }
 }

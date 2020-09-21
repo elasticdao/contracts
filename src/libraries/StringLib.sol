@@ -2,18 +2,18 @@
 pragma solidity 0.7.0;
 
 library StringLib {
-  function concat(string memory _a, string memory _b) external pure returns (string memory) {
+  function concat(string memory _a, string memory _b) internal pure returns (string memory) {
     return string(abi.encodePacked(_a, _b));
   }
 
   /// @notice convert address to string
-  function toString(address _account) external pure returns (string memory) {
+  function toString(address _account) internal pure returns (string memory) {
     return string(abi.encodePacked(_account));
   }
 
-  function toStringUint(uint256 _i) external pure returns (string memory _uintAsString) {
+  function toStringUint(uint256 _i) internal pure returns (string memory _uintAsString) {
     if (_i == 0) {
-      return "0";
+      return '0';
     }
     uint256 j = _i;
     uint256 len;
