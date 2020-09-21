@@ -3,7 +3,7 @@ pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
 // Contracts
-import './EternalStorage.sol';
+import './ElasticStorage.sol';
 import './tokens/ElasticGovernanceToken.sol';
 
 // Libraries
@@ -14,26 +14,24 @@ import './libraries/StorageLib.sol';
 import './libraries/StringLib.sol';
 
 contract ElasticDAO {
-  EternalStorage internal eternalStorage;
+  ElasticStorage internal elasticStorage;
 
   modifier onlyAfterSummoning() {
     require(
-      eternalStorage.getBool(StorageLib.formatLocation('dao.summoned')) == true,
+      elasticStorage.daoSummoned(),
       'ElasticDAO: DAO must be summoned'
     );
     _;
   }
   modifier onlyBeforeSummoning() {
     require(
-      eternalStorage.getBool(StorageLib.formatLocation('dao.summoned')) == false,
+      elasticStorage.daoSummoned() == false,
       'ElasticDAO: DAO must not be summoned'
     );
     _;
   }
   modifier onlySummoners() {
-    bool isSummoner = eternalStorage.getBool(StorageLib.formatAddress('dao.summoner', msg.sender));
-
-    require(isSummoner, 'ElasticDAO: Only summoners');
+    require(elasticStorage.isSummoner(msg.sender), 'ElasticDAO: Only summoners');
     _;
   }
 
@@ -43,15 +41,17 @@ contract ElasticDAO {
     bool[4] memory _boolData,
     uint256[15] memory _uintData
   ) {
-    eternalStorage = new EternalStorage();
+    elasticStorage = new ElasticStorage();
 
-    require(storeStringData(_stringData));
-    require(storeBoolData(_boolData));
-    require(storeUintDAOData(_uintData, _summoners));
-    require(storeUintVoteData(_uintData));
+    elasticStorage.storeSummoners()
+
+    // require(storeStringData(_stringData));
+    // require(storeBoolData(_boolData));
+    // require(storeUintDAOData(_uintData, _summoners));
+    // require(storeUintVoteData(_uintData));
 
     // Initialize DAO
-    eternalStorage.setBool(StorageLib.formatLocation('dao.summoned'), false);
+    // eternalStorage.setBool(StorageLib.formatLocation('dao.summoned'), false);
   }
 
   function joinDAO(uint256 _amount) public payable onlyAfterSummoning {
