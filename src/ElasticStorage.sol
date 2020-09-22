@@ -56,8 +56,28 @@ contract ElasticStorage is EternalStorage {
     uint256 m;
   }
 
+  struct Vote {
+    bool hasPenalty;
+    string voteType;
+    uint256 approval;
+    uint256 endOnBlock;
+    uint256 id;
+    uint256 maxSharesPerAccount;
+    uint256 minBlocksForPenalty;
+    uint256 penalty;
+    uint256 quorum;
+    uint256 reward;
+    uint256 startOnBlock;
+  }
+
+  struct VoteInformation {
+    string proposal;
+    uint256 id;
+  }
+
   struct VoteSettings {
     uint256 approval;
+    uint256 counter;
     uint256 maxSharesPerAccount;
     uint256 minBlocksForPenalty;
     uint256 minSharesToCreate;
@@ -68,7 +88,7 @@ contract ElasticStorage is EternalStorage {
 
   struct VoteType {
     string name;
-    bool penalty;
+    bool hasPenalty;
     uint256 minBlocks;
   }
 
@@ -76,6 +96,16 @@ contract ElasticStorage is EternalStorage {
     uint256 lambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
     uint256 minSharesToCreate = getUint('dao.vote.minSharesToCreate');
     return lambda >= minSharesToCreate;
+  }
+
+  function createVoteInformation(
+    Vote memory _vote,
+    VoteInformation memory _voteInformation,
+    VoteSettings memory _voteSettings
+  ) external {
+    _serializeVote(_vote);
+    _serializeVoteInformation(_voteInformation);
+    setUint('dao.vote.counter', _voteSettings.counter);
   }
 
   function daoSummoned() external view returns (bool isSummoned) {
@@ -127,6 +157,10 @@ contract ElasticStorage is EternalStorage {
 
   function getToken() external view returns (Token memory token) {
     return _deserializeToken();
+  }
+
+  function getVote(uint256 _id) external view returns (Vote memory vote) {
+    return _deserializeVote(_id);
   }
 
   function getVoteSettings() external view returns (VoteSettings memory voteSettings) {
@@ -280,8 +314,40 @@ contract ElasticStorage is EternalStorage {
     return token;
   }
 
+  function _deserializeVote(uint256 _id) internal view returns (Vote memory vote) {
+    vote.approval = getUint(keccak256(abi.encode('dao.vote.', _id, '.approval')));
+    vote.endOnBlock = getUint(keccak256(abi.encode('dao.vote.', _id, '.endOnBlock')));
+    vote.hasPenalty = getBool(keccak256(abi.encode('dao.vote.', _id, '.hasPenalty')));
+    vote.id = _id;
+    vote.maxSharesPerAccount = getUint(
+      keccak256(abi.encode('dao.vote.', _id, '.maxSharsPerAccount'))
+    );
+    vote.minBlocksForPenalty = getUint(
+      keccak256(abi.encode('dao.vote.', _id, '.minBlocksForPenalty'))
+    );
+    vote.penalty = getUint(keccak256(abi.encode('dao.vote.', _id, '.penalty')));
+    vote.quorum = getUint(keccak256(abi.encode('dao.vote.', _id, '.quorum')));
+    vote.reward = getUint(keccak256(abi.encode('dao.vote.', _id, '.reward')));
+    vote.startOnBlock = getUint(keccak256(abi.encode('dao.vote.', _id, '.startOnBlock')));
+    vote.voteType = getString(keccak256(abi.encode('dao.vote.', _id, '.voteType')));
+    return vote;
+  }
+
+  function _deserializeVoteInformation(uint256 _id)
+    internal
+    view
+    returns (VoteInformation memory voteInformation)
+  {
+    voteInformation.id = _id;
+    voteInformation.proposal = getString(
+      keccak256(abi.encode('dao.vote.information.', _id, '.proposal'))
+    );
+    return voteInformation;
+  }
+
   function _deserializeVoteSettings() internal view returns (VoteSettings memory voteSettings) {
     voteSettings.approval = getUint('dao.vote.approval');
+    voteSettings.counter = getUint('dao.vote.counter');
     voteSettings.maxSharesPerAccount = getUint('dao.vote.maxSharesPerAccount');
     voteSettings.minBlocksForPenalty = getUint('dao.vote.minBlocksForPenalty');
     voteSettings.minSharesToCreate = getUint('dao.vote.minSharesToCreate');
@@ -297,7 +363,7 @@ contract ElasticStorage is EternalStorage {
     returns (VoteType memory voteType)
   {
     voteType.name = name;
-    voteType.penalty = getBool(keccak256(abi.encode('dao.vote.type', name, 'penalty')));
+    voteType.hasPenalty = getBool(keccak256(abi.encode('dao.vote.type', name, 'hasPenalty')));
     voteType.minBlocks = getUint(keccak256(abi.encode('dao.vote.type', name, 'minBlocks')));
     return voteType;
   }
@@ -366,6 +432,7 @@ contract ElasticStorage is EternalStorage {
 
   function _serializeVoteSettings(VoteSettings memory voteSettings) internal {
     setUint('dao.vote.approval', voteSettings.approval);
+    setUint('dao.vote.counter', voteSettings.counter);
     setUint('dao.vote.maxSharesPerAccount', voteSettings.maxSharesPerAccount);
     setUint('dao.vote.minBlocksForPenalty', voteSettings.minBlocksForPenalty);
     setUint('dao.vote.minSharesToCreate', voteSettings.minSharesToCreate);
@@ -374,8 +441,37 @@ contract ElasticStorage is EternalStorage {
     setUint('dao.vote.reward', voteSettings.reward);
   }
 
+  function _serializeVote(Vote memory vote) internal {
+    setBool(keccak256(abi.encode('dao.vote.', vote.id, '.hasPenalty')), vote.hasPenalty);
+    setString(keccak256(abi.encode('dao.vote.', vote.id, '.voteType')), vote.voteType);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.approval')), vote.approval);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.endOnBlock')), vote.endOnBlock);
+    setUint(
+      keccak256(abi.encode('dao.vote.', vote.id, '.maxSharesPerAccount')),
+      vote.maxSharesPerAccount
+    );
+    setUint(
+      keccak256(abi.encode('dao.vote.', vote.id, '.minBlocksForPenalty')),
+      vote.minBlocksForPenalty
+    );
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.penalty')), vote.penalty);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.quorum')), vote.quorum);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.reward')), vote.reward);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.startOnBlock')), vote.startOnBlock);
+  }
+
+  function _serializeVoteInformation(VoteInformation memory voteInformation) internal {
+    setString(
+      keccak256(abi.encode('dao.vote.information.', voteInformation.id, '.proposal')),
+      voteInformation.proposal
+    );
+  }
+
   function _serializeVoteType(VoteType memory voteType) internal {
-    setBool(keccak256(abi.encode('dao.vote.type', voteType.name, 'penalty')), voteType.penalty);
+    setBool(
+      keccak256(abi.encode('dao.vote.type', voteType.name, 'hasPenalty')),
+      voteType.hasPenalty
+    );
     setUint(keccak256(abi.encode('dao.vote.type', voteType.name, 'minBlocks')), voteType.minBlocks);
   }
 }

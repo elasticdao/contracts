@@ -55,6 +55,7 @@ contract ElasticDAO {
 
     ElasticStorage.VoteSettings memory voteSettings;
     voteSettings.approval = _uintData[4];
+    voteSettings.counter = 0;
     voteSettings.maxSharesPerAccount = _uintData[5];
     voteSettings.minBlocksForPenalty = _uintData[9];
     voteSettings.minSharesToCreate = _uintData[11];
@@ -65,22 +66,22 @@ contract ElasticDAO {
     ElasticStorage.VoteType memory contractVoteType;
     contractVoteType.minBlocks = _uintData[6];
     contractVoteType.name = 'contract';
-    contractVoteType.penalty = _boolData[0];
+    contractVoteType.hasPenalty = _boolData[0];
 
     ElasticStorage.VoteType memory financeVoteType;
-    contractVoteType.minBlocks = _uintData[7];
-    contractVoteType.name = 'finance';
-    contractVoteType.penalty = _boolData[1];
+    financeVoteType.minBlocks = _uintData[7];
+    financeVoteType.name = 'finance';
+    financeVoteType.hasPenalty = _boolData[1];
 
     ElasticStorage.VoteType memory informationVoteType;
-    contractVoteType.minBlocks = _uintData[8];
-    contractVoteType.name = 'information';
-    contractVoteType.penalty = _boolData[2];
+    informationVoteType.minBlocks = _uintData[8];
+    informationVoteType.name = 'information';
+    informationVoteType.hasPenalty = _boolData[2];
 
     ElasticStorage.VoteType memory permissionVoteType;
-    contractVoteType.minBlocks = _uintData[10];
-    contractVoteType.name = 'permission';
-    contractVoteType.penalty = _boolData[3];
+    permissionVoteType.minBlocks = _uintData[10];
+    permissionVoteType.name = 'permission';
+    permissionVoteType.hasPenalty = _boolData[3];
 
     elasticStorage.setDAO(dao);
     elasticStorage.setToken(token);
