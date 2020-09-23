@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.7.0;
+pragma experimental ABIEncoderV2;
 
 // Contracts
 import './ElasticStorage.sol';
@@ -27,7 +28,10 @@ contract ElasticVote {
       msg.sender
     );
     ElasticStorage.VoteSettings memory voteSettings = elasticStorage.getVoteSettings();
-    require(accountBalance.lambda >= voteSettings.minSharesToCreate, "ElasticDAO: Insufficient funds");
+    require(
+      accountBalance.lambda >= voteSettings.minSharesToCreate,
+      'ElasticDAO: Insufficient funds'
+    );
 
     ElasticStorage.VoteType memory voteType = elasticStorage.getVoteType('information');
     ElasticStorage.Vote memory vote;
@@ -54,9 +58,19 @@ contract ElasticVote {
     elasticStorage.createVoteInformation(vote, voteInformation, voteSettings);
   }
 
-  function getVote(uint256 _id) public view {}
-  function getVoteInformation(uint256 _id) public view {}
-  function vote(uint256 _id, uint256 _yna) public pure {
-    require(_yna <= 2, "ElasticDAO: Invalid Vote Value - 0:Yes, 1:NO, 2:ABSTAIN");
+  function getVote(uint256 _id) public view returns (ElasticStorage.Vote memory vote) {
+    return elasticStorage.getVote(_id);
+  }
+
+  function getVoteInformation(uint256 _id)
+    public
+    view
+    returns (ElasticStorage.VoteInformation memory voteInformation)
+  {
+    return elasticStorage.getVoteInformation(_id);
+  }
+
+  function vote(uint256 _id, uint256 _yna) public {
+    require(_yna <= 2, 'ElasticDAO: Invalid Vote Value - 0:Yes, 1:NO, 2:ABSTAIN');
   }
 }

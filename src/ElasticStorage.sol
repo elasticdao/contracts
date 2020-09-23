@@ -64,15 +64,25 @@ contract ElasticStorage is EternalStorage {
   struct Vote {
     bool hasPenalty;
     string voteType;
+    uint256 abstainLambda;
     uint256 approval;
     uint256 endOnBlock;
     uint256 id;
     uint256 maxSharesPerAccount;
     uint256 minBlocksForPenalty;
+    uint256 noLambda;
     uint256 penalty;
     uint256 quorum;
     uint256 reward;
     uint256 startOnBlock;
+    uint256 yesLambda;
+  }
+
+  struct VoteBallot {
+    address uuid;
+    uint256 voteId;
+    uint256 yna;
+    uint256 lambda;
   }
 
   struct VoteInformation {
@@ -109,6 +119,31 @@ contract ElasticStorage is EternalStorage {
     uint256 lambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
     uint256 minSharesToCreate = getUint('dao.vote.minSharesToCreate');
     return lambda >= minSharesToCreate;
+  }
+
+  function createVote(
+    address _uuid,
+    uint256 _voteId,
+    uint256 _yna
+  ) external returns (bool) {
+    uint256 accountLambda = getVoteBalance(msg.sender, _voteId);
+
+    setUint(keccak256(abi.encode('dao.vote.', _voteId, _uuid)), _yna);
+    if (_yna == 0) {
+      uint256 yesLambda = getUint(keccak256(abi.encode('dao.vote.', _voteId, '.yesLambda')));
+      yesLambda = SafeMath.add(accountLambda, yesLambda);
+      setUint(keccak256(abi.encode('dao.vote.', _voteId, '.yesLambda')), yesLambda);
+    } else if (_yna == 1) {
+      uint256 noLambda = getUint(keccak256(abi.encode('dao.vote.', _voteId, '.noLambda')));
+      noLambda = SafeMath.add(accountLambda, noLambda);
+      setUint(keccak256(abi.encode('dao.vote.', _voteId, '.noLambda')), noLambda);
+    } else {
+      uint256 abstainLambda = getUint(
+        keccak256(abi.encode('dao.vote.', _voteId, '.abstainLambda'))
+      );
+      abstainLambda = SafeMath.add(accountLambda, abstainLambda);
+      setUint(keccak256(abi.encode('dao.vote.', _voteId, '.yesLambda')), abstainLambda);
+    }
   }
 
   /**
@@ -163,7 +198,7 @@ contract ElasticStorage is EternalStorage {
    * @return t uint256 - the balance at that block
    */
   function getBalanceAtBlock(address _uuid, uint256 _blockNumber)
-    external
+    internal
     view
     returns (uint256 t)
   {
@@ -222,6 +257,29 @@ contract ElasticStorage is EternalStorage {
    */
   function getVote(uint256 _id) external view returns (Vote memory vote) {
     return _deserializeVote(_id);
+  }
+
+  function getVoteBalance(address _uuid, uint256 _voteId)
+    internal
+    view
+    returns (uint256 voteBalance)
+  {
+    uint256 startOnBlock = getUint(keccak256(abi.encode('dao.vote.', _voteId, '.startOnBlock')));
+    uint256 currentLambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
+    uint256 voteLambda = getBalanceAtBlock(_uuid, startOnBlock);
+    if (currentLambda < voteLambda) {
+      return currentLambda;
+    } else {
+      return voteLambda;
+    }
+  }
+
+  function getVoteInformation(uint256 _id)
+    external
+    view
+    returns (VoteInformation memory voteInformation)
+  {
+    return _deserializeVoteInformation(_id);
   }
 
   /**
@@ -425,6 +483,7 @@ contract ElasticStorage is EternalStorage {
   }
 
   function _deserializeVote(uint256 _id) internal view returns (Vote memory vote) {
+    vote.abstainLambda = getUint(keccak256(abi.encode('dao.vote.', _id, '.abstainLambda')));
     vote.approval = getUint(keccak256(abi.encode('dao.vote.', _id, '.approval')));
     vote.endOnBlock = getUint(keccak256(abi.encode('dao.vote.', _id, '.endOnBlock')));
     vote.hasPenalty = getBool(keccak256(abi.encode('dao.vote.', _id, '.hasPenalty')));
@@ -435,11 +494,13 @@ contract ElasticStorage is EternalStorage {
     vote.minBlocksForPenalty = getUint(
       keccak256(abi.encode('dao.vote.', _id, '.minBlocksForPenalty'))
     );
+    vote.noLambda = getUint(keccak256(abi.encode('dao.vote.', _id, '.noLambda')));
     vote.penalty = getUint(keccak256(abi.encode('dao.vote.', _id, '.penalty')));
     vote.quorum = getUint(keccak256(abi.encode('dao.vote.', _id, '.quorum')));
     vote.reward = getUint(keccak256(abi.encode('dao.vote.', _id, '.reward')));
     vote.startOnBlock = getUint(keccak256(abi.encode('dao.vote.', _id, '.startOnBlock')));
     vote.voteType = getString(keccak256(abi.encode('dao.vote.', _id, '.voteType')));
+    vote.yesLambda = getUint(keccak256(abi.encode('dao.vote.', _id, '.yesLambda')));
     return vote;
   }
 
@@ -552,6 +613,7 @@ contract ElasticStorage is EternalStorage {
   }
 
   function _serializeVote(Vote memory vote) internal {
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.abstainLambda')), vote.abstainLambda);
     setBool(keccak256(abi.encode('dao.vote.', vote.id, '.hasPenalty')), vote.hasPenalty);
     setString(keccak256(abi.encode('dao.vote.', vote.id, '.voteType')), vote.voteType);
     setUint(keccak256(abi.encode('dao.vote.', vote.id, '.approval')), vote.approval);
@@ -564,10 +626,12 @@ contract ElasticStorage is EternalStorage {
       keccak256(abi.encode('dao.vote.', vote.id, '.minBlocksForPenalty')),
       vote.minBlocksForPenalty
     );
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.noLambda')), vote.noLambda);
     setUint(keccak256(abi.encode('dao.vote.', vote.id, '.penalty')), vote.penalty);
     setUint(keccak256(abi.encode('dao.vote.', vote.id, '.quorum')), vote.quorum);
     setUint(keccak256(abi.encode('dao.vote.', vote.id, '.reward')), vote.reward);
     setUint(keccak256(abi.encode('dao.vote.', vote.id, '.startOnBlock')), vote.startOnBlock);
+    setUint(keccak256(abi.encode('dao.vote.', vote.id, '.yesLambda')), vote.yesLambda);
   }
 
   function _serializeVoteInformation(VoteInformation memory voteInformation) internal {
