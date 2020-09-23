@@ -62,6 +62,14 @@ contract ElasticVote {
     return elasticStorage.getVote(_id);
   }
 
+  function getVoteBallot(uint256 _id)
+    public
+    view
+    returns (ElasticStorage.VoteBallot memory voteBallot)
+  {
+    return elasticStorage.getVoteBallot(msg.sender, _id);
+  }
+
   function getVoteInformation(uint256 _id)
     public
     view
@@ -70,7 +78,22 @@ contract ElasticVote {
     return elasticStorage.getVoteInformation(_id);
   }
 
+  function penalizeVote(
+    address[] calldata _uuidsToPenalize,
+    uint256 _n,
+    uint256 _voteId
+  ) external {
+    ElasticStorage.Vote memory vote = elasticStorage.getVote(_voteId);
+    if (vote.hasPenalty && block.number > vote.endOnBlock && vote.hasReachedQuorum == false) {
+      for (uint256 i = 0; i < _n; i = SafeMath.add(i, 1)) {
+        elasticStorage.penalizeVote(_uuidsToPenalize[i], _voteId);
+      }
+    }
+  }
+
   function vote(uint256 _id, uint256 _yna) public {
+    require(elasticStorage.isVoteActive(_id), 'ElasticDAO: Vote is not active');
     require(_yna <= 2, 'ElasticDAO: Invalid Vote Value - 0:Yes, 1:NO, 2:ABSTAIN');
+    elasticStorage.recordVote(msg.sender, _id, _yna);
   }
 }
