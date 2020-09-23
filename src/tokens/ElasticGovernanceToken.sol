@@ -3,7 +3,6 @@ pragma solidity 0.7.0;
 
 import '../ElasticStorage.sol';
 
-import '../libraries/StorageLib.sol';
 import '../libraries/SafeMath.sol';
 
 import '../interfaces/IERC20.sol';
@@ -18,12 +17,12 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function name() external view returns (string memory) {
-    ElasticStorage.Token token = elasticStorage.getToken();
+    ElasticStorage.Token memory token = elasticStorage.getToken();
     return token.name;
   }
 
   function symbol() external view returns (string memory) {
-    ElasticStorage.Token token = elasticStorage.getToken();
+    ElasticStorage.Token memory token = elasticStorage.getToken();
     return token.symbol;
   }
 
@@ -32,7 +31,7 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function totalSupply() external override view returns (uint256) {
-    ElasticStorage.MathData mathData = elasticStorage.getMathData();
+    ElasticStorage.MathData memory mathData = elasticStorage.getMathData(0);
     return mathData.t;
   }
 
@@ -40,7 +39,7 @@ contract ElasticGovernanceToken is IERC20 {
     ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
       _account
     );
-    return SafeMath.mul(walletLambda, SafeMath.mul(k, m));
+    return SafeMath.mul(accountBalance.lambda, SafeMath.mul(accountBalance.k, accountBalance.m));
   }
 
   function allowance(address _owner, address _spender)
@@ -59,7 +58,7 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
-    _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][spender], _addedValue));
+    _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
 
