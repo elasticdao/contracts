@@ -16,6 +16,7 @@ library ElasticMathLib {
    * @param elasticity is the value of elasticity, initially set by the DAO
    * @param lambda = Current outstanding shares
    * @param m = Current share modifier
+   *
    * mDash = ( lambdaDash / lambda ) * m
    * deltaE =  ( capitalDelta * k ( ( lambdaDash * mDash * ( 1 + elasticity ) ) - lambda * m )
    * @return deltaEValue uint256
@@ -78,6 +79,15 @@ library ElasticMathLib {
     return revampValue;
   }
 
+  /**
+   * @dev returns the value of the total tokens in the DAO
+   * @param lambda = Current outstanding shares
+   * @param k is a constant, initially set by the DAO
+   * @param m = Current share modifier
+   *
+   * t = ( lambda * m * k )
+   * @return tokens uint256
+   */
   function t(
     uint256 lambda,
     uint256 k,

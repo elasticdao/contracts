@@ -7,6 +7,11 @@ import './libraries/ElasticMathLib.sol';
 import './libraries/SafeMath.sol';
 import './libraries/StringLib.sol';
 
+/// @author ElasticDAO - https://ElasticDAO.org
+/// @notice This contract is used for storing Elastic data
+/// @dev ElasticDAO network contracts can read/write from this contract
+/// Serialize -> Translation of data from the concerned struct to key-value pairs
+/// Deserialize -> Translation of data from the key-value pairs to a struct
 contract ElasticStorage is EternalStorage {
   struct AccountBalance {
     address uuid;
@@ -92,12 +97,28 @@ contract ElasticStorage is EternalStorage {
     uint256 minBlocks;
   }
 
+  /**
+   * @dev grants a specific address the ability to create a vote
+   * @param _uuid is the address the permission is to be granted to
+   * lambda - the the total shares of the DAO
+   * minSharesToCreate - the minimum number of shares required to create a vote in the DAO
+   * checks if lambda >= minSharesToCreate
+   * @return hasPermission bool
+   */
   function canCreateVote(address _uuid) external view returns (bool hasPermission) {
     uint256 lambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
     uint256 minSharesToCreate = getUint('dao.vote.minSharesToCreate');
     return lambda >= minSharesToCreate;
   }
 
+  /**
+   * @dev creates the vote information
+   * @param _vote is the vote itself
+   * @param _voteInformation is the information regarding the current vote
+   * @param _voteSettings are the settings which the current vote has to follow
+   * The function takes in params and serializes vote, voteInformation
+   * and sets the DAO's Vote counter.
+   */
   function createVoteInformation(
     Vote memory _vote,
     VoteInformation memory _voteInformation,
@@ -108,10 +129,19 @@ contract ElasticStorage is EternalStorage {
     setUint('dao.vote.counter', _voteSettings.counter);
   }
 
+  /**
+   * @dev returns the current state of the DAO with respect to summoning
+   * @return isSummoned bool
+   */
   function daoSummoned() external view returns (bool isSummoned) {
     return getBool('dao.summoned');
   }
 
+  /**
+   * @dev returns the account balance of a specific user
+   * @param _uuid - Unique User ID - the address of the user
+   * @return accountBalance AccountBalance
+   */
   function getAccountBalance(address _uuid)
     external
     view
@@ -120,6 +150,18 @@ contract ElasticStorage is EternalStorage {
     return _deserializeAccountBalance(_uuid);
   }
 
+  /**
+   * @dev returns the balance of a specific address at a specific block
+   * @param _uuid the unique user identifier - the User's address
+   * @param _blockNumber the blockNumber at which the user wants the account balance
+   * Essentially the function locally instantiates the counter and shareUpdate,
+   * Then using a while loop, loops through shareUpdate's blocks and then
+   * checks if the share value is increasing or decreasing,
+   * if increasing it updates t ( the balance of the tokens )
+   * by adding deltaT ( the change in the amount of tokens ), else
+   * if decreasing it reduces the value of t by deltaT.
+   * @return t uint256 - the balance at that block
+   */
   function getBalanceAtBlock(address _uuid, uint256 _blockNumber)
     external
     view
@@ -147,46 +189,95 @@ contract ElasticStorage is EternalStorage {
     return t;
   }
 
+  /**
+   * @dev Gets the DAO's data
+   * @return dao DAO
+   */
   function getDAO() external view returns (DAO memory dao) {
     return _deserializeDAO();
   }
 
+  /**
+   * @dev Gets the Math data
+   * @param e - Eth value
+   * @return mathData MathData
+   */
   function getMathData(uint256 e) external view returns (MathData memory mathData) {
     return _deserializeMathData(e);
   }
 
+  /**
+   * @dev Gets the Token
+   * @param token - The token of the DAO
+   * @return token Token
+   */
   function getToken() external view returns (Token memory token) {
     return _deserializeToken();
   }
 
+  /**
+   * @dev Gets the vote using it's ID
+   * @param _id - The id of the vote requested
+   * @return vote Vote
+   */
   function getVote(uint256 _id) external view returns (Vote memory vote) {
     return _deserializeVote(_id);
   }
 
+  /**
+   * @dev Gets the Vote settings
+   * @return voteSettings VoteSettings
+   */
   function getVoteSettings() external view returns (VoteSettings memory voteSettings) {
     return _deserializeVoteSettings();
   }
 
+  /**
+   * @dev Gets the voteType based on its name
+   * @param _name - The name of the vote
+   * @return voteType VoteType
+   */
   function getVoteType(string memory _name) external view returns (VoteType memory voteType) {
     return _deserializeVoteType(_name);
   }
 
+  /**
+   * @dev checks whether given address is a summoner
+   * @param _account - The address of the account
+   * @return accountIsSummoner bool
+   */
   function isSummoner(address _account) external view returns (bool accountIsSummoner) {
     return getBool(keccak256(abi.encode('dao.summoner', _account)));
   }
 
+  /**
+   * @dev Sets the DAO
+   * @param dao - The data of the DAO
+   */
   function setDAO(DAO memory dao) external {
     _serializeDAO(dao);
   }
 
+  /**
+   * @dev Sets the MathData
+   * @param mathData - The mathData required by the DAO
+   */
   function setMathData(MathData memory mathData) external {
     _serializeMathData(mathData);
   }
 
+  /**
+   * @dev Sets the summoned state of the DAO to true
+   */
   function setSummoned() external {
     setBool('dao.summoned', true);
   }
 
+  /**
+   * @dev Sets the summoners of the DAO
+   * @param _summoners - an address array of all the summoners
+   * @param _initialSummonerShare - the intitial share each summoner gets
+   */
   function setSummoners(address[] calldata _summoners, uint256 _initialSummonerShare) external {
     for (uint256 i = 0; i < _summoners.length; i++) {
       setBool(keccak256(abi.encode('dao.summoner', _summoners[i])), true);
@@ -194,14 +285,28 @@ contract ElasticStorage is EternalStorage {
     }
   }
 
+  /**
+   * @dev Sets the token of the DAO
+   * @param token - The token itself that has to be set for the DAO
+   */
   function setToken(Token memory token) external {
     _serializeToken(token);
   }
 
+  /**
+   * @dev Sets the vote settings
+   * @param voteSettings - the vote settings which have to be set
+   */
   function setVoteSettings(VoteSettings memory voteSettings) external {
     _serializeVoteSettings(voteSettings);
   }
 
+  /**
+   * @dev updates the balance of an address
+   * @param _uuid - Unique User ID - the address of the user
+   * @param _isIncreasing - whether the balance is increasing or not
+   * @param _deltaLambda - the change in the number of shares
+   */
   function updateBalance(
     address _uuid,
     bool _isIncreasing,
@@ -210,6 +315,10 @@ contract ElasticStorage is EternalStorage {
     _updateBalance(_uuid, _isIncreasing, _deltaLambda);
   }
 
+  /**
+   * @dev Sets the type of the vote
+   * @param voteType - the type of the vote itself
+   */
   function _setVoteType(VoteType memory voteType) external {
     _serializeVoteType(voteType);
   }
