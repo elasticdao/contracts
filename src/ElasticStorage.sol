@@ -220,7 +220,8 @@ contract ElasticStorage is EternalStorage {
     uint256 _deltaLambda
   ) internal {
     AccountBalance memory accountBalance = _deserializeAccountBalance(_uuid);
-    DAO memory dao = _deserializeDAO();
+    DAO memory dao;
+    dao.lambda = getUint('dao.totalShares');
 
     if (_isIncreasing) {
       accountBalance.lambda = SafeMath.add(accountBalance.lambda, _deltaLambda);
@@ -241,7 +242,7 @@ contract ElasticStorage is EternalStorage {
 
     _serializeAccountBalance(accountBalance);
     _serializeShareUpdate(shareUpdate);
-    _serializeDAO(dao);
+    setUint('dao.totalShares', dao.lambda);
   }
 
   function _deserializeAccountBalance(address _uuid)
