@@ -20,19 +20,18 @@ contract ElasticVote {
     elasticStorage = ElasticStorage(_elasticStorageAddress);
   }
 
+  /**
+   * @dev creates the vote information
+   * @param _voteProposal - the vote proposal
+   * @param _finalBlockNumber - the block number on which the vote ends
+   * Essentially checks if voteProposer (msg.sender) has the
+   * minimum shares required to create a vote, if so, then records all the Vote settings
+   */
   function createVoteInformation(string calldata _voteProposal, uint256 _finalBlockNumber)
     external
     onlyVoteCreators
   {
-    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
-      msg.sender
-    );
     ElasticStorage.VoteSettings memory voteSettings = elasticStorage.getVoteSettings();
-    require(
-      accountBalance.lambda >= voteSettings.minSharesToCreate,
-      'ElasticDAO: Insufficient funds'
-    );
-
     ElasticStorage.VoteType memory voteType = elasticStorage.getVoteType('information');
     ElasticStorage.Vote memory vote;
     vote.startOnBlock = block.number;
@@ -58,10 +57,20 @@ contract ElasticVote {
     elasticStorage.createVoteInformation(vote, voteInformation, voteSettings);
   }
 
+  /**
+   * @dev Gets the vote
+   * @param _id - is the vote ID
+   * @return vote Vote
+   */
   function getVote(uint256 _id) public view returns (ElasticStorage.Vote memory vote) {
     return elasticStorage.getVote(_id);
   }
 
+  /**
+   * @dev Gets the vote ballot
+   * @param _id - is the vote ID
+   * @return voteBallot VoteBallot
+   */
   function getVoteBallot(uint256 _id)
     public
     view
@@ -70,6 +79,11 @@ contract ElasticVote {
     return elasticStorage.getVoteBallot(msg.sender, _id);
   }
 
+  /**
+   * @dev Gets the vote information
+   * @param _id - is the vote ID
+   * @return voteInformation VoteInformation
+   */
   function getVoteInformation(uint256 _id)
     public
     view
@@ -78,19 +92,33 @@ contract ElasticVote {
     return elasticStorage.getVoteInformation(_id);
   }
 
-  function penalizeVote(
+  /**
+   * @dev penalizes non voter
+   * @param _uuidsToPenalize - the unique user ID's to be penalized
+   * @param _numberOfUuidsToPenalize - the number of unique user ID's to be penalized
+   * @param _id - the ID of the vote
+   * If the vote has a penalty, the vote has ended and has not reached quoroum
+   * the _uuidsToPenalize are penalized
+   */
+  function penalizeNonVoter(
     address[] calldata _uuidsToPenalize,
-    uint256 _n,
-    uint256 _voteId
+    uint256 _numberOfUuidsToPenalize,
+    uint256 _id
   ) external {
-    ElasticStorage.Vote memory vote = elasticStorage.getVote(_voteId);
+    ElasticStorage.Vote memory vote = elasticStorage.getVote(_id);
     if (vote.hasPenalty && block.number > vote.endOnBlock && vote.hasReachedQuorum == false) {
-      for (uint256 i = 0; i < _n; i = SafeMath.add(i, 1)) {
-        elasticStorage.penalizeVote(_uuidsToPenalize[i], _voteId);
+      for (uint256 i = 0; i < _numberOfUuidsToPenalize; i = SafeMath.add(i, 1)) {
+        elasticStorage.penalizeNonVoter(_uuidsToPenalize[i], _id);
       }
     }
   }
 
+  /**
+   * @dev records the vote
+   * @param _id - the ID of the vote
+   * @param _yna - (abbr) Yes No Abstain -  0 1 2 values respectively
+   * If the vote is currently active, records the _yna value with respect to _id
+   */
   function vote(uint256 _id, uint256 _yna) public {
     require(elasticStorage.isVoteActive(_id), 'ElasticDAO: Vote is not active');
     require(_yna <= 2, 'ElasticDAO: Invalid Vote Value - 0:Yes, 1:NO, 2:ABSTAIN');
