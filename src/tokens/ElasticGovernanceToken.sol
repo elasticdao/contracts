@@ -16,32 +16,6 @@ contract ElasticGovernanceToken is IERC20 {
     elasticStorage = ElasticStorage(_elasticStorageAddress);
   }
 
-  function name() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticStorage.getToken();
-    return token.name;
-  }
-
-  function symbol() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticStorage.getToken();
-    return token.symbol;
-  }
-
-  function decimals() external pure returns (uint256) {
-    return 18;
-  }
-
-  function totalSupply() external override view returns (uint256) {
-    ElasticStorage.MathData memory mathData = elasticStorage.getMathData(0);
-    return mathData.t;
-  }
-
-  function balanceOf(address _account) external override view returns (uint256) {
-    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
-      _account
-    );
-    return SafeMath.mul(accountBalance.lambda, SafeMath.mul(accountBalance.k, accountBalance.m));
-  }
-
   function allowance(address _owner, address _spender)
     public
     virtual
@@ -57,9 +31,28 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
-  function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
-    _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
-    return true;
+  function _approve(
+    address _owner,
+    address _spender,
+    uint256 _amount
+  ) internal virtual {
+    require(_owner != address(0), 'ERC20: approve from the zero address');
+    require(_spender != address(0), 'ERC20: approve to the zero address');
+
+    _allowances[_owner][_spender] = _amount;
+
+    emit Approval(_owner, _spender, _amount);
+  }
+
+  function balanceOf(address _account) external override view returns (uint256) {
+    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
+      _account
+    );
+    return SafeMath.mul(accountBalance.lambda, SafeMath.mul(accountBalance.k, accountBalance.m));
+  }
+
+  function decimals() external pure returns (uint256) {
+    return 18;
   }
 
   function decreaseAllowance(address _spender, uint256 _subtractedValue)
@@ -75,26 +68,35 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
-  function transfer(address _to, uint256 _amount) external override returns (bool) {
-    _transfer(msg.sender, _to, _amount);
-
+  function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
+    _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
 
-  function transferFrom(
-    address _from,
-    address _to,
-    uint256 _amount
-  ) external override returns (bool) {
-    require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
+  /**
+   * @dev Returns the name of the token.
+   */
+  function name() external view returns (string memory) {
+    ElasticStorage.Token memory token = elasticStorage.getToken();
+    return token.name;
+  }
 
-    _transfer(_from, _to, _amount);
+  /**
+   * @dev Returns the symbol of the token, usually a shorter version of the
+   * name.
+   */
+  function symbol() external view returns (string memory) {
+    ElasticStorage.Token memory token = elasticStorage.getToken();
+    return token.symbol;
+  }
 
-    if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {
-      _allowances[_from][msg.sender] = SafeMath.sub(_allowances[_from][msg.sender], _amount);
+  function totalSupply() external override view returns (uint256) {
+    ElasticStorage.MathData memory mathData = elasticStorage.getMathData(0);
+    return mathData.t;
+  }
 
-      emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);
-    }
+  function transfer(address _to, uint256 _amount) external override returns (bool) {
+    _transfer(msg.sender, _to, _amount);
 
     return true;
   }
@@ -114,16 +116,21 @@ contract ElasticGovernanceToken is IERC20 {
     emit Transfer(_from, _to, _deltaT);
   }
 
-  function _approve(
-    address _owner,
-    address _spender,
+  function transferFrom(
+    address _from,
+    address _to,
     uint256 _amount
-  ) internal virtual {
-    require(_owner != address(0), 'ERC20: approve from the zero address');
-    require(_spender != address(0), 'ERC20: approve to the zero address');
+  ) external override returns (bool) {
+    require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
 
-    _allowances[_owner][_spender] = _amount;
+    _transfer(_from, _to, _amount);
 
-    emit Approval(_owner, _spender, _amount);
+    if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {
+      _allowances[_from][msg.sender] = SafeMath.sub(_allowances[_from][msg.sender], _amount);
+
+      emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);
+    }
+
+    return true;
   }
 }
