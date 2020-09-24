@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.7.0;
+pragma experimental ABIEncoderV2;
 
 import '../ElasticStorage.sol';
-
 import '../libraries/SafeMath.sol';
-
 import '../interfaces/IERC20.sol';
 
 contract ElasticGovernanceToken is IERC20 {

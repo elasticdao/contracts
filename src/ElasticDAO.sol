@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 // Contracts
 import './ElasticStorage.sol';
+import './ElasticVote.sol';
 import './tokens/ElasticGovernanceToken.sol';
 
 // Libraries
@@ -28,10 +29,10 @@ contract ElasticDAO {
   }
 
   constructor(
-    address[] calldata _summoners,
-    string[3] calldata _stringData,
-    bool[4] calldata _boolData,
-    uint256[15] calldata _uintData
+    address[] memory _summoners,
+    string[3] memory _stringData,
+    bool[4] memory _boolData,
+    uint256[15] memory _uintData
   ) {
     elasticStorage = new ElasticStorage();
 
@@ -93,8 +94,8 @@ contract ElasticDAO {
   }
 
   function joinDAO(uint256 _deltaLambda) public payable onlyAfterSummoning {
-    ElasticStorage.AccountBalance accountBalance = elasticStorage.getAccountBalance(msg.sender);
-    ElasticStorage.MathData mathData = elasticStorage.getMathData(address(this).balance);
+    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(msg.sender);
+    ElasticStorage.MathData memory mathData = elasticStorage.getMathData(address(this).balance);
 
     uint256 lambdaDash = SafeMath.add(_deltaLambda, accountBalance.lambda);
 
@@ -118,12 +119,11 @@ contract ElasticDAO {
     mathData.lambda = lambdaDash;
 
     elasticStorage.updateBalance(accountBalance.uuid, true, _deltaLambda);
-    elasticStorage.updateMathData(mathData);
+    elasticStorage.setMathData(mathData);
   }
 
   function seedSummoning() public payable onlyBeforeSummoning onlySummoners {
-    ElasticStorage.AccountBalance accountBalance = elasticStorage.getAccountBalance(msg.sender);
-    ElasticStorage.Token token = elasticStorage.getToken();
+    ElasticStorage.Token memory token = elasticStorage.getToken();
 
     uint256 deltaE = msg.value;
     uint256 deltaLambda = SafeMath.div(SafeMath.div(deltaE, token.capitalDelta), token.k);
@@ -135,9 +135,12 @@ contract ElasticDAO {
 
     ElasticStorage.Token memory token = elasticStorage.getToken();
 
-    token.uuid = new ElasticGovernanceToken(address(elasticStorage));
-
+    token.uuid = address(new ElasticGovernanceToken(address(elasticStorage)));
     elasticStorage.setToken(token);
+
+    ElasticVote voteModule = new ElasticVote(address(elasticStorage));
+    elasticStorage.setVoteModule(address(voteModule));
+
     elasticStorage.setSummoned();
   }
 }

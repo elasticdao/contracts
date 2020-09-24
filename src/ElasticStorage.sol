@@ -388,6 +388,10 @@ contract ElasticStorage is EternalStorage {
     setBool('dao.summoned', true);
   }
 
+  function setVoteModule(address _voteModule) external {
+    setAddress('dao.vote', _voteModule);
+  }
+
   /**
    * @dev Sets the summoners of the DAO
    * @param _summoners - an address array of all the summoners
