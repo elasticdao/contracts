@@ -96,6 +96,11 @@ library ElasticMathLib {
     return SafeMath.mul(SafeMath.mul(lambda, k), m);
   }
 
+  /**
+   * @dev multiplies two float values,
+   * required since soldity does not handle floating point values
+   * @return uint256
+   */
   // inspiration: https://github.com/dapphub/ds-math/blob/master/src/math.sol
   function wmul(uint256 a, uint256 b) internal pure returns (uint256) {
     return SafeMath.add(SafeMath.mul(a, b), 1000000000000000000 / 2) / 1000000000000000000;
