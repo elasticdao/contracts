@@ -237,10 +237,21 @@ contract ElasticStorage is EternalStorage {
     return _deserializeVote(_id);
   }
 
-  function getVoteBallot(address _uuid, uint256 _voteId) external view returns (VoteBallot memory) {
-    return _deserializeVoteBallot(_uuid, _voteId);
+  /**
+   * @dev Gets the vote ballot
+   * @param _uuid - the unique user Id
+   * @param _id - the specific voteId
+   * @return voteBallot VoteBallot
+   */
+  function getVoteBallot(address _uuid, uint256 _id) external view returns (VoteBallot memory) {
+    return _deserializeVoteBallot(_uuid, _id);
   }
 
+  /**
+   * @dev Gets the vote information
+   * @param _id - The id of the vote
+   * @return voteInformation VoteInformation
+   */
   function getVoteInformation(uint256 _id)
     external
     view
@@ -275,11 +286,29 @@ contract ElasticStorage is EternalStorage {
     return getBool(keccak256(abi.encode('dao.summoner', _account)));
   }
 
+  /**
+   * @dev checks whether the vote is active or not
+   * @param _id - the ID of the vote
+   * @return bool
+   */
   function isVoteActive(uint256 _id) external view returns (bool) {
     return _isVoteActive(_id);
   }
 
-  function penalizeVote(address _uuid, uint256 _id) external {
+  /**
+   * @dev penalizes a Non voter for a given vote
+   * @param _uuid - unique user ID
+   * @param _id - the ID of the vote
+   * voteLambda - The user's shares used for this vote
+   *
+   * Essentially, if the vote has a penalty on it, followed by which if the userID
+   * hasn't been already penalized and voteLamda is 0, calculates deltaLambda and
+   * decreases the user's shares by deltaLambda
+   *
+   * deltaLambda - The change in the amount of shares
+   * deltaLambda = (lambda * penalty)
+   */
+  function penalizeNonVoter(address _uuid, uint256 _id) external {
     bool hasPenalty = getBool(keccak256(abi.encode('dao.vote.', _id, '.hasPenalty')));
 
     if (hasPenalty) {
@@ -296,6 +325,15 @@ contract ElasticStorage is EternalStorage {
     }
   }
 
+  /**
+   * @dev records the casting of a vote
+   * @param _uuid - Unique user ID
+   * @param _id - the ID of the vote
+   * @param _yna - (abbr) Yes No Abstain -  0 1 2 values respectively
+   *
+   * Essentially allows _uuid to cast vote, and if _uuid has already cast the vote,
+   * also allows the change of the value of _yna
+   */
   function recordVote(
     address _uuid,
     uint256 _id,
@@ -559,19 +597,15 @@ contract ElasticStorage is EternalStorage {
     return voteType;
   }
 
-  function _getVoteBalance(address _uuid, uint256 _voteId)
-    internal
-    view
-    returns (uint256 voteLambda)
-  {
-    voteLambda = getUint(keccak256(abi.encode('dao.vote.', _voteId, '.maxSharesPerAccount')));
+  function _getVoteBalance(address _uuid, uint256 _id) internal view returns (uint256 voteLambda) {
+    voteLambda = getUint(keccak256(abi.encode('dao.vote.', _id, '.maxSharesPerAccount')));
 
     uint256 currentLambda = getUint(keccak256(abi.encode('dao.shares', _uuid)));
     if (currentLambda < voteLambda) {
       voteLambda = currentLambda;
     }
 
-    uint256 startOnBlock = getUint(keccak256(abi.encode('dao.vote.', _voteId, '.startOnBlock')));
+    uint256 startOnBlock = getUint(keccak256(abi.encode('dao.vote.', _id, '.startOnBlock')));
     uint256 blockLambda = getBalanceAtBlock(_uuid, startOnBlock);
     if (blockLambda < voteLambda) {
       voteLambda = blockLambda;
@@ -587,12 +621,12 @@ contract ElasticStorage is EternalStorage {
   }
 
   function _recordBallotChange(
-    uint256 _voteId,
+    uint256 _id,
     uint256 _deltaLambda,
     bool _isIncreasing,
     string memory _ynaKey
   ) internal {
-    bytes32 key = keccak256(abi.encode('dao.vote.', _voteId, _ynaKey));
+    bytes32 key = keccak256(abi.encode('dao.vote.', _id, _ynaKey));
     if (_isIncreasing) {
       setUint(key, SafeMath.add(getUint(key), _deltaLambda));
     } else {
