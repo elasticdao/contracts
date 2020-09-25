@@ -93,6 +93,10 @@ contract ElasticDAO {
     elasticStorage.setVoteType(permissionVoteType);
   }
 
+  function getElasticStorage() public view returns (address) {
+    return address(elasticStorage);
+  }
+
   /**
    * @dev joins the DAO
    * @param _deltaLambda - The change in the amount of shares
