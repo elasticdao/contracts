@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const bre = require('@nomiclabs/buidler').ethers;
 const { deployments } = require('@nomiclabs/buidler');
-const elasticStorageAbi = require('../artifacts/ElasticStorage.json');
+let elasticStorageAbi = require('../artifacts/ElasticStorage.json').abi;
 
 describe('ElasticDAO: Elastic Storage Contract', () => {
   let ElasticDAO;
@@ -18,8 +18,8 @@ describe('ElasticDAO: Elastic Storage Contract', () => {
     // setup needed contracts
     ElasticDAO = await deployments.get('ElasticDAO');
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
-    const elasticStorageAddress = await elasticDAO.functions.getElasticStorage();
-    elasticStorage = new ethers.Contract(elasticStorageAddress, elasticStorageAbi, agent);
+    let elasticStorageAddress = await elasticDAO.functions.getElasticStorage();
+    elasticStorage = new ethers.Contract(elasticStorageAddress[0], elasticStorageAbi, agent);
   });
 
   it('Should setup and store DAO information in ElasticStorage on deployment', async () => {
