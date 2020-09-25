@@ -10,7 +10,7 @@ import './SafeMath.sol';
 library ElasticMathLib {
   /**
    * @dev calculates the value of deltaE
-   * @param deltaLambda lambdaDash - lambda
+   * @param deltaLambda = lambdaDash - lambda
    * @param capitalDelta is the Eth/Egt ratio
    * @param k is a constant, initially set by the DAO
    * @param elasticity is the value of elasticity, initially set by the DAO

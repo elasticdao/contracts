@@ -93,8 +93,29 @@ contract ElasticDAO {
     elasticStorage.setVoteType(permissionVoteType);
   }
 
+  /**
+   * @dev joins the DAO
+   * @param _deltaLambda - The change in the amount of shares
+   *
+   * capitalDelta is the Eth/Egt ratio
+   * deltaE - amount of ETH required to purchase @param _deltaLambda shares
+   * k is a constant, initially set by the DAO
+   * lambdaDash - total shares after the purchase
+   * m - current share modifier
+   * mDash - share modifier after the purchase of shares, i.e new share modifier
+   *
+   * deltaE =  ( capitalDelta * k ( ( lambdaDash * mDash * ( 1 + elasticity ) ) - lambda * m )
+   * lambdaDash = ( mDash/m ) * lambda
+   *
+   * Essentially the function takes @param _deltaLambda calculates lambdadash,
+   * checks if that many shares can be purchased, and if so purchases it after checking if the
+   * correct amount of Eth was given to purchase @param _deltaLambda shares, i.e deltaE
+   *
+   */
   function joinDAO(uint256 _deltaLambda) public payable onlyAfterSummoning {
-    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(msg.sender);
+    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
+      msg.sender
+    );
     ElasticStorage.MathData memory mathData = elasticStorage.getMathData(address(this).balance);
 
     uint256 lambdaDash = SafeMath.add(_deltaLambda, accountBalance.lambda);
@@ -122,6 +143,11 @@ contract ElasticDAO {
     elasticStorage.setMathData(mathData);
   }
 
+  /**
+   * @dev does seed summoning of the DAO, can only be done by summoners
+   * deltaE - amount of ETH required to purchase deltaLambda shares
+   * deltaLambda - The change in the amount of shares
+   */
   function seedSummoning() public payable onlyBeforeSummoning onlySummoners {
     ElasticStorage.Token memory token = elasticStorage.getToken();
 
@@ -130,6 +156,10 @@ contract ElasticDAO {
     elasticStorage.updateBalance(msg.sender, true, deltaLambda);
   }
 
+  /**
+   * @dev summons the DAO
+   * checks if DAO hasn't already been summoned, and that only summoners can summon the DAO
+   */
   function summon() public onlyBeforeSummoning onlySummoners {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
