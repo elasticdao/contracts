@@ -22,12 +22,31 @@ describe('ElasticDAO: Elastic Storage Contract', () => {
     elasticStorage = new ethers.Contract(elasticStorageAddress[0], elasticStorageAbi, agent);
   });
 
-  it('Should setup and store DAO information in ElasticStorage on deployment', async () => {
+  it('Should initialize and store DAO state in ElasticStorage on deployment', async () => {
     const daoData = await elasticStorage.functions.getDAO();
-    console.log('elasticStorage', daoData);
+
+    expect(daoData.dao.summoned).to.equal(false);
+    expect(daoData.dao.name).to.equal('Elastic DAO');
+    expect(daoData.dao.lambda).to.equal(ethers.BigNumber.from('0'));
   });
 
-  it('Should always setup and store DAO information in ElasticStorage on deployment', async () => {
-    // const daoData = await elasticStorage.functions.getDAO();
+  it('Should not be able to join DAO if not summoned', async () => {
+    await expect(
+      elasticDAO.functions.joinDAO(ethers.BigNumber.from('1000000000000000000'))
+    ).to.be.revertedWith('ElasticDAO: DAO must be summoned');
+  });
+
+  it('Should seed DAO with summoner ETH', async () => {
+    await elasticDAO.functions.seedSummoning({
+      value: 1,
+    });
+
+    const userBalance = await elasticDAO.functions.getAccountBalance(agent._address);
+
+    console.log(userBalance[0]);
+
+    expect(userBalance[0].counter).to.equal(ethers.BigNumber.from('0'));
+    expect(userBalance[0].uuid).to.equal(agent._address);
+    expect(userBalance[0].t).to.equal(ethers.BigNumber.from('1000000000000000000'));
   });
 });

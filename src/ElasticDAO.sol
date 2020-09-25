@@ -93,9 +93,13 @@ contract ElasticDAO {
     elasticStorage.setVoteType(permissionVoteType);
   }
 
+  function getAccountBalance(address _uuid) public view returns (ElasticStorage.AccountBalance memory) {
+    return elasticStorage.getAccountBalance(_uuid);
+  }
   function getElasticStorage() public view returns (address) {
     return address(elasticStorage);
   }
+
 
   /**
    * @dev joins the DAO
