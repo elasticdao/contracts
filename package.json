@@ -26,6 +26,7 @@
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@nomiclabs/buidler-etherscan": "^1.3.3",
     "@nomiclabs/buidler-waffle": "^2.0.0",
+    "buidler-contract-sizer": "^1.0.2",
     "buidler-deploy": "^0.5.17",
     "buidler-gas-reporter": "^0.1.3",
     "dotenv": "^8.2.0",

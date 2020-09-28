@@ -2208,6 +2208,14 @@ buffer@^5.0.5, buffer@^5.2.1, buffer@^5.6.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
 
+buidler-contract-sizer@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/buidler-contract-sizer/-/buidler-contract-sizer-1.0.2.tgz#61ceb0a06f336bf2abfd7195a8e74c418b385ddb"
+  integrity sha512-d/E5FhRcn3d50dD1hUu7DfXhrshG1rIwnmC688z08Io3bYdB8Jbtn53p1ULOGPXKKuzNgaBUjkSAqW+U+PA+Rg==
+  dependencies:
+    cli-table3 "^0.6.0"
+    colors "^1.4.0"
+
 buidler-deploy@^0.5.17:
   version "0.5.17"
   resolved "https://registry.yarnpkg.com/buidler-deploy/-/buidler-deploy-0.5.17.tgz#9659be2f18b2460f4452663795f299d1fc3d6859"
@@ -2533,6 +2541,16 @@ cli-table3@^0.5.0:
   optionalDependencies:
     colors "^1.1.2"
 
+cli-table3@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/cli-table3/-/cli-table3-0.6.0.tgz#b7b1bc65ca8e7b5cef9124e13dc2b21e2ce4faee"
+  integrity sha512-gnB85c3MGC7Nm9I/FkiasNBOKjOiO1RNuXXarQms37q4QMpWdlbBgD/VnOStA2faG1dpXMv31RFApjX1/QdgWQ==
+  dependencies:
+    object-assign "^4.1.0"
+    string-width "^4.2.0"
+  optionalDependencies:
+    colors "^1.1.2"
+
 cli-width@^2.0.0:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/cli-width/-/cli-width-2.2.1.tgz#b0433d0b4e9c847ef18868a4ef16fd5fc8271c48"
@@ -2638,7 +2656,7 @@ color-support@^1.1.3:
   resolved "https://registry.yarnpkg.com/color-support/-/color-support-1.1.3.tgz#93834379a1cc9a0c61f82f52f0d04322251bd5a2"
   integrity sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==
 
-colors@^1.1.2:
+colors@^1.1.2, colors@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
   integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==

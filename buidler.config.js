@@ -7,6 +7,7 @@ usePlugin('buidler-gas-reporter');
 usePlugin('@nomiclabs/buidler-etherscan');
 usePlugin('buidler-deploy');
 usePlugin('solidity-coverage');
+usePlugin('buidler-contract-sizer');
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 
@@ -18,6 +19,10 @@ module.exports = {
       runs: 1,
       enabled: true,
     },
+  },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
   },
   networks: {
     buidlerevm: {
