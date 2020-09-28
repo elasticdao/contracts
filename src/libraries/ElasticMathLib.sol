@@ -28,7 +28,7 @@ library ElasticMathLib {
     uint256 elasticity,
     uint256 lambda,
     uint256 m
-  ) internal pure returns (uint256 deltaEValue) {
+  ) external pure returns (uint256 deltaEValue) {
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
     deltaEValue = SafeMath.mul(
       SafeMath.mul(capitalDelta, k),
@@ -61,8 +61,7 @@ library ElasticMathLib {
     uint256 lambda,
     uint256 m
   ) internal pure returns (uint256 mDashValue) {
-    mDashValue = SafeMath.mul(SafeMath.div(lambdaDash, lambda), m);
-    return mDashValue;
+    return SafeMath.mul(SafeMath.div(lambdaDash, lambda), m);
   }
 
   /**
@@ -75,8 +74,7 @@ library ElasticMathLib {
    * @return revampValue uint256
    */
   function revamp(uint256 elasticity) internal pure returns (uint256 revampValue) {
-    revampValue = SafeMath.add(elasticity, SafeMath.pow(10, 18));
-    return revampValue;
+    return SafeMath.add(elasticity, SafeMath.pow(10, 18));
   }
 
   /**
@@ -92,7 +90,7 @@ library ElasticMathLib {
     uint256 lambda,
     uint256 k,
     uint256 m
-  ) internal pure returns (uint256 tokens) {
+  ) external pure returns (uint256 tokens) {
     return SafeMath.mul(SafeMath.mul(lambda, k), m);
   }
 
@@ -102,7 +100,7 @@ library ElasticMathLib {
    * @return uint256
    */
   // inspiration: https://github.com/dapphub/ds-math/blob/master/src/math.sol
-  function wmul(uint256 a, uint256 b) internal pure returns (uint256) {
+  function wmul(uint256 a, uint256 b) external pure returns (uint256) {
     return SafeMath.add(SafeMath.mul(a, b), 1000000000000000000 / 2) / 1000000000000000000;
   }
 }

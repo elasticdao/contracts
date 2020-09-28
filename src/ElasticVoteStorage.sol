@@ -6,7 +6,6 @@ import './EternalStorage.sol';
 import './ElasticStorage.sol';
 import './libraries/ElasticMathLib.sol';
 import './libraries/SafeMath.sol';
-import './libraries/StringLib.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing Elastic Vote data
