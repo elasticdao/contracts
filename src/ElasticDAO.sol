@@ -40,7 +40,6 @@ contract ElasticDAO {
     string memory name = _stringData[0];
     dao.name = name;
     dao.summoned = false;
-    dao.lambda = 0;
 
     ElasticStorage.Token memory token;
     string memory tokenName = _stringData[1];
@@ -48,7 +47,9 @@ contract ElasticDAO {
     token.elasticity = _uintData[2];
     token.capitalDelta = _uintData[1];
     token.k = _uintData[0];
+    token.lambda = 0;
     token.m = 1;
+    token.maxLambdaPurchase = _uintData[5];
     token.name = tokenName;
     token.symbol = tokenSymbol;
 
@@ -93,13 +94,21 @@ contract ElasticDAO {
     elasticStorage.setVoteType(permissionVoteType);
   }
 
-  function getAccountBalance(address _uuid) public view returns (ElasticStorage.AccountBalance memory) {
+  function getAccountBalance(address _uuid)
+    public
+    view
+    returns (ElasticStorage.AccountBalance memory)
+  {
     return elasticStorage.getAccountBalance(_uuid);
   }
-  function getElasticStorage() public view returns (address) {
-    return address(elasticStorage);
+
+  function getDAO() public view returns (ElasticStorage.DAO memory) {
+    return elasticStorage.getDAO();
   }
 
+  function getElasticStorageAddress() public view returns (address) {
+    return address(elasticStorage);
+  }
 
   /**
    * @dev joins the DAO
@@ -129,7 +138,7 @@ contract ElasticDAO {
     uint256 lambdaDash = SafeMath.add(_deltaLambda, accountBalance.lambda);
 
     require(
-      lambdaDash <= mathData.maxSharesPerAccount,
+      lambdaDash <= mathData.maxLambdaPurchase,
       'ElasticDAO: Cannot purchase that many shares'
     );
 
@@ -173,10 +182,15 @@ contract ElasticDAO {
 
     ElasticStorage.Token memory token = elasticStorage.getToken();
 
-    token.uuid = address(new ElasticGovernanceToken(address(elasticStorage)));
+    token.uuid = address(
+      new ElasticGovernanceToken(elasticStorage.getElasticTokenStorageAddress())
+    );
     elasticStorage.setToken(token);
 
-    ElasticVote voteModule = new ElasticVote(address(elasticStorage));
+    ElasticVote voteModule = new ElasticVote(
+      elasticStorage.getElasticVoteStorageAddress(),
+      elasticStorage.getElasticBallotStorageAddress()
+    );
     elasticStorage.setVoteModule(address(voteModule));
 
     elasticStorage.setSummoned();

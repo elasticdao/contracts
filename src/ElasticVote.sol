@@ -3,21 +3,25 @@ pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
 // Contracts
+import './ElasticBallotStorage.sol';
 import './ElasticStorage.sol';
+import './ElasticVoteStorage.sol';
 
 contract ElasticVote {
-  ElasticStorage internal elasticStorage;
+  ElasticBallotStorage internal elasticBallotStorage;
+  ElasticVoteStorage internal elasticVoteStorage;
 
   modifier onlyVoteCreators() {
     require(
-      elasticStorage.canCreateVote(msg.sender),
+      elasticVoteStorage.canCreateVote(msg.sender),
       'ElasticDAO: Not enough shares to create a vote'
     );
     _;
   }
 
-  constructor(address _elasticStorageAddress) {
-    elasticStorage = ElasticStorage(_elasticStorageAddress);
+  constructor(address _elasticVoteStorageAddress, address _elasticBallotStorageAddress) {
+    elasticBallotStorage = ElasticBallotStorage(_elasticBallotStorageAddress);
+    elasticVoteStorage = ElasticVoteStorage(_elasticVoteStorageAddress);
   }
 
   /**
@@ -31,8 +35,8 @@ contract ElasticVote {
     external
     onlyVoteCreators
   {
-    ElasticStorage.VoteSettings memory voteSettings = elasticStorage.getVoteSettings();
-    ElasticStorage.VoteType memory voteType = elasticStorage.getVoteType('information');
+    ElasticStorage.VoteSettings memory voteSettings = elasticVoteStorage.getVoteSettings();
+    ElasticStorage.VoteType memory voteType = elasticVoteStorage.getVoteType('information');
     ElasticStorage.Vote memory vote;
     vote.startOnBlock = block.number;
     vote.endOnBlock = _finalBlockNumber;
@@ -54,7 +58,7 @@ contract ElasticVote {
     voteInformation.id = vote.id;
     voteInformation.proposal = _voteProposal;
 
-    elasticStorage.createVoteInformation(vote, voteInformation, voteSettings);
+    elasticVoteStorage.createVoteInformation(vote, voteInformation, voteSettings);
   }
 
   /**
@@ -63,7 +67,7 @@ contract ElasticVote {
    * @return vote Vote
    */
   function getVote(uint256 _id) public view returns (ElasticStorage.Vote memory vote) {
-    return elasticStorage.getVote(_id);
+    return elasticVoteStorage.getVote(_id);
   }
 
   /**
@@ -76,7 +80,7 @@ contract ElasticVote {
     view
     returns (ElasticStorage.VoteBallot memory voteBallot)
   {
-    return elasticStorage.getVoteBallot(msg.sender, _id);
+    return elasticBallotStorage.getVoteBallot(msg.sender, _id);
   }
 
   /**
@@ -89,7 +93,7 @@ contract ElasticVote {
     view
     returns (ElasticStorage.VoteInformation memory voteInformation)
   {
-    return elasticStorage.getVoteInformation(_id);
+    return elasticVoteStorage.getVoteInformation(_id);
   }
 
   /**
@@ -105,10 +109,10 @@ contract ElasticVote {
     uint256 _numberOfUuidsToPenalize,
     uint256 _id
   ) external {
-    ElasticStorage.Vote memory vote = elasticStorage.getVote(_id);
+    ElasticStorage.Vote memory vote = elasticVoteStorage.getVote(_id);
     if (vote.hasPenalty && block.number > vote.endOnBlock && vote.hasReachedQuorum == false) {
       for (uint256 i = 0; i < _numberOfUuidsToPenalize; i = SafeMath.add(i, 1)) {
-        elasticStorage.penalizeNonVoter(_uuidsToPenalize[i], _id);
+        elasticBallotStorage.penalizeNonVoter(_uuidsToPenalize[i], _id, vote.penalty);
       }
     }
   }
@@ -120,8 +124,8 @@ contract ElasticVote {
    * If the vote is currently active, records the _yna value with respect to _id
    */
   function vote(uint256 _id, uint256 _yna) public {
-    require(elasticStorage.isVoteActive(_id), 'ElasticDAO: Vote is not active');
+    require(elasticVoteStorage.isVoteActive(_id), 'ElasticDAO: Vote is not active');
     require(_yna <= 2, 'ElasticDAO: Invalid Vote Value - 0:Yes, 1:NO, 2:ABSTAIN');
-    elasticStorage.recordVote(msg.sender, _id, _yna);
+    elasticBallotStorage.recordVote(msg.sender, _id, _yna);
   }
 }

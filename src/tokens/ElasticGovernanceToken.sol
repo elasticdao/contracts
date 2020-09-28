@@ -3,16 +3,17 @@ pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
 import '../ElasticStorage.sol';
+import '../ElasticTokenStorage.sol';
 import '../libraries/SafeMath.sol';
 import '../interfaces/IERC20.sol';
 
 contract ElasticGovernanceToken is IERC20 {
-  ElasticStorage internal elasticStorage;
+  ElasticTokenStorage internal elasticTokenStorage;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
-  constructor(address _elasticStorageAddress) IERC20() {
-    elasticStorage = ElasticStorage(_elasticStorageAddress);
+  constructor(address _elasticTokenStorageAddress) IERC20() {
+    elasticTokenStorage = ElasticTokenStorage(_elasticTokenStorageAddress);
   }
 
   function allowance(address _owner, address _spender)
@@ -44,7 +45,7 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function balanceOf(address _account) external override view returns (uint256) {
-    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(
+    ElasticStorage.AccountBalance memory accountBalance = elasticTokenStorage.getAccountBalance(
       _account
     );
     return SafeMath.mul(accountBalance.lambda, SafeMath.mul(accountBalance.k, accountBalance.m));
@@ -76,7 +77,7 @@ contract ElasticGovernanceToken is IERC20 {
    * @dev Returns the name of the token.
    */
   function name() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticStorage.getToken();
+    ElasticStorage.Token memory token = elasticTokenStorage.getToken();
     return token.name;
   }
 
@@ -85,12 +86,12 @@ contract ElasticGovernanceToken is IERC20 {
    * name.
    */
   function symbol() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticStorage.getToken();
+    ElasticStorage.Token memory token = elasticTokenStorage.getToken();
     return token.symbol;
   }
 
   function totalSupply() external override view returns (uint256) {
-    ElasticStorage.MathData memory mathData = elasticStorage.getMathData(0);
+    ElasticStorage.MathData memory mathData = elasticTokenStorage.getMathData(0);
     return mathData.t;
   }
 
@@ -105,12 +106,14 @@ contract ElasticGovernanceToken is IERC20 {
     address _to,
     uint256 _deltaT
   ) internal {
-    ElasticStorage.AccountBalance memory accountBalance = elasticStorage.getAccountBalance(_from);
+    ElasticStorage.AccountBalance memory accountBalance = elasticTokenStorage.getAccountBalance(
+      _from
+    );
 
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(accountBalance.k, accountBalance.m));
 
-    elasticStorage.updateBalance(_from, false, deltaLambda);
-    elasticStorage.updateBalance(_to, true, deltaLambda);
+    elasticTokenStorage.updateBalance(_from, false, deltaLambda);
+    elasticTokenStorage.updateBalance(_to, true, deltaLambda);
 
     emit Transfer(_from, _to, _deltaT);
   }

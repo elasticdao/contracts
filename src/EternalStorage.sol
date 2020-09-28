@@ -17,7 +17,17 @@ contract EternalStorage {
     mapping(bytes32 => bytes) bytesStorage;
   }
 
+  address owner;
   Storage internal s;
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, 'ElasticDAO: Not authorized to call that function.');
+    _;
+  }
+
+  constructor(address _owner) {
+    owner = _owner;
+  }
 
   //////////////////////////////
   /// @notice Getter Functions

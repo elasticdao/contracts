@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const bre = require('@nomiclabs/buidler').ethers;
 const { deployments } = require('@nomiclabs/buidler');
-let elasticStorageAbi = require('../artifacts/ElasticStorage.json').abi;
+const elasticStorageAbi = require('../artifacts/ElasticStorage.json').abi;
 
 describe('ElasticDAO: Elastic Storage Contract', () => {
   let ElasticDAO;
@@ -18,7 +18,7 @@ describe('ElasticDAO: Elastic Storage Contract', () => {
     // setup needed contracts
     ElasticDAO = await deployments.get('ElasticDAO');
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
-    let elasticStorageAddress = await elasticDAO.functions.getElasticStorage();
+    const elasticStorageAddress = await elasticDAO.functions.getElasticStorage();
     elasticStorage = new ethers.Contract(elasticStorageAddress[0], elasticStorageAbi, agent);
   });
 
@@ -32,7 +32,7 @@ describe('ElasticDAO: Elastic Storage Contract', () => {
 
   it('Should not be able to join DAO if not summoned', async () => {
     await expect(
-      elasticDAO.functions.joinDAO(ethers.BigNumber.from('1000000000000000000'))
+      elasticDAO.functions.joinDAO(ethers.BigNumber.from('1000000000000000000')),
     ).to.be.revertedWith('ElasticDAO: DAO must be summoned');
   });
 
