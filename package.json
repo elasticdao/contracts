@@ -13,12 +13,14 @@
     "deploy": "npx buidler deploy",
     "ethereum": "npx buidler node",
     "lint": "yarn run prettier && yarn run lint:es6 && yarn run lint:solidity",
-    "lint:es6": "npx eslint ./*.js deploy/*.js deploy/**/*.js test/**/*.js test/*.js",
-    "lint:solidity": "npx solhint src/*.sol src/**/*.sol",
+    "lint:es6": "npx eslint ./*.js deploy/*.js deploy/**/*.js",
+    "lint:solidity": "npx solhint src/**/*.sol",
+    "lint:tests": "npx eslint test/**/*.js test/*.js",
     "prerelease": "yarn lint",
     "prettier": "yarn run prettier:es6 && yarn run prettier:solidity",
-    "prettier:es6": "prettier --write ./*.js --write deploy/*.js --write deploy/**/*.js --write test/**/*.js test/*.js",
-    "prettier:solidity": "prettier --write src/*.sol --write src/**/*.sol",
+    "prettier:es6": "prettier --write ./*.js --write deploy/*.js --write deploy/**/*.js",
+    "prettier:solidity": "prettier --write src/**/*.sol",
+    "prettier:tests": "prettier --write test/**/*.js test/*.js",
     "test": "npx buidler test"
   },
   "dependencies": {
@@ -33,7 +35,7 @@
     "ethereum-waffle": "^3.0.2",
     "ethers": "^5.0.8",
     "scrypt": "^6.0.3",
-    "solc": "0.7.0"
+    "solc": "0.7.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",

@@ -13,14 +13,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     Ecosystem.abi,
     bre.provider.getSigner(agent),
   );
+  const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
 
   const ecosystemStruct = {
     uuid: '0x0000000000000000000000000000000000000000',
+    configuratorAddress: Configurator.address,
     daoModelAddress: DAO.address,
     ecosystemModelAddress: Ecosystem.address,
+    registratorAddress: Registrator.address,
     tokenModelAddress: Token.address,
-    configuratorAddress: Configurator.address,
   };
 
   ecosystem.functions.serialize(ecosystemStruct, { from: agent._address });
@@ -28,4 +30,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   log('##### ElasticDAO: Initialization Complete');
 };
 
-module.exports.dependencies = ['Ecosystem', 'DAO', 'Token', 'Configurator'];
+module.exports.dependencies = ['Ecosystem', 'DAO', 'Token', 'Configurator', 'Registrator'];

@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
+import '../tokens/ElasticGovernanceToken.sol';
+
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -42,6 +44,7 @@ contract Token is EternalModel {
   }
 
   function serialize(Instance memory record) external {
+    setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setString(keccak256(abi.encode('symbol', record.uuid)), record.symbol);
     setUint(keccak256(abi.encode('capitalDelta', record.uuid)), record.capitalDelta);

@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import '../interfaces/IERC20.sol';
 
 import '../libraries/SafeMath.sol';
+import '../libraries/ElasticMath.sol';
 
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
@@ -17,37 +18,23 @@ contract ElasticGovernanceToken is IERC20 {
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
+  modifier onlyDAO() {
+    require(msg.sender == daoAddress, 'ElasticDAO: Not authorized.');
+    _;
+  }
+
   constructor(address _daoAddress, address _ecosystemModelAddress) IERC20() {
     daoAddress = _daoAddress;
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
-  function allowance(address _owner, address _spender)
-    public
-    virtual
-    override
-    view
-    returns (uint256)
-  {
+  function allowance(address _owner, address _spender) external override view returns (uint256) {
     return _allowances[_owner][_spender];
   }
 
-  function approve(address _spender, uint256 _amount) public virtual override returns (bool) {
+  function approve(address _spender, uint256 _amount) external override returns (bool) {
     _approve(msg.sender, _spender, _amount);
     return true;
-  }
-
-  function _approve(
-    address _owner,
-    address _spender,
-    uint256 _amount
-  ) internal virtual {
-    require(_owner != address(0), 'ERC20: approve from the zero address');
-    require(_spender != address(0), 'ERC20: approve to the zero address');
-
-    _allowances[_owner][_spender] = _amount;
-
-    emit Approval(_owner, _spender, _amount);
   }
 
   function balanceOf(address _account) external override view returns (uint256) {
@@ -71,10 +58,10 @@ contract ElasticGovernanceToken is IERC20 {
     ) {
       if (tokenHolder.balanceChanges[i].isIncreasing) {
         lambda = SafeMath.add(lambda, tokenHolder.balanceChanges[i].deltaLambda);
-        t = _t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+        t = ElasticMath.t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
       } else {
         lambda = SafeMath.sub(lambda, tokenHolder.balanceChanges[i].deltaLambda);
-        t = _t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+        t = ElasticMath.t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
       }
 
       i = SafeMath.add(i, 1);
@@ -87,11 +74,7 @@ contract ElasticGovernanceToken is IERC20 {
     return 18;
   }
 
-  function decreaseAllowance(address _spender, uint256 _subtractedValue)
-    public
-    virtual
-    returns (bool)
-  {
+  function decreaseAllowance(address _spender, uint256 _subtractedValue) external returns (bool) {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
 
     require(newAllowance > 0, 'ElasticDAO: Allowance decrease less than 0');
@@ -100,8 +83,13 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
-  function increaseAllowance(address _spender, uint256 _addedValue) public virtual returns (bool) {
+  function increaseAllowance(address _spender, uint256 _addedValue) external returns (bool) {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
+    return true;
+  }
+
+  function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
+    _mint(_account, _amount);
     return true;
   }
 
@@ -148,6 +136,40 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
+  function _approve(
+    address _owner,
+    address _spender,
+    uint256 _amount
+  ) internal {
+    require(_owner != address(0), 'ERC20: approve from the zero address');
+    require(_spender != address(0), 'ERC20: approve to the zero address');
+
+    _allowances[_owner][_spender] = _amount;
+
+    emit Approval(_owner, _spender, _amount);
+  }
+
+  function _mint(address _account, uint256 _deltaT) internal {
+    Token.Instance memory token = _getToken();
+
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
+
+    tokenHolder = _updateBalance(token, tokenHolder, true, deltaLambda);
+    token.lambda = SafeMath.add(token.lambda, deltaLambda);
+
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Token tokenStorage = Token(ecosystem.tokenModelAddress);
+    tokenStorage.serialize(token);
+
+    TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
+    tokenHolderStorage.serialize(tokenHolder);
+
+    emit Transfer(address(0), _account, deltaT);
+  }
+
   function _transfer(
     address _from,
     address _to,
@@ -159,7 +181,7 @@ contract ElasticGovernanceToken is IERC20 {
     TokenHolder.Instance memory toTokenHolder = _getTokenHolder(_to);
 
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
-    uint256 deltaT = _t(deltaLambda, token.k, token.m);
+    uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
     toTokenHolder = _updateBalance(token, toTokenHolder, true, deltaLambda);
@@ -188,14 +210,6 @@ contract ElasticGovernanceToken is IERC20 {
 
   function _getToken() internal view returns (Token.Instance memory token) {
     token = Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
-  }
-
-  function _t(
-    uint256 lambda,
-    uint256 k,
-    uint256 m
-  ) internal pure returns (uint256 tokens) {
-    return SafeMath.mul(SafeMath.mul(lambda, k), m);
   }
 
   function _updateBalance(

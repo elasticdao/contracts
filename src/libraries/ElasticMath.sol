@@ -7,7 +7,7 @@ import './SafeMath.sol';
  * This library does the Elastic math
  */
 
-library ElasticMathLib {
+library ElasticMath {
   /**
    * @dev calculates the value of deltaE
    * @param deltaLambda = lambdaDash - lambda
@@ -33,13 +33,7 @@ library ElasticMathLib {
     deltaEValue = SafeMath.mul(
       SafeMath.mul(capitalDelta, k),
       SafeMath.sub(
-        SafeMath.mul(
-          lambdaDash,
-          SafeMath.mul(
-            ElasticMathLib.mDash(lambdaDash, lambda, m),
-            ElasticMathLib.revamp(elasticity)
-          )
-        ),
+        SafeMath.mul(lambdaDash, SafeMath.mul(mDash(lambdaDash, lambda, m), revamp(elasticity))),
         SafeMath.mul(lambda, m)
       )
     );

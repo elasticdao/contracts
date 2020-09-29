@@ -12,4 +12,3 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   }
 };
 module.exports.tags = ['Token'];
-module.exports.dependencies = ['Ecosystem', 'DAO'];
