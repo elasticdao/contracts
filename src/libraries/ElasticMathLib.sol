@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPLv3
-pragma solidity 0.7.0;
+pragma solidity 0.7.2;
 
 import './SafeMath.sol';
 
@@ -28,7 +28,7 @@ library ElasticMathLib {
     uint256 elasticity,
     uint256 lambda,
     uint256 m
-  ) external pure returns (uint256 deltaEValue) {
+  ) internal pure returns (uint256 deltaEValue) {
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
     deltaEValue = SafeMath.mul(
       SafeMath.mul(capitalDelta, k),
@@ -90,7 +90,7 @@ library ElasticMathLib {
     uint256 lambda,
     uint256 k,
     uint256 m
-  ) external pure returns (uint256 tokens) {
+  ) internal pure returns (uint256 tokens) {
     return SafeMath.mul(SafeMath.mul(lambda, k), m);
   }
 
@@ -100,7 +100,7 @@ library ElasticMathLib {
    * @return uint256
    */
   // inspiration: https://github.com/dapphub/ds-math/blob/master/src/math.sol
-  function wmul(uint256 a, uint256 b) external pure returns (uint256) {
+  function wmul(uint256 a, uint256 b) internal pure returns (uint256) {
     return SafeMath.add(SafeMath.mul(a, b), 1000000000000000000 / 2) / 1000000000000000000;
   }
 }

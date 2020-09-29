@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPLv3
-pragma solidity 0.7.0;
+pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 import './EternalModel.sol';
@@ -9,6 +9,8 @@ import '../libraries/SafeMath.sol';
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract Token is EternalModel {
+  constructor() EternalModel() {}
+
   struct Instance {
     address uuid;
     string name;

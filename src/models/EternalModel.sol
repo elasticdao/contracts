@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPLv3
-pragma solidity 0.7.0;
+pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 /// @author ElasticDAO - https://ElasticDAO.org

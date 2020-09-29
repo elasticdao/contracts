@@ -1,5 +1,3 @@
-const { ethers } = require('ethers');
-
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { agent } = await getNamedAccounts();

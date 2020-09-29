@@ -1,7 +1,8 @@
 const { ethers } = require('ethers');
+const bre = require('@nomiclabs/buidler').ethers;
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
-  const { deploy, log } = deployments;
+  const { log } = deployments;
   const { agent } = await getNamedAccounts();
 
   const Configurator = await deployments.get('Configurator');
@@ -24,7 +25,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   ecosystem.functions.serialize(ecosystemStruct, { from: agent._address });
 
-  log(`##### ElasticDAO: Initialization Complete`);
+  log('##### ElasticDAO: Initialization Complete');
 };
 
 module.exports.dependencies = ['Ecosystem', 'DAO', 'Token', 'Configurator'];

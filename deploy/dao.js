@@ -1,4 +1,3 @@
-const { ethers } = require('ethers');
 // [
 //   ethers.BigNumber.from('100000000000000000000'), // k
 //   ethers.BigNumber.from('100000000000000000'), // capitalDelta
