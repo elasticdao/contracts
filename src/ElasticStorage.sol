@@ -62,6 +62,8 @@ contract ElasticStorage {
     uint256 maxLambdaPurchase;
   }
 
+  // entire struct is in Vote.sol
+  //is already in Vote.sol comment is due to this struct already having it
   struct Vote {
     bool hasPenalty;
     bool hasReachedQuorum;
@@ -83,32 +85,32 @@ contract ElasticStorage {
   }
 
   struct VoteBallot {
-    address uuid;
-    uint256 lambda;
+    address uuid; //put into Vote.sol struct
+    uint256 lambda; //put into Vote.sol struct- dont know if required - yesLambda, noLambda already present in Vote.sol
     uint256 voteId;
     uint256 yna;
   }
 
   struct VoteInformation {
-    string proposal;
-    uint256 id;
+    string proposal; //put into Vote.sol struct
+    uint256 id; // is already in Vote.sol struct
   }
 
   struct VoteSettings {
-    uint256 approval;
+    uint256 approval; // is already in Vote.sol struct
     uint256 counter;
-    uint256 maxSharesPerAccount;
-    uint256 minBlocksForPenalty;
+    uint256 maxSharesPerAccount; // is already in Vote.sol struct
+    uint256 minBlocksForPenalty; // is already in Vote.sol struct
     uint256 minSharesToCreate;
-    uint256 penalty;
-    uint256 quorum;
-    uint256 reward;
+    uint256 penalty; // is already in Vote.sol struct
+    uint256 quorum; // is already in Vote.sol struct
+    uint256 reward; // is already in Vote.sol struct
   }
 
   struct VoteType {
-    string name;
-    bool hasPenalty;
-    uint256 minBlocks;
+    string name; // put into Vote.sol struct
+    bool hasPenalty; // is already in Vote.sol struct
+    uint256 minBlocks; // is already in Vote.sol struct - minBlocksForPenalty
   }
 
   modifier onlyElasticBallotStorage() {
