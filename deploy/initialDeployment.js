@@ -22,7 +22,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     configuratorAddress: Configurator.address,
   };
 
-  ecosystem.functions.serialize(ecosystemStruct, { from: agent });
+  ecosystem.functions.serialize(ecosystemStruct, { from: agent._address });
 
   log(`##### ElasticDAO: Initialization Complete`);
 };
