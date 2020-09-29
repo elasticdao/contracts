@@ -86,7 +86,8 @@ contract ElasticStorage {
 
   struct VoteBallot {
     address uuid; //put into Vote.sol struct
-    uint256 lambda; //put into Vote.sol struct- dont know if required - yesLambda, noLambda already present in Vote.sol
+    uint256 lambda; //put into Vote.sol struct- dont know if required
+    // - yesLambda, noLambda already present in Vote.sol
     uint256 voteId;
     uint256 yna;
   }
