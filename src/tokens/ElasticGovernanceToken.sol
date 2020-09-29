@@ -2,18 +2,24 @@
 pragma solidity 0.7.0;
 pragma experimental ABIEncoderV2;
 
-import '../ElasticStorage.sol';
-import '../ElasticTokenStorage.sol';
-import '../libraries/SafeMath.sol';
 import '../interfaces/IERC20.sol';
 
+import '../libraries/SafeMath.sol';
+
+import '../models/DAO.sol';
+import '../models/Ecosystem.sol';
+import '../models/Token.sol';
+import '../models/TokenHolder.sol';
+
 contract ElasticGovernanceToken is IERC20 {
-  ElasticTokenStorage internal elasticTokenStorage;
+  address daoAddress;
+  address ecosystemModelAddress;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
-  constructor(address _elasticTokenStorageAddress) IERC20() {
-    elasticTokenStorage = ElasticTokenStorage(_elasticTokenStorageAddress);
+  constructor(address _daoAddress, address _ecosystemModelAddress) IERC20() {
+    daoAddress = _daoAddress;
+    ecosystemModelAddress = _ecosystemModelAddress;
   }
 
   function allowance(address _owner, address _spender)
@@ -45,10 +51,36 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function balanceOf(address _account) external override view returns (uint256) {
-    ElasticStorage.AccountBalance memory accountBalance = elasticTokenStorage.getAccountBalance(
-      _account
-    );
-    return SafeMath.mul(accountBalance.lambda, SafeMath.mul(accountBalance.k, accountBalance.m));
+    Token.Instance memory token = _getToken();
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+
+    return SafeMath.mul(tokenHolder.lambda, SafeMath.mul(token.k, token.m));
+  }
+
+  function balanceOfAt(address _account, uint256 _blockNumber) external view returns (uint256 t) {
+    uint256 i = 0;
+    uint256 lambda = 0;
+    t = 0;
+
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+
+    while (
+      i <= tokenHolder.counter &&
+      tokenHolder.balanceChanges[i].blockNumber != 0 &&
+      tokenHolder.balanceChanges[i].blockNumber < _blockNumber
+    ) {
+      if (tokenHolder.balanceChanges[i].isIncreasing) {
+        lambda = SafeMath.add(lambda, tokenHolder.balanceChanges[i].deltaLambda);
+        t = _t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+      } else {
+        lambda = SafeMath.sub(lambda, tokenHolder.balanceChanges[i].deltaLambda);
+        t = _t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+      }
+
+      i = SafeMath.add(i, 1);
+    }
+
+    return t;
   }
 
   function decimals() external pure returns (uint256) {
@@ -77,8 +109,7 @@ contract ElasticGovernanceToken is IERC20 {
    * @dev Returns the name of the token.
    */
   function name() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticTokenStorage.getToken();
-    return token.name;
+    return _getToken().name;
   }
 
   /**
@@ -86,36 +117,17 @@ contract ElasticGovernanceToken is IERC20 {
    * name.
    */
   function symbol() external view returns (string memory) {
-    ElasticStorage.Token memory token = elasticTokenStorage.getToken();
-    return token.symbol;
+    return _getToken().symbol;
   }
 
   function totalSupply() external override view returns (uint256) {
-    ElasticStorage.MathData memory mathData = elasticTokenStorage.getMathData(0);
-    return mathData.t;
+    Token.Instance memory token = _getToken();
+    return SafeMath.mul(token.lambda, SafeMath.mul(token.k, token.m));
   }
 
   function transfer(address _to, uint256 _amount) external override returns (bool) {
     _transfer(msg.sender, _to, _amount);
-
     return true;
-  }
-
-  function _transfer(
-    address _from,
-    address _to,
-    uint256 _deltaT
-  ) internal {
-    ElasticStorage.AccountBalance memory accountBalance = elasticTokenStorage.getAccountBalance(
-      _from
-    );
-
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(accountBalance.k, accountBalance.m));
-
-    elasticTokenStorage.updateBalance(_from, false, deltaLambda);
-    elasticTokenStorage.updateBalance(_to, true, deltaLambda);
-
-    emit Transfer(_from, _to, _deltaT);
   }
 
   function transferFrom(
@@ -134,5 +146,78 @@ contract ElasticGovernanceToken is IERC20 {
     }
 
     return true;
+  }
+
+  function _transfer(
+    address _from,
+    address _to,
+    uint256 _deltaT
+  ) internal {
+    Token.Instance memory token = _getToken();
+
+    TokenHolder.Instance memory fromTokenHolder = _getTokenHolder(_from);
+    TokenHolder.Instance memory toTokenHolder = _getTokenHolder(_to);
+
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    uint256 deltaT = _t(deltaLambda, token.k, token.m);
+
+    fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
+    toTokenHolder = _updateBalance(token, toTokenHolder, true, deltaLambda);
+
+    TokenHolder tokenHolderStorage = TokenHolder(_getEcosystem().tokenHolderModelAddress);
+    tokenHolderStorage.serialize(fromTokenHolder);
+    tokenHolderStorage.serialize(toTokenHolder);
+
+    emit Transfer(_from, _to, deltaT);
+  }
+
+  function _getEcosystem() internal view returns (Ecosystem.Instance memory ecosystem) {
+    ecosystem = Ecosystem(ecosystemModelAddress).deserialize(daoAddress);
+  }
+
+  function _getTokenHolder(address _uuid)
+    internal
+    view
+    returns (TokenHolder.Instance memory tokenHolder)
+  {
+    tokenHolder = TokenHolder(_getEcosystem().tokenHolderModelAddress).deserialize(
+      _uuid,
+      address(this)
+    );
+  }
+
+  function _getToken() internal view returns (Token.Instance memory token) {
+    token = Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
+  }
+
+  function _t(
+    uint256 lambda,
+    uint256 k,
+    uint256 m
+  ) internal pure returns (uint256 tokens) {
+    return SafeMath.mul(SafeMath.mul(lambda, k), m);
+  }
+
+  function _updateBalance(
+    Token.Instance memory _token,
+    TokenHolder.Instance memory _tokenHolder,
+    bool _isIncreasing,
+    uint256 _deltaLambda
+  ) internal view returns (TokenHolder.Instance memory) {
+    TokenHolder.BalanceChange memory balanceChange;
+    balanceChange.blockNumber = block.number;
+    balanceChange.deltaLambda = _deltaLambda;
+    balanceChange.id = _tokenHolder.counter;
+    balanceChange.isIncreasing = _isIncreasing;
+    balanceChange.k = _token.k;
+    balanceChange.m = _token.m;
+    _tokenHolder.balanceChanges[_tokenHolder.counter] = balanceChange;
+    _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
+    if (_isIncreasing) {
+      _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
+    } else {
+      _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
+    }
+    return _tokenHolder;
   }
 }

@@ -59,7 +59,6 @@ contract Configurator {
     uint256 _maxLambdaPurchase
   ) external returns (Token.Instance memory token) {
     Ecosystem.Instance memory ecosystem = _getEcosystem(_ecosystemModelAddress);
-    DAO.Instance memory dao = _getDAO(ecosystem);
 
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     token.capitalDelta = _capitalDelta;
@@ -70,19 +69,11 @@ contract Configurator {
     token.maxLambdaPurchase = _maxLambdaPurchase;
     token.name = _name;
     token.symbol = _symbol;
-    token.uuid = address(new ElasticGovernanceToken(dao.uuid));
+    token.uuid = address(new ElasticGovernanceToken(msg.sender, _ecosystemModelAddress));
 
     ecosystem.governanceTokenAddress = token.uuid;
     Ecosystem(_ecosystemModelAddress).serialize(ecosystem);
     tokenStorage.serialize(token);
-  }
-
-  function _getDAO(Ecosystem.Instance memory _ecosystem)
-    internal
-    view
-    returns (DAO.Instance memory dao)
-  {
-    dao = DAO(_ecosystem.daoModelAddress).deserialize(msg.sender);
   }
 
   function _getEcosystem(address _uuid)

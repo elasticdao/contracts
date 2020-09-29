@@ -56,6 +56,6 @@ contract Vote is EternalModel {
   }
 
   function _exists(address _uuid) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists.', _uuid)));
+    return getBool(keccak256(abi.encode('exists', _uuid)));
   }
 }

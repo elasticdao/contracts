@@ -8,6 +8,7 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
 import '../services/Configurator.sol';
+import '../services/Registrator.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -70,6 +71,16 @@ contract ElasticDAO {
       _maxLambdaPurchase
     );
   }
+
+  // function initializeVoteModule(address _voteModuleAddress)
+  //   external
+  //   onlyBeforeSummoning
+  //   onlySummoners
+  // {
+  //   Ecosystem.Instance memory ecosystem = _getEcosystem();
+  //   Registrator registrator = Registrator(ecosystem.registratorAddress);
+  //   registrator.registerModule('voteModule', _voteModuleAddress);
+  // }
 
   function _getDAO() internal view returns (DAO.Instance memory dao) {
     dao = DAO(_getEcosystem().daoModelAddress).deserialize(msg.sender);

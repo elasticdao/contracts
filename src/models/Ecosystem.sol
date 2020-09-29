@@ -15,6 +15,7 @@ contract Ecosystem is EternalModel {
     address daoModelAddress;
     address ecosystemModelAddress;
     address tokenModelAddress;
+    address tokenHolderModelAddress;
     // Services
     address configuratorAddress;
     // Tokens
@@ -34,6 +35,9 @@ contract Ecosystem is EternalModel {
       record.governanceTokenAddress = getAddress(
         keccak256(abi.encode('governanceTokenAddress', record.uuid))
       );
+      record.tokenHolderModelAddress = getAddress(
+        keccak256(abi.encode('tokenHolderModelAddress', record.uuid))
+      );
       record.tokenModelAddress = getAddress(
         keccak256(abi.encode('tokenModelAddress', record.uuid))
       );
@@ -45,7 +49,7 @@ contract Ecosystem is EternalModel {
   }
 
   function serialize(Instance memory record) external {
-    setBool(keccak256(abi.encode('exists.', record.uuid)), true);
+    setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setAddress(
       keccak256(abi.encode('configuratorAddress', record.uuid)),
       record.configuratorAddress
@@ -59,10 +63,14 @@ contract Ecosystem is EternalModel {
       keccak256(abi.encode('governanceTokenAddress', record.uuid)),
       record.governanceTokenAddress
     );
+    setAddress(
+      keccak256(abi.encode('tokenHolderModelAddress', record.uuid)),
+      record.tokenHolderModelAddress
+    );
     setAddress(keccak256(abi.encode('tokenModelAddress', record.uuid)), record.tokenModelAddress);
   }
 
   function _exists(address _uuid) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists.', _uuid)));
+    return getBool(keccak256(abi.encode('exists', _uuid)));
   }
 }

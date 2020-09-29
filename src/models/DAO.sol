@@ -34,7 +34,7 @@ contract DAO is EternalModel {
   }
 
   function serialize(Instance memory record) external {
-    setBool(keccak256(abi.encode('exists.', record.uuid)), true);
+    setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setUint(keccak256(abi.encode('numberOfSummoners', record.uuid)), record.numberOfSummoners);
     setBool(keccak256(abi.encode('summoned', record.uuid)), record.summoned);
@@ -44,6 +44,6 @@ contract DAO is EternalModel {
   }
 
   function _exists(address _uuid) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists.', _uuid)));
+    return getBool(keccak256(abi.encode('exists', _uuid)));
   }
 }
