@@ -6,28 +6,41 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { agent } = await getNamedAccounts();
 
   const Configurator = await deployments.get('Configurator');
-  const DAO = await deployments.get('DAO');
+  const Dao = await deployments.get('DAO');
   const Ecosystem = await deployments.get('Ecosystem');
-  const ecosystem = new ethers.Contract(
+  const ecosystemStorage = new ethers.Contract(
     Ecosystem.address,
     Ecosystem.abi,
     bre.provider.getSigner(agent),
   );
+  const ElasticModule = await deployments.get('ElasticModule');
   const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
+  const TokenHolder = await deployments.get('TokenHolder');
 
-  const ecosystemStruct = {
-    uuid: '0x0000000000000000000000000000000000000000',
-    configuratorAddress: Configurator.address,
-    daoModelAddress: DAO.address,
-    ecosystemModelAddress: Ecosystem.address,
-    registratorAddress: Registrator.address,
-    tokenModelAddress: Token.address,
-  };
+  const ecosystemStructArray = [
+    ethers.constants.AddressZero,
+    Dao.address,
+    Ecosystem.address,
+    ElasticModule.address,
+    Token.address,
+    TokenHolder.address,
+    Configurator.address,
+    Registrator.address,
+    ethers.constants.AddressZero,
+  ];
 
-  ecosystem.functions.serialize(ecosystemStruct, { from: agent._address });
+  await ecosystemStorage.functions.serialize(ecosystemStructArray);
 
   log('##### ElasticDAO: Initialization Complete');
 };
 
-module.exports.dependencies = ['Ecosystem', 'DAO', 'Token', 'Configurator', 'Registrator'];
+module.exports.dependencies = [
+  'Ecosystem',
+  'DAO',
+  'Token',
+  'Configurator',
+  'Registrator',
+  'TokenHolder',
+  'ElasticModule',
+];
