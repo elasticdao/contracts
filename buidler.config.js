@@ -57,11 +57,14 @@ module.exports = {
     agent: {
       default: 0,
     },
-    summoner1: {
+    summoner: {
       default: 1,
     },
-    summoner2: {
+    summoner1: {
       default: 2,
+    },
+    summoner2: {
+      default: 3,
     },
   },
 };
