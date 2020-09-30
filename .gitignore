@@ -13,3 +13,4 @@ bin
 coverage
 .coverage_cache
 .coverage_contracts
+.coverage_artifacts

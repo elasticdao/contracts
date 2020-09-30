@@ -44,9 +44,9 @@ interface IERC20 {
   function approve(address _spender, uint256 _amount) external returns (bool);
 
   /**
-   * @dev Returns the amount of tokens owned by @param _owner.
+   * @dev Returns the amount of tokens owned by @param _account.
    */
-  function balanceOf(address _owner) external view returns (uint256);
+  function balanceOf(address _account) external view returns (uint256);
 
   /**
    * @dev Returns the amount of tokens in existence

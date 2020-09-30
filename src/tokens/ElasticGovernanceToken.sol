@@ -12,6 +12,9 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
+/**
+ * @dev Implementation of the IERC20 interface
+ */
 contract ElasticGovernanceToken is IERC20 {
   address daoAddress;
   address ecosystemModelAddress;
@@ -28,15 +31,44 @@ contract ElasticGovernanceToken is IERC20 {
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
+  /**
+   * @dev Returns the remaining number of tokens that @param _spender will be
+   * allowed to spend on behalf of @param _owner through {transferFrom}. This is
+   * zero by default
+   * @param _spender - the address of the spender
+   * @param _owner - the address of the owner
+   * This value changes when {approve} or {transferFrom} are called
+   * @return uint256
+   */
   function allowance(address _owner, address _spender) external override view returns (uint256) {
     return _allowances[_owner][_spender];
   }
 
+  /**
+   * @dev Sets @param _amount as the allowance of @param _spender over the caller's tokens
+   * @param _spender - the address of the spender
+   * Returns a boolean value indicating whether the operation succeeded
+   *
+   * IMPORTANT: Beware that changing an allowance with this method brings the risk
+   * that someone may use both the old and the new allowance by unfortunate
+   * transaction ordering. One possible solution to mitigate this race
+   * condition is to first reduce the spender's allowance to 0 and set the
+   * desired value afterwards:
+   * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+   *
+   * Emits an {Approval} event
+   * @return bool
+   */
   function approve(address _spender, uint256 _amount) external override returns (bool) {
     _approve(msg.sender, _spender, _amount);
     return true;
   }
 
+  /**
+   * @dev Returns the amount of tokens owned by @param _account.
+   * @param _account - address of the account
+   * @return uint256
+   */
   function balanceOf(address _account) external override view returns (uint256) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
@@ -44,6 +76,11 @@ contract ElasticGovernanceToken is IERC20 {
     return SafeMath.mul(tokenHolder.lambda, SafeMath.mul(token.k, token.m));
   }
 
+  /**
+   * @dev Returns the amount of tokens owned by @param _account at the specific @param _blockNumber
+   * @param _account - address of the account
+   * @return t uint256 - the number of tokens
+   */
   function balanceOfAt(address _account, uint256 _blockNumber) external view returns (uint256 t) {
     uint256 i = 0;
     uint256 lambda = 0;
@@ -70,10 +107,20 @@ contract ElasticGovernanceToken is IERC20 {
     return t;
   }
 
+  /**
+   * @dev returns the number of decimals
+   * @return 18
+   */
   function decimals() external pure returns (uint256) {
     return 18;
   }
 
+  /**
+   * @dev decreases the allowance of @param _spender by @param _subtractedValue
+   * @param _spender - address of the spender
+   * @param _subtractedValue - the value the allowance has to be decreased by
+   * @return bool
+   */
   function decreaseAllowance(address _spender, uint256 _subtractedValue) external returns (bool) {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
 
@@ -83,11 +130,22 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
+  /**
+   * @dev increases the allowance of @param _spender by @param _addedValue
+   * @param _spender - address of the spender
+   * @param _addedValue - the value the allowance has to be increased by
+   * @return bool
+   */
   function increaseAllowance(address _spender, uint256 _addedValue) external returns (bool) {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
 
+  /**
+   * @dev mints @param _amount tokens for @param _account
+   * @param _amount - the amount of tokens to be minted
+   * @param _account - the address of the account for whom the token have to be minted to
+   */
   function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
     _mint(_account, _amount);
     return true;
@@ -95,6 +153,7 @@ contract ElasticGovernanceToken is IERC20 {
 
   /**
    * @dev Returns the name of the token.
+   * @return string - name of the token
    */
   function name() external view returns (string memory) {
     return _getToken().name;
@@ -103,21 +162,49 @@ contract ElasticGovernanceToken is IERC20 {
   /**
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
+   * @return string - thr symbol of the toen
    */
   function symbol() external view returns (string memory) {
     return _getToken().symbol;
   }
 
+  /**
+   * @dev returns the totalSupply of tokens in thee DAO
+   * t - the total number of tokens in the DAO
+   * lambda - the total number of shares outstanding in the DAO currently
+   * m - current value of the share modifier
+   * k - constant
+   * t = ( lambda * m * k )
+   * @return uint256 - the value of t
+   */
   function totalSupply() external override view returns (uint256) {
     Token.Instance memory token = _getToken();
     return SafeMath.mul(token.lambda, SafeMath.mul(token.k, token.m));
   }
 
+  /**
+   * @dev Moves @param _amount tokens from the caller's account to @param _to address
+   *
+   * Returns a boolean value indicating whether the operation succeeded
+   *
+   * Emits a {Transfer} event
+   * @return bool
+   */
   function transfer(address _to, uint256 _amount) external override returns (bool) {
     _transfer(msg.sender, _to, _amount);
     return true;
   }
 
+  /**
+   * @dev Moves @param _amount tokens from @param _from to @param _to using the
+   * allowance mechanism. @param _amount is then deducted from the caller's
+   * allowance
+   *
+   * Returns a boolean value indicating whether the operation succeeded
+   *
+   * Emits a {Transfer} event
+   * @return bool
+   */
   function transferFrom(
     address _from,
     address _to,
