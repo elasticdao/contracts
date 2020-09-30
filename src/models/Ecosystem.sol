@@ -17,8 +17,8 @@ contract Ecosystem is EternalModel {
     address daoModelAddress;
     address ecosystemModelAddress;
     address elasticModuleModelAddress;
-    address tokenModelAddress;
     address tokenHolderModelAddress;
+    address tokenModelAddress;
     // Services
     address configuratorAddress;
     address registratorAddress;
