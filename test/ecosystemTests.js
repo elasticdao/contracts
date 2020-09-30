@@ -31,7 +31,7 @@ describe('ElasticDAO: Ecosystem Model', () => {
   });
 
   it('Should look up and return ecosystem instance record by uuid address', async () => {
-    let record = await ecosystemStorage.deserialize(ethers.constants.AddressZero);
+    const record = await ecosystemStorage.deserialize(ethers.constants.AddressZero);
 
     expect(record.uuid).to.equal(ethers.constants.AddressZero);
     expect(record.daoModelAddress).to.equal(Dao.address);
@@ -45,7 +45,7 @@ describe('ElasticDAO: Ecosystem Model', () => {
   });
 
   it('Should check to see if a instance record exists by uuid', async () => {
-    let recordExists = await ecosystemStorage.exists(ethers.constants.AddressZero);
+    const recordExists = await ecosystemStorage.exists(ethers.constants.AddressZero);
 
     expect(recordExists).to.equal(true);
   });

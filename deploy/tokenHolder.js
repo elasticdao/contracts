@@ -8,7 +8,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   });
 
   if (tokenHolder.newlyDeployed) {
-    log(`##### ElasticDAO: Elastic Module Model has been deployed: ${tokenHolder.address}`);
+    log(`##### ElasticDAO: Token Holder Model has been deployed: ${tokenHolder.address}`);
   }
 };
 module.exports.tags = ['TokenHolder'];

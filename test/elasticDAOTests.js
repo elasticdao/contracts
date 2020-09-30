@@ -8,16 +8,11 @@ describe('ElasticDAO: Core', () => {
   let summoner;
   let summoner1;
   let summoner2;
-  let Configurator;
   let Dao;
   let dao;
   let Ecosystem;
   let ElasticDAO;
   let elasticDAO;
-  let ElasticModule;
-  let Registrator;
-  let TokenHolder;
-  let Token;
 
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await bre.getSigners();
@@ -26,19 +21,12 @@ describe('ElasticDAO: Core', () => {
     await deployments.fixture();
 
     // setup needed contracts
-    Configurator = await deployments.get('Configurator');
     Dao = await deployments.get('DAO');
     dao = new ethers.Contract(Dao.address, Dao.abi, agent);
-    Ecosystem = await deployments.get('Ecosystem');
-    ElasticModule = await deployments.get('ElasticModule');
-    Registrator = await deployments.get('Registrator');
-    TokenHolder = await deployments.get('TokenHolder');
-    Token = await deployments.get('Token');
 
     // this function is hanging, syntax appears right to my tired eyes
     await deploy('ElasticDAO', {
       from: agent._address,
-      proxy: true,
       args: [
         Ecosystem.address,
         [summoner._address, summoner1._address, summoner2._address],
@@ -51,9 +39,21 @@ describe('ElasticDAO: Core', () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
   });
 
-  it('Should get module address by name', async () => {
-    let ecosystemModelAddress = await elasticDAO.functions.getModuleAddress('Ecosystem');
+  it('Should allow a token to be initialized', async () => {});
 
-    expect(ecosystemModelAddress).to.equal(Ecosystem.address);
-  });
+  it('Should create a new ElasticGovernanceToken contract when token is initialized', async () => {});
+
+  it('Should not allow a token to be initialized after summoning', async () => {});
+
+  it('Should allow summoners to seed', async () => {});
+
+  it('Should mint an appropriate number of tokens to the seeding summoner', async () => {});
+
+  it('Should not allow non summoners to seed', async () => {});
+
+  it('Should allow the dao to be summoned after it has been seeded', async () => {});
+
+  it('Should not allow the dao to be summoned before it has been seeded', async () => {});
+
+  it('Should mint tokens to all summoner token balances based on deltaLambda', async () => {});
 });

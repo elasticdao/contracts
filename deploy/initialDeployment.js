@@ -34,7 +34,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   log('##### ElasticDAO: Initialization Complete');
 };
-
+module.exports.tags = ['initialDeployment'];
 module.exports.dependencies = [
   'Ecosystem',
   'DAO',

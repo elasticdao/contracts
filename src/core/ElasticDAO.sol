@@ -33,7 +33,7 @@ contract ElasticDAO {
   modifier onlySummoners() {
     DAO.Instance memory dao = _getDAO();
     bool isSummoner = false;
-    for (uint256 i = 0; i < dao.numberOfSummoners; SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
       if (dao.summoners[i] == msg.sender) {
         isSummoner = true;
       }
@@ -52,12 +52,8 @@ contract ElasticDAO {
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
-    configurator.buildDAO(
-      _summoners,
-      _name,
-      _numberOfSummoners,
-      configurator.buildEcosystem(defaults)
-    );
+    Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
+    configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
   function initializeToken(
@@ -115,7 +111,7 @@ contract ElasticDAO {
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
 
-    for (uint256 i = 0; i < dao.numberOfSummoners; SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
       tokenContract.mint(dao.summoners[i], deltaT);
     }
 

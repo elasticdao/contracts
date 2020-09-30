@@ -177,7 +177,7 @@ library SafeMath {
       return 0;
     } else {
       uint256 z = base;
-      for (uint256 i = 1; i < exponent; i++) z = mul(z, base);
+      for (uint256 i = 1; i < exponent; i = add(i, 1)) z = mul(z, base);
       return z;
     }
   }

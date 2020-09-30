@@ -25,7 +25,7 @@ contract DAO is EternalModel {
       record.numberOfSummoners = getUint(keccak256(abi.encode('numberOfSummoners', _uuid)));
       record.summoned = getBool(keccak256(abi.encode('summoned', _uuid)));
       record.uuid = _uuid;
-      for (uint256 i = 0; i < record.numberOfSummoners; SafeMath.add(i, 1)) {
+      for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
         record.summoners[i] = getAddress(keccak256(abi.encode('summoner', i, _uuid)));
       }
     }
@@ -40,7 +40,7 @@ contract DAO is EternalModel {
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setUint(keccak256(abi.encode('numberOfSummoners', record.uuid)), record.numberOfSummoners);
     setBool(keccak256(abi.encode('summoned', record.uuid)), record.summoned);
-    for (uint256 i = 0; i < record.numberOfSummoners; SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
       setAddress(keccak256(abi.encode('summoner', i, record.uuid)), record.summoners[i]);
     }
   }

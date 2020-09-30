@@ -39,7 +39,7 @@ contract TokenHolder is EternalModel {
       record.counter = getUint(keccak256(abi.encode(_tokenAddress, 'counter', _uuid)));
       record.lambda = getUint(keccak256(abi.encode(_tokenAddress, 'lambda', _uuid)));
 
-      for (uint256 i = 0; i < record.counter; SafeMath.add(i, 1)) {
+      for (uint256 i = 0; i < record.counter; i = SafeMath.add(i, 1)) {
         record.balanceChanges[i].id = i;
         record.balanceChanges[i].isIncreasing = getBool(
           keccak256(abi.encode(record.tokenAddress, 'balanceChange', record.uuid, 'counter', i))
@@ -68,7 +68,7 @@ contract TokenHolder is EternalModel {
     setUint(keccak256(abi.encode(record.tokenAddress, 'counter', record.uuid)), record.counter);
     setUint(keccak256(abi.encode(record.tokenAddress, 'lambda', record.uuid)), record.lambda);
 
-    for (uint256 i = 0; i < record.counter; SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < record.counter; i = SafeMath.add(i, 1)) {
       setBool(
         keccak256(abi.encode(record.tokenAddress, 'balanceChange', record.uuid, 'isIncreasing', i)),
         record.balanceChanges[i].isIncreasing
