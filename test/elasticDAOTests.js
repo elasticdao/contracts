@@ -68,9 +68,24 @@ describe('ElasticDAO: Core', () => {
         console.log(error);
       });
 
-    let ecosystem = await elasticDAO.getEcosystem();
+    const ecosystem = await elasticDAO.getEcosystem();
 
     expect(ecosystem.governanceTokenAddress).to.not.equal(ethers.constants.AddressZero);
+  });
+
+  it('Should not allow a token to be initialized if not a summoner', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
+
+    await expect(
+      elasticDAO.initializeToken(
+        'Elastic Governance Token',
+        'EGT',
+        ethers.BigNumber.from('100000000000000000'),
+        ethers.BigNumber.from('20000000000000000'),
+        ethers.BigNumber.from('100000000000000000000'),
+        ethers.BigNumber.from('1000000000000000000'),
+      ),
+    ).to.be.revertedWith('ElasticDAO: Only summoners');
   });
 
   it('Should create a new ElasticGovernanceToken contract when token is initialized', async () => {});
