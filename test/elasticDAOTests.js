@@ -52,7 +52,7 @@ describe('ElasticDAO: Core', () => {
     ElasticDAO = await deployments.get('ElasticDAO');
   });
 
-  it.only('Should allow a token to be initialized', async () => {
+  it('Should allow a token to be initialized', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
     await elasticDAO
