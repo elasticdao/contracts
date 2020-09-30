@@ -108,6 +108,6 @@ contract Configurator {
     view
     returns (Ecosystem.Instance memory ecosystem)
   {
-    ecosystem = Ecosystem(_uuid).deserialize(msg.sender);
+    return Ecosystem(_uuid).deserialize(msg.sender);
   }
 }

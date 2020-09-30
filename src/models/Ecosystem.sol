@@ -59,6 +59,8 @@ contract Ecosystem is EternalModel {
         keccak256(abi.encode('tokenModelAddress', record.uuid))
       );
     }
+
+    return record;
   }
 
   /**

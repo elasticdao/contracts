@@ -33,6 +33,8 @@ contract ElasticModule is EternalModel {
       record.name = _name;
       record.contractAddress = getAddress(keccak256(abi.encode('contractAddress', _uuid, _name)));
     }
+
+    return record;
   }
 
   /**

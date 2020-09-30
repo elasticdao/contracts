@@ -12,6 +12,8 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 contract ElasticDAO {
   address internal ecosystemModelAddress;
 
@@ -31,14 +33,9 @@ contract ElasticDAO {
     _;
   }
   modifier onlySummoners() {
-    DAO.Instance memory dao = _getDAO();
-    bool isSummoner = false;
-    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      if (dao.summoners[i] == msg.sender) {
-        isSummoner = true;
-      }
-    }
-    require(isSummoner, 'ElasticDAO: Only summoners');
+    bool summonerCheck = DAO(_getEcosystem().daoModelAddress).isSummoner(msg.sender);
+
+    require(summonerCheck, 'ElasticDAO: Only summoners');
     _;
   }
 
@@ -64,7 +61,9 @@ contract ElasticDAO {
     uint256 _k,
     uint256 _maxLambdaPurchase
   ) external onlyBeforeSummoning onlySummoners {
-    Configurator(_getEcosystem().configuratorAddress).buildToken(
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+
+    Configurator(ecosystem.configuratorAddress).buildToken(
       ecosystemModelAddress,
       _name,
       _symbol,
@@ -121,45 +120,48 @@ contract ElasticDAO {
 
   // Getters
 
+  function getDAO() public view returns (DAO.Instance memory) {
+    return _getDAO();
+  }
+
+  function getEcosystem() public view returns (Ecosystem.Instance memory) {
+    return _getEcosystem();
+  }
+
   function getModuleAddress(string memory _name) external view returns (address) {
     return _getElasticModule(_name).contractAddress;
   }
 
   // Private
 
-  function _getDAO() internal view returns (DAO.Instance memory dao) {
-    dao = DAO(_getEcosystem().daoModelAddress).deserialize(address(this));
+  function _getDAO() internal view returns (DAO.Instance memory) {
+    return DAO(_getEcosystem().daoModelAddress).deserialize(address(this));
   }
 
-  function _getEcosystem() internal view returns (Ecosystem.Instance memory ecosystem) {
-    ecosystem = Ecosystem(ecosystemModelAddress).deserialize(address(this));
+  function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
+    return Ecosystem(ecosystemModelAddress).deserialize(address(this));
   }
 
   function _getElasticModule(string memory _name)
     internal
     view
-    returns (ElasticModule.Instance memory elasticModule)
+    returns (ElasticModule.Instance memory)
   {
-    elasticModule = ElasticModule(_getEcosystem().elasticModuleModelAddress).deserialize(
-      address(this),
-      _name
-    );
+    return
+      ElasticModule(_getEcosystem().elasticModuleModelAddress).deserialize(address(this), _name);
   }
 
-  function _getToken() internal view returns (Token.Instance memory token) {
+  function _getToken() internal view returns (Token.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    token = Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress);
+    return Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress);
   }
 
-  function _getTokenHolder(address _uuid)
-    internal
-    view
-    returns (TokenHolder.Instance memory tokenHolder)
-  {
+  function _getTokenHolder(address _uuid) internal view returns (TokenHolder.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    tokenHolder = TokenHolder(ecosystem.tokenHolderModelAddress).deserialize(
-      _uuid,
-      ecosystem.governanceTokenAddress
-    );
+    return
+      TokenHolder(ecosystem.tokenHolderModelAddress).deserialize(
+        _uuid,
+        ecosystem.governanceTokenAddress
+      );
   }
 }

@@ -66,6 +66,8 @@ contract TokenHolder is EternalModel {
         );
       }
     }
+
+    return record;
   }
 
   /**

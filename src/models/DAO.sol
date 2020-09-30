@@ -30,10 +30,9 @@ contract DAO is EternalModel {
       record.numberOfSummoners = getUint(keccak256(abi.encode('numberOfSummoners', _uuid)));
       record.summoned = getBool(keccak256(abi.encode('summoned', _uuid)));
       record.uuid = _uuid;
-      for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
-        record.summoners[i] = getAddress(keccak256(abi.encode('summoner', i, _uuid)));
-      }
     }
+
+    return record;
   }
 
   /**
@@ -49,17 +48,31 @@ contract DAO is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
+  function exists(address _uuid) external view returns (bool) {
+    return _exists(_uuid);
+  }
+
+  function isSummoner(address _uuid) external view returns (bool) {
+    bool summonerData = getBool(keccak256(abi.encode('summoner', _uuid)));
+
+    if (summonerData == true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function serialize(Instance memory record) external {
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setUint(keccak256(abi.encode('numberOfSummoners', record.uuid)), record.numberOfSummoners);
     setBool(keccak256(abi.encode('summoned', record.uuid)), record.summoned);
     for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      setAddress(keccak256(abi.encode('summoner', i, record.uuid)), record.summoners[i]);
+      setBool(keccak256(abi.encode('summoner', record.summoners[i])), true);
     }
   }
 
-  function _exists(address _uuid) internal view returns (bool recordExists) {
+  function _exists(address _uuid) internal view returns (bool) {
     return getBool(keccak256(abi.encode('exists', _uuid)));
   }
 }

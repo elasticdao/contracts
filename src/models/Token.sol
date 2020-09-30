@@ -44,6 +44,8 @@ contract Token is EternalModel {
       record.symbol = getString(keccak256(abi.encode('symbol', _uuid)));
       record.uuid = _uuid;
     }
+
+    return record;
   }
 
   /**
