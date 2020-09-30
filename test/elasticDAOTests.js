@@ -35,6 +35,7 @@ describe('ElasticDAO: Core', () => {
     TokenHolder = await deployments.get('TokenHolder');
     Token = await deployments.get('Token');
 
+    // this function is hanging, syntax appears right to my tired eyes
     await deploy('ElasticDAO', {
       from: agent._address,
       proxy: true,
