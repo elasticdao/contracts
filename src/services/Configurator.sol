@@ -12,7 +12,15 @@ import '../tokens/ElasticGovernanceToken.sol';
 /// @notice This contract is used for configuring ElasticDAOs
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract Configurator {
-  // creates DAO.Instance record
+  /**
+   * @dev creates DAO.Instance record
+   * @param _summoners - an array of the addresses of the summoners
+   * @param _name - the name of the DAO
+   * @param _numberOfSummoners - the number of summoners
+   * @param ecosystem - an instance of Ecosystem
+   * @return dao DAO.Instance
+   */
+
   function buildDAO(
     address[] memory _summoners,
     string memory _name,
@@ -28,7 +36,11 @@ contract Configurator {
     daoStorage.serialize(dao);
   }
 
-  // duplicates the ecosystem contract address defaults
+  /**
+   * @dev duplicates the ecosystem contract address defaults
+   * @param defaults - An instance of the Ecosystem
+   * @return ecosystem Ecosystem.Instance
+   */
   function buildEcosystem(Ecosystem.Instance memory defaults)
     external
     returns (Ecosystem.Instance memory ecosystem)
@@ -51,7 +63,19 @@ contract Configurator {
     ecosystemStorage.serialize(ecosystem);
   }
 
-  // creates a governance token and it's storage
+  /**
+   * @dev creates a governance token and it's storage
+   * @param _ecosystemModelAddress - address of the ecoSystemModelAddress
+   * @param _name - the name of the token
+   * @param _name - the symbol of the token
+   * @param _capitalDelta is the Eth/Egt ratio
+   * @param _elasticity is the value of elasticity, initially set by the DAO
+   * @param _k is a constant, initially set by the DAO
+   * @param _maxLambdaPurchase - the maximum amount of lambda(shares) that can be
+   * purchased by an account
+   * m - initital share modifier = 1
+   * @return token Token.Instance
+   */
   function buildToken(
     address _ecosystemModelAddress,
     string memory _name,

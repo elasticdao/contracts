@@ -19,6 +19,11 @@ contract DAO is EternalModel {
     uint256 numberOfSummoners;
   }
 
+  /**
+   * @dev deserializes Instance struct
+   * @param _uuid - address of the unique user ID
+   * @return record Instance
+   */
   function deserialize(address _uuid) external view returns (Instance memory record) {
     if (_exists(_uuid)) {
       record.name = getString(keccak256(abi.encode('name', _uuid)));
@@ -31,10 +36,19 @@ contract DAO is EternalModel {
     }
   }
 
+  /**
+   * @dev checks if @param _uuid and @param _name exist
+   * @param _uuid - address of the unique user ID
+   * @return recordExists bool
+   */
   function exists(address _uuid) external view returns (bool recordExists) {
     return _exists(_uuid);
   }
 
+  /**
+   * @dev serializes Instance struct
+   * @param record Instance
+   */
   function serialize(Instance memory record) external {
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);

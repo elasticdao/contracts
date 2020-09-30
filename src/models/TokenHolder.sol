@@ -8,6 +8,8 @@ import '../libraries/SafeMath.sol';
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
+// Serialize -> Translation of data from the concerned struct to key-value pairs
+/// Deserialize -> Translation of data from the key-value pairs to a struct
 contract TokenHolder is EternalModel {
   constructor() EternalModel() {}
 
@@ -28,6 +30,12 @@ contract TokenHolder is EternalModel {
     BalanceChange[] balanceChanges;
   }
 
+  /**
+   * @dev deserializes Instance struct
+   * @param _uuid - address of the unique user ID
+   * @param _tokenAddress - the address of the token
+   * @return record Instance
+   */
   function deserialize(address _uuid, address _tokenAddress)
     external
     view
@@ -60,10 +68,20 @@ contract TokenHolder is EternalModel {
     }
   }
 
+  /**
+   * @dev checks if @param _uuid and @param _name exist
+   * @param _uuid - address of the unique user ID
+   * @param _tokenAddress - the address of the token
+   * @return recordExists bool
+   */
   function exists(address _uuid, address _tokenAddress) external view returns (bool recordExists) {
     return _exists(_uuid, _tokenAddress);
   }
 
+  /**
+   * @dev serializes Instance struct
+   * @param record Instance
+   */
   function serialize(Instance memory record) external {
     setUint(keccak256(abi.encode(record.tokenAddress, 'counter', record.uuid)), record.counter);
     setUint(keccak256(abi.encode(record.tokenAddress, 'lambda', record.uuid)), record.lambda);

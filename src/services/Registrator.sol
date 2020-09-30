@@ -9,6 +9,11 @@ import '../models/ElasticModule.sol';
 /// @notice This contract is used for registering ElasticDAO modules
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract Registrator {
+  /**
+   * @dev registers the module
+   * @param _moduleAddress - the address of the module
+   * @param _name - the name of the module
+   */
   function registerModule(address _moduleAddress, string memory _name) external {
     Ecosystem.Instance memory ecosystem = _getEcosystem(msg.sender);
     ElasticModule elasticModuleStorage = ElasticModule(ecosystem.elasticModuleModelAddress);

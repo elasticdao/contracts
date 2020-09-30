@@ -10,6 +10,8 @@ import '../tokens/ElasticGovernanceToken.sol';
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
+/// Serialize -> Translation of data from the concerned struct to key-value pairs
+/// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Token is EternalModel {
   constructor() EternalModel() {}
 
@@ -25,6 +27,11 @@ contract Token is EternalModel {
     uint256 maxLambdaPurchase;
   }
 
+  /**
+   * @dev deserializes Instance struct
+   * @param _uuid - address of the unique user ID
+   * @return record Instance
+   */
   function deserialize(address _uuid) external view returns (Instance memory record) {
     if (_exists(_uuid)) {
       record.capitalDelta = getUint(keccak256(abi.encode('capitalDelta', _uuid)));
@@ -39,10 +46,19 @@ contract Token is EternalModel {
     }
   }
 
+  /**
+   * @dev checks if @param _uuid and @param _name exist
+   * @param _uuid - address of the unique user ID
+   * @return recordExists bool
+   */
   function exists(address _uuid) external view returns (bool recordExists) {
     return _exists(_uuid);
   }
 
+  /**
+   * @dev serializes Instance struct
+   * @param record Instance
+   */
   function serialize(Instance memory record) external {
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
