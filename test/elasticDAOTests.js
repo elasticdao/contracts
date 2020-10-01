@@ -29,6 +29,8 @@ describe('ElasticDAO: Core', () => {
   let Ecosystem;
   let ElasticDAO;
   let elasticDAO;
+  let Token;
+  let tokenStorage;
 
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await bre.getSigners();
@@ -50,6 +52,7 @@ describe('ElasticDAO: Core', () => {
     });
 
     ElasticDAO = await deployments.get('ElasticDAO');
+    Token = await deployments.get('Token');
   });
 
   it('Should allow a token to be initialized', async () => {
@@ -88,19 +91,63 @@ describe('ElasticDAO: Core', () => {
     ).to.be.revertedWith('ElasticDAO: Only summoners');
   });
 
-  it('Should create a new ElasticGovernanceToken contract when token is initialized', async () => {});
+  it('Should not allow the DAO to be summoned before it has been seeded', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
-  it('Should not allow a token to be initialized after summoning', async () => {});
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ethers.BigNumber.from('100000000000000000'),
+      ethers.BigNumber.from('20000000000000000'),
+      ethers.BigNumber.from('100000000000000000000'),
+      ethers.BigNumber.from('1000000000000000000'),
+    );
 
-  it('Should allow summoners to seed', async () => {});
+    tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+    const ecosystem = await elasticDAO.getEcosystem();
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
 
-  it('Should mint an appropriate number of tokens to the seeding summoner', async () => {});
+    await expect(elasticDAO.summon(token.maxLambdaPurchase)).to.be.revertedWith(
+      'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio',
+    );
+  });
+
+  it.only('Should allow summoners to seed', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
+
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ethers.BigNumber.from('100000000000000000'),
+      ethers.BigNumber.from('20000000000000000'),
+      ethers.BigNumber.from('100000000000000000000'),
+      ethers.BigNumber.from('1000000000000000000'),
+    );
+
+    await elasticDAO.seedSummoning({ value: ethers.constants.One });
+
+    expect(await elasticDAO.balance).to.equal(ethers.constants.One);
+  });
+
+  it('Should not allow summoners to seed before token has been initialized', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
+
+    await expect(elasticDAO.seedSummoning({ value: ethers.constants.One })).to.be.revertedWith(
+      'ElasticDAO: Please call initializeToken first.',
+    );
+  });
+
+  it('Should not allow the DAO to be summoned by a non-summoner', async () => {
+    // tokenStorage = new ethers.Contract(Token.address, Token.abi, agent);
+  });
 
   it('Should not allow non summoners to seed', async () => {});
 
-  it('Should allow the dao to be summoned after it has been seeded', async () => {});
+  it('Should allow the DAO to be summoned after it has been seeded', async () => {});
 
-  it('Should not allow the dao to be summoned before it has been seeded', async () => {});
+  it('Should not allow a token to be initialized after summoning', async () => {});
+
+  it('Should mint an appropriate number of tokens to the seeding summoner', async () => {});
 
   it('Should mint tokens to all summoner token balances based on deltaLambda', async () => {});
 });

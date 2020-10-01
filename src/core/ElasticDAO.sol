@@ -23,8 +23,11 @@ contract ElasticDAO {
     _;
   }
   modifier onlyAfterTokenInitialized() {
-    bool tokenInitialized = Token(_getEcosystem().tokenModelAddress).exists(address(this));
-    require(tokenInitialized, 'ElasticDAO: Please call initializeToken first.');
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    bool tokenInitialized = Token(_getEcosystem().tokenModelAddress).exists(
+      ecosystem.governanceTokenAddress
+    );
+    require(tokenInitialized, 'ElasticDAO: Please call initializeToken first');
     _;
   }
   modifier onlyBeforeSummoning() {

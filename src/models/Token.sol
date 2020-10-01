@@ -53,7 +53,7 @@ contract Token is EternalModel {
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid) external view returns (bool recordExists) {
+  function exists(address _uuid) external view returns (bool) {
     return _exists(_uuid);
   }
 
@@ -73,7 +73,7 @@ contract Token is EternalModel {
     setUint(keccak256(abi.encode('maxLambdaPurchase', record.uuid)), record.maxLambdaPurchase);
   }
 
-  function _exists(address _uuid) internal view returns (bool recordExists) {
+  function _exists(address _uuid) internal view returns (bool) {
     return getBool(keccak256(abi.encode('exists', _uuid)));
   }
 }
