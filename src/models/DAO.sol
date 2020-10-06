@@ -27,24 +27,12 @@ contract DAO is EternalModel {
    * @return record Instance
    */
   function deserialize(address _uuid) external view returns (Instance memory record) {
+    record.uuid = _uuid;
+
     if (_exists(_uuid)) {
       record.name = getString(keccak256(abi.encode('name', _uuid)));
       record.numberOfSummoners = getUint(keccak256(abi.encode('numberOfSummoners', _uuid)));
       record.summoned = getBool(keccak256(abi.encode('summoned', _uuid)));
-      record.uuid = _uuid;
-      address[] memory summoners;
-
-      for (uint256 i = 0; i < record.numberOfSummoners; SafeMath.add(i, 1)) {
-        address summoner = getAddress(keccak256(abi.encode('summoners', i)));
-        summoners[i] = summoner;
-      }
-
-      console.logString('Summoners');
-      console.logAddress(summoners[0]);
-      console.logAddress(summoners[1]);
-      console.logAddress(summoners[2]);
-
-      record.summoners = summoners;
     }
 
     return record;
@@ -59,19 +47,18 @@ contract DAO is EternalModel {
     return _exists(_uuid);
   }
 
+  function getSummoner(Instance memory dao, uint256 _index) external view returns (address) {
+    return getAddress(keccak256(abi.encode('summoners', dao.uuid, _index)));
+  }
+
   /**
    * @dev checks if @param _uuid where _uuid is msg.sender - is a Summoner
-   * @param _uuid bool
+   * @param _dao DAO.Instance
+   * @param _summonerAddress address
    * @return bool
    */
-  function isSummoner(address _uuid) external view returns (bool) {
-    bool summonerData = getBool(keccak256(abi.encode('summoner', _uuid)));
-
-    if (summonerData == true) {
-      return true;
-    } else {
-      return false;
-    }
+  function isSummoner(Instance memory _dao, address _summonerAddress) external view returns (bool) {
+    return getBool(keccak256(abi.encode('summoner', _dao.uuid, _summonerAddress)));
   }
 
   /**
@@ -83,9 +70,11 @@ contract DAO is EternalModel {
     setUint(keccak256(abi.encode('numberOfSummoners', record.uuid)), record.numberOfSummoners);
     setBool(keccak256(abi.encode('summoned', record.uuid)), record.summoned);
 
-    for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      setBool(keccak256(abi.encode('summoner', record.summoners[i])), true);
-      setAddress(keccak256(abi.encode('summoners', i)), record.summoners[i]);
+    if (record.summoners.length == record.numberOfSummoners) {
+      for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
+        setBool(keccak256(abi.encode('summoner', record.uuid, record.summoners[i])), true);
+        setAddress(keccak256(abi.encode('summoners', record.uuid, i)), record.summoners[i]);
+      }
     }
 
     setBool(keccak256(abi.encode('exists', record.uuid)), true);

@@ -159,7 +159,7 @@ describe('ElasticDAO: Core', () => {
 
   it('Should not allow non summoners to seed', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
-    elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
+    const elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
 
     await elasticDAO.initializeToken(
       'Elastic Governance Token',
@@ -170,14 +170,6 @@ describe('ElasticDAO: Core', () => {
       ethers.constants.WeiPerEther, // lambda
     );
 
-    const ecosystem = await elasticDAO.getEcosystem();
-
-    const tokenContract = new ethers.Contract(
-      ecosystem.governanceTokenAddress,
-      elasticGovernanceTokenArtifact.abi,
-      bre.provider,
-    );
-
     await expect(
       elasticDAONonSummoner.seedSummoning({ value: ethers.constants.WeiPerEther }),
     ).to.be.revertedWith('ElasticDAO: Only summoners');
@@ -185,7 +177,7 @@ describe('ElasticDAO: Core', () => {
 
   it('Should not allow the DAO to be summoned by a non-summoner', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
-    elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
+    const elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
 
     await elasticDAO.initializeToken(
       'Elastic Governance Token',
@@ -207,7 +199,7 @@ describe('ElasticDAO: Core', () => {
     );
   });
 
-  it.only('Should allow the DAO to be summoned after it has been seeded', async () => {
+  it('Should allow the DAO to be summoned after it has been seeded', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
     await elasticDAO.initializeToken(
@@ -224,11 +216,10 @@ describe('ElasticDAO: Core', () => {
     const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
-    console.log('maxLambdaPurchase', token.maxLambdaPurchase);
     await elasticDAO.summon(token.maxLambdaPurchase);
 
     const dao = await elasticDAO.getDAO();
-    expect(dao.summoned).to.be(true);
+    expect(dao.summoned).to.equal(true);
   });
 
   it('Should not allow a token to be initialized after summoning', async () => {});

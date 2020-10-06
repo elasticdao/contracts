@@ -12,8 +12,6 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
 
-import '@nomiclabs/buidler/console.sol';
-
 contract ElasticDAO {
   address internal ecosystemModelAddress;
 
@@ -36,7 +34,11 @@ contract ElasticDAO {
     _;
   }
   modifier onlySummoners() {
-    bool summonerCheck = DAO(_getEcosystem().daoModelAddress).isSummoner(msg.sender);
+    DAO daoContract = DAO(_getEcosystem().daoModelAddress);
+    DAO.Instance memory dao = daoContract.deserialize(address(this));
+    bool summonerCheck = daoContract.isSummoner(dao, msg.sender);
+
+    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {}
 
     require(summonerCheck, 'ElasticDAO: Only summoners');
     _;
@@ -111,14 +113,15 @@ contract ElasticDAO {
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
-    DAO.Instance memory dao = _getDAO();
+    DAO daoContract = DAO(_getEcosystem().daoModelAddress);
+    DAO.Instance memory dao = daoContract.deserialize(address(this));
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
 
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      tokenContract.mint(dao.summoners[i], deltaT);
+      tokenContract.mint(daoContract.getSummoner(dao, i), deltaT);
     }
 
     dao.summoned = true;
