@@ -12,6 +12,8 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 /**
  * @dev Implementation of the IERC20 interface
  */
@@ -147,7 +149,9 @@ contract ElasticGovernanceToken is IERC20 {
    * @param _account - the address of the account for whom the token have to be minted to
    */
   function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
+    console.log('## pre check');
     _mint(_account, _amount);
+    console.log('## post check');
     return true;
   }
 
@@ -237,24 +241,27 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function _mint(address _account, uint256 _deltaT) internal {
+    console.log('_mint check 1');
     Token.Instance memory token = _getToken();
 
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
 
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-
+    console.log('_mint check 2');
     tokenHolder = _updateBalance(token, tokenHolder, true, deltaLambda);
+    console.log('_mint check 3');
     token.lambda = SafeMath.add(token.lambda, deltaLambda);
-
+    console.log('_mint check 4');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     tokenStorage.serialize(token);
-
+    console.log('_mint check 5');
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
 
     emit Transfer(address(0), _account, deltaT);
+    console.log('_mint check 6');
   }
 
   function _transfer(
@@ -305,20 +312,32 @@ contract ElasticGovernanceToken is IERC20 {
     bool _isIncreasing,
     uint256 _deltaLambda
   ) internal view returns (TokenHolder.Instance memory) {
+    console.log('_updateBalance check 1');
     TokenHolder.BalanceChange memory balanceChange;
     balanceChange.blockNumber = block.number;
+    console.log('_updateBalance check 2');
     balanceChange.deltaLambda = _deltaLambda;
     balanceChange.id = _tokenHolder.counter;
     balanceChange.isIncreasing = _isIncreasing;
+    console.log('_updateBalance check 3');
     balanceChange.k = _token.k;
+    console.log('_updateBalance check 4');
     balanceChange.m = _token.m;
-    _tokenHolder.balanceChanges[_tokenHolder.counter] = balanceChange;
+    console.log('_updateBalance check 5');
+    console.log('_updateBalance check counter value');
+    console.log(_tokenHolder.counter);
+    console.log('_updateBalance check balance change value');
+    // console.logUint(balanceChange);
+    //_tokenHolder.balanceChanges.(balanceChange);
+    console.log('_updateBalance check 6');
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
+    console.log('_updateBalance check 7');
     if (_isIncreasing) {
       _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
+    console.log('_updateBalance check 8');
     return _tokenHolder;
   }
 }

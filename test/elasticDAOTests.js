@@ -118,15 +118,15 @@ describe('ElasticDAO: Core', () => {
     await elasticDAO.initializeToken(
       'Elastic Governance Token',
       'EGT',
-      ethers.BigNumber.from('100000000000000000'),
-      ethers.BigNumber.from('20000000000000000'),
-      ethers.BigNumber.from('100000000000000000000'),
-      ethers.BigNumber.from('1000000000000000000'),
+      ethers.BigNumber.from('100000000000000000'), // capitalDelta
+      ethers.BigNumber.from('20000000000000000'), // elasticity
+      ethers.BigNumber.from('100000000000000000000'), // k
+      ethers.BigNumber.from('1000000000000000000'), // lambda
     );
 
-    await elasticDAO.seedSummoning({ value: ethers.constants.One });
+    await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
 
-    expect(await elasticDAO.balance).to.equal(ethers.constants.One);
+    expect(await elasticDAO.balance).to.equal(ethers.constants.WeiPerEther);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {

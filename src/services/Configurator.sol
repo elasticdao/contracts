@@ -92,7 +92,7 @@ contract Configurator {
     token.elasticity = _elasticity;
     token.k = _k;
     token.lambda = 0;
-    token.m = 1;
+    token.m = 1000000000000000000;
     token.maxLambdaPurchase = _maxLambdaPurchase;
     token.name = _name;
     token.symbol = _symbol;

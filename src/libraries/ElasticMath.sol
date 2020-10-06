@@ -85,7 +85,7 @@ library ElasticMath {
     uint256 k,
     uint256 m
   ) internal pure returns (uint256 tokens) {
-    return SafeMath.mul(SafeMath.mul(lambda, k), m);
+    return wmul(wmul(lambda, k), m);
   }
 
   /**
@@ -96,5 +96,15 @@ library ElasticMath {
   // inspiration: https://github.com/dapphub/ds-math/blob/master/src/math.sol
   function wmul(uint256 a, uint256 b) internal pure returns (uint256) {
     return SafeMath.add(SafeMath.mul(a, b), 1000000000000000000 / 2) / 1000000000000000000;
+  }
+
+  /**
+   * @dev divides two float values,
+   * required since soldity does not handle floating point values
+   * @return uint256
+   */
+  // inspiration: https://github.com/dapphub/ds-math/blob/master/src/math.sol
+  function wdiv(uint256 a, uint256 b) internal pure returns (uint256) {
+    return SafeMath.add(SafeMath.mul(a, 1000000000000000000), b / 2) / b;
   }
 }
