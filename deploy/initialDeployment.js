@@ -5,6 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { log } = deployments;
   const { agent } = await getNamedAccounts();
 
+  const BalanceChange = await deployments.get('BalanceChange');
   const Configurator = await deployments.get('Configurator');
   const Dao = await deployments.get('DAO');
   const Ecosystem = await deployments.get('Ecosystem');
@@ -20,13 +21,17 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   const ecosystemStructArray = [
     ethers.constants.AddressZero,
+    // Models
+    BalanceChange.address,
     Dao.address,
     Ecosystem.address,
     ElasticModule.address,
     TokenHolder.address,
     Token.address,
+    // Services
     Configurator.address,
     Registrator.address,
+    // Tokens
     ethers.constants.AddressZero,
   ];
 
@@ -36,11 +41,12 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 };
 module.exports.tags = ['initialDeployment'];
 module.exports.dependencies = [
-  'Ecosystem',
-  'DAO',
-  'Token',
+  'BalanceChange',
   'Configurator',
-  'Registrator',
-  'TokenHolder',
+  'DAO',
+  'Ecosystem',
   'ElasticModule',
+  'Registrator',
+  'Token',
+  'TokenHolder',
 ];

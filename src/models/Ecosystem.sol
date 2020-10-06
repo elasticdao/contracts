@@ -16,6 +16,7 @@ contract Ecosystem is EternalModel {
   struct Instance {
     address uuid; // dao uuid
     // Models
+    address balanceChangeModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
     address elasticModuleModelAddress;
@@ -36,6 +37,9 @@ contract Ecosystem is EternalModel {
   function deserialize(address _uuid) external view returns (Instance memory record) {
     if (_exists(_uuid)) {
       record.uuid = _uuid;
+      record.balanceChangeModelAddress = getAddress(
+        keccak256(abi.encode('balanceChangeModelAddress', record.uuid))
+      );
       record.configuratorAddress = getAddress(
         keccak256(abi.encode('configuratorAddress', record.uuid))
       );
@@ -77,7 +81,10 @@ contract Ecosystem is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setBool(keccak256(abi.encode('exists', record.uuid)), true);
+    setAddress(
+      keccak256(abi.encode('balanceChangeModelAddress', record.uuid)),
+      record.balanceChangeModelAddress
+    );
     setAddress(
       keccak256(abi.encode('configuratorAddress', record.uuid)),
       record.configuratorAddress
@@ -101,6 +108,8 @@ contract Ecosystem is EternalModel {
       record.tokenHolderModelAddress
     );
     setAddress(keccak256(abi.encode('tokenModelAddress', record.uuid)), record.tokenModelAddress);
+
+    setBool(keccak256(abi.encode('exists', record.uuid)), true);
   }
 
   function _exists(address _uuid) internal view returns (bool recordExists) {

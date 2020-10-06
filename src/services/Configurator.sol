@@ -50,6 +50,7 @@ contract Configurator {
     ecosystem.uuid = msg.sender;
 
     // Models
+    ecosystem.balanceChangeModelAddress = defaults.balanceChangeModelAddress;
     ecosystem.daoModelAddress = defaults.daoModelAddress;
     ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
     ecosystem.elasticModuleModelAddress = defaults.elasticModuleModelAddress;

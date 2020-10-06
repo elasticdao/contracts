@@ -28,9 +28,10 @@ contract ElasticModule is EternalModel {
     view
     returns (Instance memory record)
   {
+    record.uuid = _uuid;
+    record.name = _name;
+
     if (_exists(_uuid, _name)) {
-      record.uuid = _uuid;
-      record.name = _name;
       record.contractAddress = getAddress(keccak256(abi.encode('contractAddress', _uuid, _name)));
     }
 
@@ -56,6 +57,7 @@ contract ElasticModule is EternalModel {
       keccak256(abi.encode('contractAddress', record.uuid, record.name)),
       record.contractAddress
     );
+
     setBool(keccak256(abi.encode('exists', record.uuid, record.name)), true);
   }
 

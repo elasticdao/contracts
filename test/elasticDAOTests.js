@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const bre = require('@nomiclabs/buidler').ethers;
 const { deployments } = require('@nomiclabs/buidler');
+const elasticGovernanceTokenArtifact = require('../artifacts/ElasticGovernanceToken.json');
 
 // [
 //   ethers.BigNumber.from('100000000000000000000'), // k
@@ -20,6 +21,11 @@ const { deployments } = require('@nomiclabs/buidler');
 //   ethers.BigNumber.from('500000000000000000'), // quorum
 //   ethers.BigNumber.from('100000000000000000'), // reward
 // ]
+
+const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
+const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
+const TEN = ethers.BigNumber.from('10000000000000000000');
+const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: Core', () => {
   let agent;
@@ -62,10 +68,10 @@ describe('ElasticDAO: Core', () => {
       .initializeToken(
         'Elastic Governance Token',
         'EGT',
-        ethers.BigNumber.from('100000000000000000'),
-        ethers.BigNumber.from('20000000000000000'),
-        ethers.BigNumber.from('100000000000000000000'),
-        ethers.BigNumber.from('1000000000000000000'),
+        ONE_TENTH,
+        TWO_HUNDREDTHS,
+        ONE_HUNDRED,
+        ethers.constants.WeiPerEther,
       )
       .catch((error) => {
         console.log(error);
@@ -83,10 +89,10 @@ describe('ElasticDAO: Core', () => {
       elasticDAO.initializeToken(
         'Elastic Governance Token',
         'EGT',
-        ethers.BigNumber.from('100000000000000000'),
-        ethers.BigNumber.from('20000000000000000'),
-        ethers.BigNumber.from('100000000000000000000'),
-        ethers.BigNumber.from('1000000000000000000'),
+        ONE_TENTH,
+        TWO_HUNDREDTHS,
+        ONE_HUNDRED,
+        ethers.constants.WeiPerEther,
       ),
     ).to.be.revertedWith('ElasticDAO: Only summoners');
   });
@@ -97,10 +103,10 @@ describe('ElasticDAO: Core', () => {
     await elasticDAO.initializeToken(
       'Elastic Governance Token',
       'EGT',
-      ethers.BigNumber.from('100000000000000000'),
-      ethers.BigNumber.from('20000000000000000'),
-      ethers.BigNumber.from('100000000000000000000'),
-      ethers.BigNumber.from('1000000000000000000'),
+      ONE_TENTH,
+      TWO_HUNDREDTHS,
+      ONE_HUNDRED,
+      ethers.constants.WeiPerEther,
     );
 
     tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
@@ -118,15 +124,29 @@ describe('ElasticDAO: Core', () => {
     await elasticDAO.initializeToken(
       'Elastic Governance Token',
       'EGT',
-      ethers.BigNumber.from('100000000000000000'), // capitalDelta
-      ethers.BigNumber.from('20000000000000000'), // elasticity
-      ethers.BigNumber.from('100000000000000000000'), // k
-      ethers.BigNumber.from('1000000000000000000'), // lambda
+      ONE_TENTH, // capitalDelta
+      TWO_HUNDREDTHS, // elasticity
+      ONE_HUNDRED, // k
+      ethers.constants.WeiPerEther, // lambda
+    );
+
+    const ecosystem = await elasticDAO.getEcosystem();
+
+    const tokenContract = new ethers.Contract(
+      ecosystem.governanceTokenAddress,
+      elasticGovernanceTokenArtifact.abi,
+      bre.provider,
     );
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
 
-    expect(await elasticDAO.balance).to.equal(ethers.constants.WeiPerEther);
+    const balance = await bre.provider.getBalance(ElasticDAO.address);
+    expect(balance).to.equal(ethers.constants.WeiPerEther);
+    /// signers token balance is correct
+    expect(await tokenContract.balanceOf(summoner._address)).to.equal(TEN);
+    /// get balance at block
+    const blockNumber = await bre.provider.getBlockNumber();
+    expect(await tokenContract.balanceOfAt(summoner._address, blockNumber)).to.equal(TEN);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {

@@ -7,12 +7,11 @@ import '../interfaces/IERC20.sol';
 import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
 
+import '../models/BalanceChange.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
-
-import '@nomiclabs/buidler/console.sol';
 
 /**
  * @dev Implementation of the IERC20 interface
@@ -75,7 +74,9 @@ contract ElasticGovernanceToken is IERC20 {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
 
-    return SafeMath.mul(tokenHolder.lambda, SafeMath.mul(token.k, token.m));
+    uint256 t = ElasticMath.t(tokenHolder.lambda, token.k, token.m);
+
+    return t;
   }
 
   /**
@@ -89,21 +90,23 @@ contract ElasticGovernanceToken is IERC20 {
     t = 0;
 
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    BalanceChange.Instance memory balanceChange = _getBalanceChange(_account, i);
 
     while (
       i <= tokenHolder.counter &&
-      tokenHolder.balanceChanges[i].blockNumber != 0 &&
-      tokenHolder.balanceChanges[i].blockNumber < _blockNumber
+      balanceChange.blockNumber != 0 &&
+      balanceChange.blockNumber <= _blockNumber
     ) {
-      if (tokenHolder.balanceChanges[i].isIncreasing) {
-        lambda = SafeMath.add(lambda, tokenHolder.balanceChanges[i].deltaLambda);
-        t = ElasticMath.t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+      if (balanceChange.isIncreasing) {
+        lambda = SafeMath.add(lambda, balanceChange.deltaLambda);
+        t = ElasticMath.t(lambda, balanceChange.m, balanceChange.k);
       } else {
-        lambda = SafeMath.sub(lambda, tokenHolder.balanceChanges[i].deltaLambda);
-        t = ElasticMath.t(lambda, tokenHolder.balanceChanges[i].m, tokenHolder.balanceChanges[i].k);
+        lambda = SafeMath.sub(lambda, balanceChange.deltaLambda);
+        t = ElasticMath.t(lambda, balanceChange.m, balanceChange.k);
       }
 
       i = SafeMath.add(i, 1);
+      balanceChange = _getBalanceChange(_account, i);
     }
 
     return t;
@@ -149,9 +152,8 @@ contract ElasticGovernanceToken is IERC20 {
    * @param _account - the address of the account for whom the token have to be minted to
    */
   function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
-    console.log('## pre check');
     _mint(_account, _amount);
-    console.log('## post check');
+
     return true;
   }
 
@@ -227,6 +229,8 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
+  // Private
+
   function _approve(
     address _owner,
     address _spender,
@@ -241,27 +245,25 @@ contract ElasticGovernanceToken is IERC20 {
   }
 
   function _mint(address _account, uint256 _deltaT) internal {
-    console.log('_mint check 1');
     Token.Instance memory token = _getToken();
 
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
 
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-    console.log('_mint check 2');
+
     tokenHolder = _updateBalance(token, tokenHolder, true, deltaLambda);
-    console.log('_mint check 3');
+
     token.lambda = SafeMath.add(token.lambda, deltaLambda);
-    console.log('_mint check 4');
+
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     tokenStorage.serialize(token);
-    console.log('_mint check 5');
+
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
 
     emit Transfer(address(0), _account, deltaT);
-    console.log('_mint check 6');
   }
 
   function _transfer(
@@ -287,57 +289,61 @@ contract ElasticGovernanceToken is IERC20 {
     emit Transfer(_from, _to, deltaT);
   }
 
-  function _getEcosystem() internal view returns (Ecosystem.Instance memory ecosystem) {
-    ecosystem = Ecosystem(ecosystemModelAddress).deserialize(daoAddress);
-  }
-
-  function _getTokenHolder(address _uuid)
-    internal
-    view
-    returns (TokenHolder.Instance memory tokenHolder)
-  {
-    tokenHolder = TokenHolder(_getEcosystem().tokenHolderModelAddress).deserialize(
-      _uuid,
-      address(this)
-    );
-  }
-
-  function _getToken() internal view returns (Token.Instance memory token) {
-    token = Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
-  }
-
   function _updateBalance(
     Token.Instance memory _token,
     TokenHolder.Instance memory _tokenHolder,
     bool _isIncreasing,
     uint256 _deltaLambda
-  ) internal view returns (TokenHolder.Instance memory) {
-    console.log('_updateBalance check 1');
-    TokenHolder.BalanceChange memory balanceChange;
+  ) internal returns (TokenHolder.Instance memory) {
+    BalanceChange.Instance memory balanceChange;
     balanceChange.blockNumber = block.number;
-    console.log('_updateBalance check 2');
+
     balanceChange.deltaLambda = _deltaLambda;
     balanceChange.id = _tokenHolder.counter;
     balanceChange.isIncreasing = _isIncreasing;
-    console.log('_updateBalance check 3');
+
     balanceChange.k = _token.k;
-    console.log('_updateBalance check 4');
+
     balanceChange.m = _token.m;
-    console.log('_updateBalance check 5');
-    console.log('_updateBalance check counter value');
-    console.log(_tokenHolder.counter);
-    console.log('_updateBalance check balance change value');
-    // console.logUint(balanceChange);
+
+    balanceChange.tokenAddress = _token.uuid;
+    balanceChange.uuid = _tokenHolder.uuid;
+
     //_tokenHolder.balanceChanges.(balanceChange);
-    console.log('_updateBalance check 6');
+
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
-    console.log('_updateBalance check 7');
+
     if (_isIncreasing) {
       _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
-    console.log('_updateBalance check 8');
+    BalanceChange(_getEcosystem().balanceChangeModelAddress).serialize(balanceChange);
+
     return _tokenHolder;
+  }
+
+  // Private Getters
+
+  function _getBalanceChange(address _uuid, uint256 _id)
+    internal
+    view
+    returns (BalanceChange.Instance memory)
+  {
+    address balanceChangeModelAddress = _getEcosystem().balanceChangeModelAddress;
+
+    return BalanceChange(balanceChangeModelAddress).deserialize(address(this), _uuid, _id);
+  }
+
+  function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
+    return Ecosystem(ecosystemModelAddress).deserialize(daoAddress);
+  }
+
+  function _getTokenHolder(address _uuid) internal view returns (TokenHolder.Instance memory) {
+    return TokenHolder(_getEcosystem().tokenHolderModelAddress).deserialize(_uuid, address(this));
+  }
+
+  function _getToken() internal view returns (Token.Instance memory) {
+    return Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
   }
 }

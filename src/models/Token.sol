@@ -33,6 +33,8 @@ contract Token is EternalModel {
    * @return record Instance
    */
   function deserialize(address _uuid) external view returns (Instance memory record) {
+    record.uuid = _uuid;
+
     if (_exists(_uuid)) {
       record.capitalDelta = getUint(keccak256(abi.encode('capitalDelta', _uuid)));
       record.elasticity = getUint(keccak256(abi.encode('elasticity', _uuid)));
@@ -42,7 +44,6 @@ contract Token is EternalModel {
       record.maxLambdaPurchase = getUint(keccak256(abi.encode('maxLambdaPurchase', _uuid)));
       record.name = getString(keccak256(abi.encode('name', _uuid)));
       record.symbol = getString(keccak256(abi.encode('symbol', _uuid)));
-      record.uuid = _uuid;
     }
 
     return record;
@@ -62,7 +63,6 @@ contract Token is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setBool(keccak256(abi.encode('exists', record.uuid)), true);
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setString(keccak256(abi.encode('symbol', record.uuid)), record.symbol);
     setUint(keccak256(abi.encode('capitalDelta', record.uuid)), record.capitalDelta);
@@ -71,6 +71,8 @@ contract Token is EternalModel {
     setUint(keccak256(abi.encode('lambda', record.uuid)), record.lambda);
     setUint(keccak256(abi.encode('m', record.uuid)), record.m);
     setUint(keccak256(abi.encode('maxLambdaPurchase', record.uuid)), record.maxLambdaPurchase);
+
+    setBool(keccak256(abi.encode('exists', record.uuid)), true);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

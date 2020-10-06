@@ -12,8 +12,6 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
 
-import '@nomiclabs/buidler/console.sol';
-
 contract ElasticDAO {
   address internal ecosystemModelAddress;
 
@@ -97,25 +95,13 @@ contract ElasticDAO {
     onlyAfterTokenInitialized
   {
     Token.Instance memory token = _getToken();
-    console.logString('### Token captialDelta, k, m, deltaE value ###');
-    console.logUint(token.capitalDelta);
-    console.logUint(token.k);
-    console.logUint(token.m);
 
     uint256 deltaE = msg.value;
-    console.logUint(deltaE);
-    console.logString('###  deltaE wdiv by capitalDelta ###');
-    console.logUint(ElasticMath.wdiv(deltaE, token.capitalDelta));
+
     // this is 0, not sure why
     uint256 deltaLambda = ElasticMath.wdiv(ElasticMath.wdiv(deltaE, token.capitalDelta), token.k);
     // also 0
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-
-    console.logString('### FANCY MATH deltaE, delatLambda, deltaT ###');
-    console.logUint(deltaE);
-    console.logUint(deltaLambda);
-    console.logUint(deltaT);
-    console.log(msg.sender);
 
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
   }
