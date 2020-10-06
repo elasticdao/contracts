@@ -118,7 +118,7 @@ describe('ElasticDAO: Core', () => {
     );
   });
 
-  it.only('Should allow summoners to seed', async () => {
+  it('Should allow summoners to seed', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
     await elasticDAO.initializeToken(
@@ -152,18 +152,84 @@ describe('ElasticDAO: Core', () => {
   it('Should not allow summoners to seed before token has been initialized', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
-    await expect(elasticDAO.seedSummoning({ value: ethers.constants.One })).to.be.revertedWith(
-      'ElasticDAO: Please call initializeToken first.',
+    await expect(
+      elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther }),
+    ).to.be.revertedWith('ElasticDAO: Please call initializeToken first');
+  });
+
+  it('Should not allow non summoners to seed', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
+    elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
+
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ONE_TENTH, // capitalDelta
+      TWO_HUNDREDTHS, // elasticity
+      ONE_HUNDRED, // k
+      ethers.constants.WeiPerEther, // lambda
     );
+
+    const ecosystem = await elasticDAO.getEcosystem();
+
+    const tokenContract = new ethers.Contract(
+      ecosystem.governanceTokenAddress,
+      elasticGovernanceTokenArtifact.abi,
+      bre.provider,
+    );
+
+    await expect(
+      elasticDAONonSummoner.seedSummoning({ value: ethers.constants.WeiPerEther }),
+    ).to.be.revertedWith('ElasticDAO: Only summoners');
   });
 
   it('Should not allow the DAO to be summoned by a non-summoner', async () => {
-    // tokenStorage = new ethers.Contract(Token.address, Token.abi, agent);
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
+    elasticDAONonSummoner = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
+
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ONE_TENTH,
+      TWO_HUNDREDTHS,
+      ONE_HUNDRED,
+      ethers.constants.WeiPerEther,
+    );
+
+    tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+    const ecosystem = await elasticDAO.getEcosystem();
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+
+    await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
+
+    await expect(elasticDAONonSummoner.summon(token.maxLambdaPurchase)).to.be.revertedWith(
+      'ElasticDAO: Only summoners',
+    );
   });
 
-  it('Should not allow non summoners to seed', async () => {});
+  it.only('Should allow the DAO to be summoned after it has been seeded', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
-  it('Should allow the DAO to be summoned after it has been seeded', async () => {});
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ONE_TENTH,
+      TWO_HUNDREDTHS,
+      ONE_HUNDRED,
+      ethers.constants.WeiPerEther,
+    );
+
+    tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+    const ecosystem = await elasticDAO.getEcosystem();
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+
+    await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
+    console.log('maxLambdaPurchase', token.maxLambdaPurchase);
+    await elasticDAO.summon(token.maxLambdaPurchase);
+
+    const dao = await elasticDAO.getDAO();
+    expect(dao.summoned).to.be(true);
+  });
 
   it('Should not allow a token to be initialized after summoning', async () => {});
 

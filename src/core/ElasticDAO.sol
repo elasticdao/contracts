@@ -12,6 +12,8 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 contract ElasticDAO {
   address internal ecosystemModelAddress;
 
