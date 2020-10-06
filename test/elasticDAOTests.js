@@ -4,37 +4,20 @@ const bre = require('@nomiclabs/buidler').ethers;
 const { deployments } = require('@nomiclabs/buidler');
 const elasticGovernanceTokenArtifact = require('../artifacts/ElasticGovernanceToken.json');
 
-// [
-//   ethers.BigNumber.from('100000000000000000000'), // k
-//   ethers.BigNumber.from('100000000000000000'), // capitalDelta
-//   ethers.BigNumber.from('20000000000000000'), // elasticity
-//   ethers.BigNumber.from('1000000000000000000'), // initialShares
-//   ethers.BigNumber.from('600000000000000000'), // approval
-//   ethers.BigNumber.from('1000000000000000000'), // maxLambdaPurchase
-//   ethers.BigNumber.from('120'), // contractVoteTypeMinBlocks
-//   ethers.BigNumber.from('180'), // financeVoteTypeMinBlocks
-//   ethers.BigNumber.from('60'), // informationVoteTypeMinBlocks
-//   ethers.BigNumber.from('240'), // minBlocksForPenalty
-//   ethers.BigNumber.from('90'), // permissionVoteTypeMinBlocks
-//   ethers.BigNumber.from('1000000000000000000'), // minSharesToCreate
-//   ethers.BigNumber.from('50000000000000000'), // penalty
-//   ethers.BigNumber.from('500000000000000000'), // quorum
-//   ethers.BigNumber.from('100000000000000000'), // reward
-// ]
-
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
+const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 const TEN = ethers.BigNumber.from('10000000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: Core', () => {
   let agent;
+  let Ecosystem;
+  let elasticDAO;
+  let ElasticDAO;
   let summoner;
   let summoner1;
   let summoner2;
-  let Ecosystem;
-  let ElasticDAO;
-  let elasticDAO;
   let Token;
   let tokenStorage;
 
@@ -220,11 +203,48 @@ describe('ElasticDAO: Core', () => {
 
     const dao = await elasticDAO.getDAO();
     expect(dao.summoned).to.equal(true);
+
+    const tokenContract = new ethers.Contract(
+      ecosystem.governanceTokenAddress,
+      elasticGovernanceTokenArtifact.abi,
+      bre.provider,
+    );
+    const summoner0balance = await tokenContract.balanceOf(summoner._address);
+    const summoner1balance = await tokenContract.balanceOf(summoner1._address);
+    const summoner2balance = await tokenContract.balanceOf(summoner2._address);
+    expect(summoner0balance).to.equal(ONE_HUNDRED_TEN);
+    expect(summoner1balance).to.equal(ONE_HUNDRED);
+    expect(summoner2balance).to.equal(ONE_HUNDRED);
   });
 
-  it('Should not allow a token to be initialized after summoning', async () => {});
+  it('Should not allow a token to be initialized after summoning', async () => {
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
-  it('Should mint an appropriate number of tokens to the seeding summoner', async () => {});
+    await elasticDAO.initializeToken(
+      'Elastic Governance Token',
+      'EGT',
+      ONE_TENTH,
+      TWO_HUNDREDTHS,
+      ONE_HUNDRED,
+      ethers.constants.WeiPerEther,
+    );
 
-  it('Should mint tokens to all summoner token balances based on deltaLambda', async () => {});
+    tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+    const ecosystem = await elasticDAO.getEcosystem();
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+
+    await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
+    await elasticDAO.summon(token.maxLambdaPurchase);
+
+    await expect(
+      elasticDAO.initializeToken(
+        'Elastic Governance Token',
+        'EGT',
+        ONE_TENTH,
+        TWO_HUNDREDTHS,
+        ONE_HUNDRED,
+        ethers.constants.WeiPerEther,
+      ),
+    ).to.be.revertedWith('ElasticDAO: DAO must not be summoned');
+  });
 });

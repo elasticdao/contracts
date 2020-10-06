@@ -38,8 +38,6 @@ contract ElasticDAO {
     DAO.Instance memory dao = daoContract.deserialize(address(this));
     bool summonerCheck = daoContract.isSummoner(dao, msg.sender);
 
-    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {}
-
     require(summonerCheck, 'ElasticDAO: Only summoners');
     _;
   }

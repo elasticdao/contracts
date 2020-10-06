@@ -5,8 +5,6 @@ pragma experimental ABIEncoderV2;
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
-import '@nomiclabs/buidler/console.sol';
-
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing core dao data
 /// @dev ElasticDAO network contracts can read/write from this contract

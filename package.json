@@ -9,7 +9,7 @@
   "scripts": {
     "compile": "npx buidler compile",
     "console": "npx buidler console",
-    "coverage": "yarn run compile && npx buidler coverage",
+    "coverage": "npx buidler coverage",
     "deploy": "npx buidler deploy",
     "ethereum": "npx buidler node",
     "lint": "yarn run prettier && yarn run lint:es6 && yarn run lint:solidity && yarn run lint:tests",
