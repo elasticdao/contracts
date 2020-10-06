@@ -7,17 +7,22 @@ usePlugin('buidler-gas-reporter');
 usePlugin('@nomiclabs/buidler-etherscan');
 usePlugin('buidler-deploy');
 usePlugin('solidity-coverage');
+usePlugin('buidler-contract-sizer');
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 
 module.exports = {
   defaultNetwork: 'buidlerevm',
   solc: {
-    version: '0.7.0',
+    version: '0.7.2',
     optimizer: {
       runs: 1,
       enabled: true,
     },
+  },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
   },
   networks: {
     buidlerevm: {
@@ -25,7 +30,7 @@ module.exports = {
       blockGasLimit: 100000000,
     },
     coverage: {
-      url: 'http://127.0.0.1:8555', // Coverage launches its own ganache-cli client
+      url: 'http://127.0.0.1:8555',
     },
   },
   gasReporter: {
@@ -51,6 +56,15 @@ module.exports = {
   namedAccounts: {
     agent: {
       default: 0,
+    },
+    summoner: {
+      default: 1,
+    },
+    summoner1: {
+      default: 2,
+    },
+    summoner2: {
+      default: 3,
     },
   },
 };

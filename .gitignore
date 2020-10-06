@@ -5,10 +5,11 @@ yarn-error.log
 
 #Buidler files
 cache
-artifacts
 deployments
+bin
 
 #coverage
 coverage
 .coverage_cache
 .coverage_contracts
+.coverage_artifacts
