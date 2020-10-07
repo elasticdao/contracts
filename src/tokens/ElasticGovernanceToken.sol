@@ -2,7 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
-import '../interfaces/IERC20.sol';
+import '../interfaces/IElasticToken.sol';
 
 import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
@@ -16,7 +16,7 @@ import '../models/TokenHolder.sol';
 /**
  * @dev Implementation of the IERC20 interface
  */
-contract ElasticGovernanceToken is IERC20 {
+contract ElasticGovernanceToken is IElasticToken {
   address daoAddress;
   address ecosystemModelAddress;
 
@@ -79,12 +79,22 @@ contract ElasticGovernanceToken is IERC20 {
     return t;
   }
 
+  function balanceOfInShares(address _account) external override view returns (uint256 lambda) {
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    return tokenHolder.lambda;
+  }
+
   /**
    * @dev Returns the amount of tokens owned by @param _account at the specific @param _blockNumber
    * @param _account - address of the account
    * @return t uint256 - the number of tokens
    */
-  function balanceOfAt(address _account, uint256 _blockNumber) external view returns (uint256 t) {
+  function balanceOfAt(address _account, uint256 _blockNumber)
+    external
+    override
+    view
+    returns (uint256 t)
+  {
     uint256 i = 0;
     uint256 lambda = 0;
     t = 0;
@@ -110,6 +120,46 @@ contract ElasticGovernanceToken is IERC20 {
     }
 
     return t;
+  }
+
+  function balanceOfInSharesAt(address _account, uint256 _blockNumber)
+    external
+    override
+    view
+    returns (uint256 lambda)
+  {
+    uint256 i = 0;
+    lambda = 0;
+
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    BalanceChange.Instance memory balanceChange = _getBalanceChange(_account, i);
+
+    while (
+      i <= tokenHolder.counter &&
+      balanceChange.blockNumber != 0 &&
+      balanceChange.blockNumber <= _blockNumber
+    ) {
+      if (balanceChange.isIncreasing) {
+        lambda = SafeMath.add(lambda, balanceChange.deltaLambda);
+      } else {
+        lambda = SafeMath.sub(lambda, balanceChange.deltaLambda);
+      }
+
+      i = SafeMath.add(i, 1);
+      balanceChange = _getBalanceChange(_account, i);
+    }
+
+    return lambda;
+  }
+
+  function burn(address _account, uint256 _amount) external override onlyDAO returns (bool) {
+    _burn(_account, _amount);
+    return true;
+  }
+
+  function burnShares(address _account, uint256 _amount) external override returns (bool) {
+    _burnShares(_account, _amount);
+    return true;
   }
 
   /**
@@ -157,6 +207,11 @@ contract ElasticGovernanceToken is IERC20 {
     return true;
   }
 
+  function mintShares(address _account, uint256 _amount) external override returns (bool) {
+    _mintShares(_account, _amount);
+    return true;
+  }
+
   /**
    * @dev Returns the name of the token.
    * @return string - name of the token
@@ -186,6 +241,11 @@ contract ElasticGovernanceToken is IERC20 {
   function totalSupply() external override view returns (uint256) {
     Token.Instance memory token = _getToken();
     return SafeMath.mul(token.lambda, SafeMath.mul(token.k, token.m));
+  }
+
+  function totalSupplyInShares() external override view returns (uint256) {
+    Token.Instance memory token = _getToken();
+    return token.lambda;
   }
 
   /**
@@ -244,17 +304,43 @@ contract ElasticGovernanceToken is IERC20 {
     emit Approval(_owner, _spender, _amount);
   }
 
-  function _mint(address _account, uint256 _deltaT) internal {
+  function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    _burnShares(_account, deltaLambda);
+  }
 
+  function _burnShares(address _account, uint256 _deltaLambda) internal {
+    Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
 
+    tokenHolder = _updateBalance(token, tokenHolder, false, _deltaLambda);
+
+    token.lambda = SafeMath.sub(token.lambda, _deltaLambda);
+
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Token tokenStorage = Token(ecosystem.tokenModelAddress);
+    tokenStorage.serialize(token);
+
+    TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
+    tokenHolderStorage.serialize(tokenHolder);
+  }
+
+  function _mint(address _account, uint256 _deltaT) internal {
+    Token.Instance memory token = _getToken();
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
-    uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
+    _mintShares(_account, deltaLambda);
+  }
 
-    tokenHolder = _updateBalance(token, tokenHolder, true, deltaLambda);
+  function _mintShares(address _account, uint256 _deltaLambda) internal {
+    Token.Instance memory token = _getToken();
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
 
-    token.lambda = SafeMath.add(token.lambda, deltaLambda);
+    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
+
+    tokenHolder = _updateBalance(token, tokenHolder, true, _deltaLambda);
+
+    token.lambda = SafeMath.add(token.lambda, _deltaLambda);
 
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);

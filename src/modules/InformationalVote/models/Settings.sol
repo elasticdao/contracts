@@ -56,6 +56,13 @@ contract Settings is EternalModel {
     return _exists(_uuid);
   }
 
+  function incrementCounter(address _uuid) external {
+    setUint(
+      keccak256(abi.encode('counter', _uuid)),
+      SafeMath.add(getUint(keccak256(abi.encode('counter', _uuid))), 1)
+    );
+  }
+
   /**
    * @dev serializes Instance struct
    * @param record Instance

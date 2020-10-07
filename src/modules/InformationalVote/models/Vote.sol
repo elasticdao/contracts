@@ -13,17 +13,18 @@ import '../../../libraries/SafeMath.sol';
 contract Vote is EternalModel {
   struct Instance {
     address uuid;
+    address author;
+    address votingToken;
     bool hasPenalty;
     bool hasReachedQuorum;
     bool isActive;
     bool isApproved;
     string proposal;
-    string voteType;
     uint256 abstainLambda;
     uint256 approval;
     uint256 endOnBlock;
     uint256 id;
-    uint256 maxSharesPerAccount;
+    uint256 maxSharesPerTokenHolder;
     uint256 minBlocksForPenalty;
     uint256 noLambda;
     uint256 penalty;
@@ -46,13 +47,14 @@ contract Vote is EternalModel {
     if (_exists(_uuid, _id)) {
       record.abstainLambda = getUint(keccak256(abi.encode('abstainLambda', _uuid, _id)));
       record.approval = getUint(keccak256(abi.encode('approval', _uuid, _id)));
+      record.author = getAddress(keccak256(abi.encode('author', _uuid, _id)));
       record.endOnBlock = getUint(keccak256(abi.encode('endOnBlock', _uuid, _id)));
       record.hasPenalty = getBool(keccak256(abi.encode('hasPenalty', _uuid, _id)));
       record.hasReachedQuorum = getBool(keccak256(abi.encode('hasReachedQuorum', _uuid, _id)));
       record.isActive = getBool(keccak256(abi.encode('isActive', _uuid, _id)));
       record.isApproved = getBool(keccak256(abi.encode('isApproved', _uuid, _id)));
-      record.maxSharesPerAccount = getUint(
-        keccak256(abi.encode('maxSharesPerAccount', _uuid, _id))
+      record.maxSharesPerTokenHolder = getUint(
+        keccak256(abi.encode('maxSharesPerTokenHolder', _uuid, _id))
       );
       record.minBlocksForPenalty = getUint(
         keccak256(abi.encode('minBlocksForPenalty', _uuid, _id))
@@ -63,7 +65,7 @@ contract Vote is EternalModel {
       record.quorum = getUint(keccak256(abi.encode('quorum', _uuid, _id)));
       record.reward = getUint(keccak256(abi.encode('reward', _uuid, _id)));
       record.startOnBlock = getUint(keccak256(abi.encode('startOnBlock', _uuid, _id)));
-      record.voteType = getString(keccak256(abi.encode('voteType', _uuid, _id)));
+      record.votingToken = getAddress(keccak256(abi.encode('votingToken', _uuid, _id)));
       record.yesLambda = getUint(keccak256(abi.encode('yesLambda', _uuid, _id)));
     }
 
@@ -79,6 +81,8 @@ contract Vote is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    setAddress(keccak256(abi.encode('author', record.uuid, record.id)), record.author);
+    setAddress(keccak256(abi.encode('votingToken', record.uuid, record.id)), record.votingToken);
     setBool(keccak256(abi.encode('hasPenalty', record.uuid, record.id)), record.hasPenalty);
     setBool(
       keccak256(abi.encode('hasReachedQuorum', record.uuid, record.id)),
@@ -87,13 +91,12 @@ contract Vote is EternalModel {
     setBool(keccak256(abi.encode('isActive', record.uuid, record.id)), record.isActive);
     setBool(keccak256(abi.encode('isApproved', record.uuid, record.id)), record.isApproved);
     setString(keccak256(abi.encode('proposal', record.uuid, record.id)), record.proposal);
-    setString(keccak256(abi.encode('voteType', record.uuid, record.id)), record.voteType);
     setUint(keccak256(abi.encode('abstainLambda', record.uuid, record.id)), record.abstainLambda);
     setUint(keccak256(abi.encode('approval', record.uuid, record.id)), record.approval);
     setUint(keccak256(abi.encode('endOnBlock', record.uuid, record.id)), record.endOnBlock);
     setUint(
-      keccak256(abi.encode('maxSharesPerAccount', record.uuid, record.id)),
-      record.maxSharesPerAccount
+      keccak256(abi.encode('maxSharesPerTokenHolder', record.uuid, record.id)),
+      record.maxSharesPerTokenHolder
     );
     setUint(
       keccak256(abi.encode('minBlocksForPenalty', record.uuid, record.id)),
