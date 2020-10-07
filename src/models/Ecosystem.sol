@@ -11,8 +11,6 @@ import '../libraries/SafeMath.sol';
 /// Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Ecosystem is EternalModel {
-  constructor() EternalModel() {}
-
   struct Instance {
     address uuid; // dao uuid
     // Models

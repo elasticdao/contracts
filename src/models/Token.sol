@@ -13,8 +13,6 @@ import '../tokens/ElasticGovernanceToken.sol';
 /// Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Token is EternalModel {
-  constructor() EternalModel() {}
-
   struct Instance {
     address uuid;
     string name;
