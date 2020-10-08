@@ -29,6 +29,12 @@ contract Manager {
     voteModelAddress = _voteModelAddress;
   }
 
+  /**
+   * @dev Initializes the Informational Vote Manager
+   * @param _votingToken - the address of the voting Token
+   * @param _hasPenalty - whether the vote has a penalty or not
+   * @param _settings - an array of all the vote related settings
+   */
   function initialize(
     address _votingToken,
     bool _hasPenalty,
@@ -53,6 +59,31 @@ contract Manager {
     initialized = true;
   }
 
+  /**
+   * @dev Applies penalties to @param _addressesToPenalize
+   * @param _id - ID of the specific vote
+   * @param _addressesToPenalize - An array of all the addresses to be penalized
+   *
+   * The function does the following checks:
+   *   Whether the @param _id is a valid vote ID
+   *   Whether the vote has already passed or not
+   *   Whether the vote is currently active
+   *   Whether the vote has reached quoroum or not
+   *   Whether the Vote has a penalty or not
+   *
+   * Penalization -
+   *   VotePenalty - The penalty on the vote
+   *   balanceOfInShares - The amount of shares owned by a specific address
+   *   DeltaLambda - The change in the number of shares
+   *   Delatalambda = balanceOfInShares * VotePenalty
+   *
+   *   Summary of penalization - Delatalambda is calculated, and those many shares are burnt
+   *                             for the specific account
+   *
+   * Summary:  If the vote has a valid ID, isApproved, isActive, has NOT reached quoroum,
+   *           has a penalty on it then the @param _addressesToPenalize are penalized
+   *
+   */
   function applyPenalty(uint256 _id, address[] memory _addressesToPenalize) external {
     require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
     Vote.Instance memory vote = _getVote(_id);
@@ -84,6 +115,17 @@ contract Manager {
     }
   }
 
+  /**
+   * @dev Creates the vote
+   * @param _proposal - the vote proposal
+   * @param _endOnBlock - the block on which the vote ends
+   *
+   * The vote manager should be initialized prior to creating the vote
+   * The vote creator must have the minimum number of votes required to create a vote
+   * The vote duration cannot be lesser than the minimum duration of a vote
+   *
+   * @return uint256 - the Vote ID
+   */
   function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
     require(initialized, 'ElasticDAO: Vote Manager not initialized.');
     Settings.Instance memory settings = _getSettings();
@@ -124,6 +166,18 @@ contract Manager {
     return vote.id;
   }
 
+  /**
+   * @dev casts the vote ballot
+   * @param _id - the ID of the vote
+   * @param _yna - YesNoAbstain value - 0 for Yes, 1 for No, 2 for abstain
+   * votingLambda - The current number of shares the voter has
+   * lambdaAtStartingBlock - the number of shares the voter has on vote creation
+   *
+   * Essentially, by comparing lambdaAtStartingBlock and votingLambda,
+   * a voter is only allowed to vote with the number of shares they had when the vote was created,
+   * and if the number of shares exceeds the maximum number of shares per token holder,
+   * voter can only vote with the maximum number of shares per token holder,
+   */
   function castBallot(uint256 _id, uint256 _yna) external {
     require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
     Vote.Instance memory vote = _getVote(_id);

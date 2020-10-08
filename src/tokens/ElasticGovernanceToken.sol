@@ -79,6 +79,11 @@ contract ElasticGovernanceToken is IElasticToken {
     return t;
   }
 
+  /**
+   * @dev Returns the amount of shares owned by @param _account.
+   * @param _account - address of the account
+   * @return lambda uint256 - lambda is the number of shares
+   */
   function balanceOfInShares(address _account) external override view returns (uint256 lambda) {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     return tokenHolder.lambda;
@@ -87,6 +92,7 @@ contract ElasticGovernanceToken is IElasticToken {
   /**
    * @dev Returns the amount of tokens owned by @param _account at the specific @param _blockNumber
    * @param _account - address of the account
+   * @param _blockNumber - the blockNumber at which the balance is to be checked at
    * @return t uint256 - the number of tokens
    */
   function balanceOfAt(address _account, uint256 _blockNumber)
@@ -122,6 +128,12 @@ contract ElasticGovernanceToken is IElasticToken {
     return t;
   }
 
+  /**
+   * @dev Returns the amount of shares owned by @param _account at @param _blockNumber.
+   * @param _account - address of the account
+   * @param _blockNumber - the blockNumber at which the balance of shares has to be checked at
+   * @return lambda uint256 - lambda is the number of shares
+   */
   function balanceOfInSharesAt(address _account, uint256 _blockNumber)
     external
     override
@@ -152,11 +164,23 @@ contract ElasticGovernanceToken is IElasticToken {
     return lambda;
   }
 
+  /**
+   * @dev Reduces the balance(tokens) of @param _account by @param _amount
+   * @param _account address of the account
+   * @param _amount - the amount by which the number of tokens is to be reduced
+   * @return bool
+   */
   function burn(address _account, uint256 _amount) external override onlyDAO returns (bool) {
     _burn(_account, _amount);
     return true;
   }
 
+  /**
+   * @dev Reduces the balance(shares) of @param _account by @param _amount
+   * @param _account - address of the account
+   * @param _amount - the amount by which the number of shares has to be reduced
+   * @return bool
+   */
   function burnShares(address _account, uint256 _amount) external override returns (bool) {
     _burnShares(_account, _amount);
     return true;
@@ -200,6 +224,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @dev mints @param _amount tokens for @param _account
    * @param _amount - the amount of tokens to be minted
    * @param _account - the address of the account for whom the token have to be minted to
+   * @return bool
    */
   function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
     _mint(_account, _amount);
@@ -207,6 +232,12 @@ contract ElasticGovernanceToken is IElasticToken {
     return true;
   }
 
+  /**
+   * @dev mints @param _amount of shares for @param _account
+   * @param _account address of the account
+   * @param _amount - the amount of shares to be minted
+   * @return bool
+   */
   function mintShares(address _account, uint256 _amount) external override returns (bool) {
     _mintShares(_account, _amount);
     return true;
@@ -223,7 +254,7 @@ contract ElasticGovernanceToken is IElasticToken {
   /**
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
-   * @return string - thr symbol of the toen
+   * @return string - the symbol of the token
    */
   function symbol() external view returns (string memory) {
     return _getToken().symbol;

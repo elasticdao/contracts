@@ -56,6 +56,10 @@ contract Settings is EternalModel {
     return _exists(_uuid);
   }
 
+  /**
+   * @dev increments counter for the @param _uuid
+   * @param _uuid - address of the unique manager instance
+   */
   function incrementCounter(address _uuid) external {
     setUint(
       keccak256(abi.encode('counter', _uuid)),
