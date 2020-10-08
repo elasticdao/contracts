@@ -46,6 +46,7 @@ module.exports.dependencies = [
   'DAO',
   'Ecosystem',
   'ElasticModule',
+  'InformationalVote',
   'Registrator',
   'Token',
   'TokenHolder',

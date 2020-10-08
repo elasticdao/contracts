@@ -12,7 +12,7 @@ import '../../libraries/ElasticMath.sol';
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for interacting with informational votes
 /// @dev ElasticDAO network contracts can read/write from this contract
-contract Manager {
+contract InformationalVoteManager {
   address public ballotModelAddress;
   address public settingsModelAddress;
   address public voteModelAddress;
@@ -30,7 +30,7 @@ contract Manager {
   }
 
   /**
-   * @dev Initializes the Informational Vote Manager
+   * @dev Initializes the InformationalVote Manager
    * @param _votingToken - the address of the voting Token
    * @param _hasPenalty - whether the vote has a penalty or not
    * @param _settings - an array of all the vote related settings
@@ -41,8 +41,8 @@ contract Manager {
     uint256[8] memory _settings
   ) external {
     require(initialized == false, 'ElasticDAO: Informational Vote Manager already initialized.');
-    Settings settingsContract = Settings(settingsModelAddress);
-    Settings.Instance memory settings;
+    InformationalVoteSettings settingsContract = InformationalVoteSettings(settingsModelAddress);
+    InformationalVoteSettings.Instance memory settings;
     settings.uuid = address(this);
     settings.votingToken = _votingToken;
     settings.hasPenalty = _hasPenalty;
@@ -69,7 +69,7 @@ contract Manager {
    *   Whether the vote has already passed or not
    *   Whether the vote is currently active
    *   Whether the vote has reached quoroum or not
-   *   Whether the Vote has a penalty or not
+   *   Whether the InformationalVote has a penalty or not
    *
    * Penalization -
    *   VotePenalty - The penalty on the vote
@@ -86,7 +86,7 @@ contract Manager {
    */
   function applyPenalty(uint256 _id, address[] memory _addressesToPenalize) external {
     require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
-    Vote.Instance memory vote = _getVote(_id);
+    InformationalVote.Instance memory vote = _getVote(_id);
     require(vote.isApproved == false, 'ElasticDAO: Cannot penalize a vote that passed.');
     require(vote.isActive == false, 'ElasticDAO: Cannot penalize an active vote.');
     require(
@@ -94,12 +94,12 @@ contract Manager {
       'ElasticDAO: Cannot penalize a vote that has reached quorum.'
     );
     require(vote.hasPenalty, 'ElasticDAO: This vote has no penalty.');
-    Ballot ballotContract = Ballot(ballotModelAddress);
+    InformationalVoteBallot ballotContract = InformationalVoteBallot(ballotModelAddress);
     IElasticToken tokenContract = IElasticToken(vote.votingToken);
 
     for (uint256 i = 0; i < _addressesToPenalize.length; i = SafeMath.add(i, 1)) {
       if (ballotContract.exists(address(this), _id, _addressesToPenalize[i]) == false) {
-        Ballot.Instance memory ballot;
+        InformationalVoteBallot.Instance memory ballot;
         ballot.uuid = address(this);
         ballot.voteId = vote.id;
         ballot.voter = _addressesToPenalize[i];
@@ -124,11 +124,11 @@ contract Manager {
    * The vote creator must have the minimum number of votes required to create a vote
    * The vote duration cannot be lesser than the minimum duration of a vote
    *
-   * @return uint256 - the Vote ID
+   * @return uint256 - the InformationalVote ID
    */
   function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
-    require(initialized, 'ElasticDAO: Vote Manager not initialized.');
-    Settings.Instance memory settings = _getSettings();
+    require(initialized, 'ElasticDAO: InformationalVote Manager not initialized.');
+    InformationalVoteSettings.Instance memory settings = _getSettings();
     IElasticToken tokenContract = IElasticToken(settings.votingToken);
     require(
       tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
@@ -136,11 +136,11 @@ contract Manager {
     );
     require(
       SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
-      'ElasticDAO: Vote period too short.'
+      'ElasticDAO: InformationalVote period too short.'
     );
 
-    Vote voteContract = Vote(voteModelAddress);
-    Vote.Instance memory vote;
+    InformationalVote voteContract = InformationalVote(voteModelAddress);
+    InformationalVote.Instance memory vote;
     vote.uuid = address(this);
     vote.author = msg.sender;
     vote.hasPenalty = settings.hasPenalty;
@@ -162,7 +162,7 @@ contract Manager {
     vote.votingToken = settings.votingToken;
     vote.yesLambda = 0;
     voteContract.serialize(vote);
-    Settings(settingsModelAddress).incrementCounter(address(this));
+    InformationalVoteSettings(settingsModelAddress).incrementCounter(address(this));
     return vote.id;
   }
 
@@ -180,10 +180,10 @@ contract Manager {
    */
   function castBallot(uint256 _id, uint256 _yna) external {
     require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
-    Vote.Instance memory vote = _getVote(_id);
-    require(vote.isApproved == false, 'ElasticDAO: Vote has already been approved.');
-    require(vote.isActive, 'ElasticDAO: Vote is not active or has ended.');
-    require(_voteNotExpired(vote), 'ElasticDAO: Vote is not active or has ended.');
+    InformationalVote.Instance memory vote = _getVote(_id);
+    require(vote.isApproved == false, 'ElasticDAO: InformationalVote has already been approved.');
+    require(vote.isActive, 'ElasticDAO: InformationalVote is not active or has ended.');
+    require(_voteNotExpired(vote), 'ElasticDAO: InformationalVote is not active or has ended.');
     require(_yna < 3, 'ElasticDAO: Invalid _yna value. Use 0 for yes, 1 for no, 2 for abstain.');
     IElasticToken tokenContract = IElasticToken(vote.votingToken);
 
@@ -219,39 +219,43 @@ contract Manager {
       vote.isApproved = true;
     }
 
-    Ballot.Instance memory ballot;
+    InformationalVoteBallot.Instance memory ballot;
     ballot.uuid = address(this);
     ballot.voteId = vote.id;
     ballot.voter = msg.sender;
     ballot.lambda = votingLambda;
     ballot.yna = _yna;
 
-    Ballot(ballotModelAddress).serialize(ballot);
-    Vote(voteModelAddress).serialize(vote);
+    InformationalVoteBallot(ballotModelAddress).serialize(ballot);
+    InformationalVote(voteModelAddress).serialize(vote);
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
   }
 
-  function _getBallot(uint256 _id, address _voter) internal view returns (Ballot.Instance memory) {
-    return Ballot(ballotModelAddress).deserialize(address(this), _id, _voter);
+  function _getBallot(uint256 _id, address _voter)
+    internal
+    view
+    returns (InformationalVoteBallot.Instance memory)
+  {
+    return InformationalVoteBallot(ballotModelAddress).deserialize(address(this), _id, _voter);
   }
 
-  function _getSettings() internal view returns (Settings.Instance memory) {
-    return Settings(settingsModelAddress).deserialize(address(this));
+  function _getSettings() internal view returns (InformationalVoteSettings.Instance memory) {
+    return InformationalVoteSettings(settingsModelAddress).deserialize(address(this));
   }
 
-  function _getVote(uint256 _id) internal view returns (Vote.Instance memory) {
-    return Vote(voteModelAddress).deserialize(address(this), _id);
+  function _getVote(uint256 _id) internal view returns (InformationalVote.Instance memory) {
+    return InformationalVote(voteModelAddress).deserialize(address(this), _id);
   }
 
   function _voteExists(uint256 _id) internal view returns (bool) {
-    return Vote(voteModelAddress).exists(address(this), _id);
+    return InformationalVote(voteModelAddress).exists(address(this), _id);
   }
 
-  function _voteNotExpired(Vote.Instance memory vote) internal returns (bool) {
+  function _voteNotExpired(InformationalVote.Instance memory vote) internal returns (bool) {
     if (vote.endOnBlock <= block.number) {
       vote.isActive = false;
-      Vote(voteModelAddress).serialize(vote);
+      InformationalVote(voteModelAddress).serialize(vote);
       return false;
     }
 

@@ -10,7 +10,7 @@ import '../../../libraries/SafeMath.sol';
 /// @dev ElasticDAO network contracts can read/write from this contract
 // Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
-contract Ballot is EternalModel {
+contract InformationalVoteBallot is EternalModel {
   constructor() EternalModel() {}
 
   struct Instance {
