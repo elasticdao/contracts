@@ -100,9 +100,8 @@ contract ElasticDAO {
 
     uint256 deltaE = msg.value;
 
-    // this is 0, not sure why
     uint256 deltaLambda = ElasticMath.wdiv(ElasticMath.wdiv(deltaE, token.capitalDelta), token.k);
-    // also 0
+
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
