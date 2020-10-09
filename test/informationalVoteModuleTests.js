@@ -130,6 +130,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
         informationalVoteManager.createVote('This proposal should fail', 1),
       ).to.be.revertedWith('ElasticDAO: InformationalVote Manager not initialized');
     });
+
     it('Should not create a vote if not enough shares to create a vote', async () => {
       const ecosystem = await elasticDAO.getEcosystem();
 
@@ -148,6 +149,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
         informationalVoteManager.createVote('This proposal should fail', 1),
       ).to.be.revertedWith('ElasticDAO: Not enough shares to create vote');
     });
+
     it('Should not create a vote if the duration is too short', async () => {
       const ecosystem = await elasticDAO.getEcosystem();
 
@@ -172,6 +174,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
         informationalVoteManager.createVote('This proposal should fail', ONE),
       ).to.be.revertedWith('ElasticDAO: InformationalVote period too short');
     });
+
     it('Should create a vote', async () => {
       const ecosystem = await elasticDAO.getEcosystem();
 

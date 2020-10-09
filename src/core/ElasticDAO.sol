@@ -87,6 +87,29 @@ contract ElasticDAO {
     registrator.registerModule(_moduleAddress, _name);
   }
 
+  function join(uint256 _deltaLambda) public payable onlyAfterSummoning {
+    Token.Instance memory token = _getToken();
+
+    require(
+      _deltaLambda <= token.maxLambdaPurchase,
+      'ElasticDAO: Cannot purchase that many shares at once'
+    );
+
+    uint256 deltaE = ElasticMath.deltaE(
+      _deltaLambda,
+      token.capitalDelta,
+      token.k,
+      token.elasticity,
+      token.lambda,
+      token.m
+    );
+
+    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
+
+    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
+    ElasticGovernanceToken(_getEcosystem().governanceTokenAddress).mint(msg.sender, deltaT);
+  }
+
   // Summoning
 
   function seedSummoning()
