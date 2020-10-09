@@ -18,6 +18,8 @@ contract InformationalVoteManager {
   address public voteModelAddress;
   bool public initialized;
 
+  event CreateVote(uint256 id);
+
   constructor(
     address _ballotModelAddress,
     address _settingsModelAddress,
@@ -127,16 +129,16 @@ contract InformationalVoteManager {
    * @return uint256 - the InformationalVote ID
    */
   function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
-    require(initialized, 'ElasticDAO: InformationalVote Manager not initialized.');
+    require(initialized, 'ElasticDAO: InformationalVote Manager not initialized');
     InformationalVoteSettings.Instance memory settings = _getSettings();
     IElasticToken tokenContract = IElasticToken(settings.votingToken);
     require(
       tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
-      'ElasticDAO: Not enough shares to create vote.'
+      'ElasticDAO: Not enough shares to create vote'
     );
     require(
       SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
-      'ElasticDAO: InformationalVote period too short.'
+      'ElasticDAO: InformationalVote period too short'
     );
 
     InformationalVote voteContract = InformationalVote(voteModelAddress);
@@ -163,7 +165,8 @@ contract InformationalVoteManager {
     vote.yesLambda = 0;
     voteContract.serialize(vote);
     InformationalVoteSettings(settingsModelAddress).incrementCounter(address(this));
-    return vote.id;
+
+    emit CreateVote(vote.id);
   }
 
   /**

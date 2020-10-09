@@ -23,15 +23,11 @@ describe('ElasticDAO: Informational Vote Module', () => {
   let ElasticDAO;
   let informationalVoteManager;
   let InformationalVoteManager;
-  // let Manager;
   let Settings;
   let summoner;
   let summoner1;
   let summoner2;
   let Token;
-  let tokenHolder;
-  let TokenHolder;
-  // let tokenStorage;
   let Vote;
 
   beforeEach(async () => {
@@ -79,7 +75,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
       from: agent._address,
       args: [Ballot.address, Settings.address, Vote.address],
     });
-    const InformationalVoteManager = await deployments.get('InformationalVoteManager');
+    InformationalVoteManager = await deployments.get('InformationalVoteManager');
 
     const ecosystem = await elasticDAO.getEcosystem();
     const informationalVoteManagerContract = new ethers.Contract(
@@ -113,7 +109,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
     await expect(settings.reward).to.be.equal(ONE_TENTH);
   });
 
-  describe('Creating a vote', () => {
+  describe('createVote(string memory _proposal, uint256 _endBlock)', () => {
     beforeEach(async () => {
       const { deploy } = deployments;
       await deploy('InformationalVoteManager', {
@@ -130,12 +126,14 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
 
     it('Should not create a vote if VoteManager is not initialized', async () => {
-      await expect(informationalVoteManager.createVote('Should this fail?', 1)).to.be.revertedWith(
-        'ElasticDAO: InformationalVote Manager not initialized.',
-      );
+      await expect(
+        informationalVoteManager.createVote('This proposal should fail', 1),
+      ).to.be.revertedWith('ElasticDAO: InformationalVote Manager not initialized');
     });
-    it.only('Should not create a vote if not enough shares to create a vote', async () => {
-      await informationalVoteManager.initialize(Token.address, true, [
+    it('Should not create a vote if not enough shares to create a vote', async () => {
+      const ecosystem = await elasticDAO.getEcosystem();
+
+      await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
         TWO, // approval
         ONE, // maxSharesPerTokenHolder
         FOUR, // minBlocksForPenalty
@@ -146,13 +144,68 @@ describe('ElasticDAO: Informational Vote Module', () => {
         FIFTY_PERCENT, // reward
       ]);
 
-      TokenHolder = await deployments.get('TokenHolder');
-      tokenHolder = new ethers.Contract(TokenHolder.address, TokenHolder.abi, agent);
-      console.log(await tokenHolder.deserialize(agent._address, Token.address));
+      await expect(
+        informationalVoteManager.createVote('This proposal should fail', 1),
+      ).to.be.revertedWith('ElasticDAO: Not enough shares to create vote');
+    });
+    it('Should not create a vote if the duration is too short', async () => {
+      const ecosystem = await elasticDAO.getEcosystem();
+
+      await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
+        TWO, // approval
+        ONE, // maxSharesPerTokenHolder
+        FOUR, // minBlocksForPenalty
+        FIVE, // minDurationInBlocks
+        ONE_TENTH, // minSharesToCreate
+        THIRTY_FIVE_PERCENT, // penalty
+        ONE_TENTH, // quorum
+        FIFTY_PERCENT, // reward
+      ]);
+
+      const tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+      const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+
+      await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
+      await elasticDAO.summon(token.maxLambdaPurchase);
 
       await expect(
-        informationalVoteManager.createVote('Should this fail(shares version', 1),
-      ).to.be.revertedWith('ElasticDAO: Not enough shares to create vote.');
+        informationalVoteManager.createVote('This proposal should fail', ONE),
+      ).to.be.revertedWith('ElasticDAO: InformationalVote period too short');
+    });
+    it('Should create a vote', async () => {
+      const ecosystem = await elasticDAO.getEcosystem();
+
+      await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
+        TWO, // approval
+        ONE, // maxSharesPerTokenHolder
+        FOUR, // minBlocksForPenalty
+        FIVE, // minDurationInBlocks
+        ONE_TENTH, // minSharesToCreate
+        THIRTY_FIVE_PERCENT, // penalty
+        ONE_TENTH, // quorum
+        FIFTY_PERCENT, // reward
+      ]);
+
+      const tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
+      const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+
+      await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
+      await elasticDAO.summon(token.maxLambdaPurchase);
+
+      const vote = await informationalVoteManager.functions.createVote(
+        'This proposal should succeed',
+        ONE_HUNDRED,
+      );
+      const vote2 = await informationalVoteManager.functions.createVote(
+        'This proposal should succeed',
+        ONE_HUNDRED,
+      );
+
+      const wait1 = await vote.wait();
+      const wait2 = await vote2.wait();
+
+      expect(wait1.events[0].args.id).to.equal(ethers.BigNumber.from('0'));
+      expect(wait2.events[0].args.id).to.equal(ethers.BigNumber.from('1'));
     });
   });
 });
