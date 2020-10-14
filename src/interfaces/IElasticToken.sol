@@ -54,6 +54,8 @@ interface IElasticToken is IERC20 {
    */
   function mintShares(address _account, uint256 _amount) external returns (bool);
 
+  function subscribeToShareUpdates(address _moduleAddress) external returns (bool);
+
   /**
    * @dev Returns the total supply of shares in the DAO
    * @return lambda uint256 - lambda is the number of shares

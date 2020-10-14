@@ -3,6 +3,7 @@ pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 import '../interfaces/IElasticToken.sol';
+import '../interfaces/ITokenSubscriber.sol';
 
 import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
@@ -19,6 +20,7 @@ import '../models/TokenHolder.sol';
 contract ElasticGovernanceToken is IElasticToken {
   address daoAddress;
   address ecosystemModelAddress;
+  address[] shareChangeSubscriberAddresses;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -101,11 +103,29 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (uint256 t)
   {
-    uint256 i = 0;
-    uint256 lambda = 0;
     t = 0;
 
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    BalanceChange balanceChangeContract = BalanceChange(_getEcosystem.balanceChangeModelAddress);
+    BalanceChange.Instance memory balanceChange = balanceChangeContract.findByBlockNumber(
+      address(this),
+      _account,
+      _blockNumber,
+      tokenHolder.counter,
+      0
+    );
+
+    if (balanceChange.blockNumber <= _blockNumber) {
+      t = ElasticMath.t(balanceChange.resultingLambda, balanceChange.t);
+    }
+
+    return balanceChange.resultingLambda;
+
+
+    t = ElasticMath.t(balanceOfInSharesAt(_account, _blockNumber), );
+
+
+
     BalanceChange.Instance memory balanceChange = _getBalanceChange(_account, i);
 
     while (
@@ -140,28 +160,21 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (uint256 lambda)
   {
-    uint256 i = 0;
-    lambda = 0;
-
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    BalanceChange.Instance memory balanceChange = _getBalanceChange(_account, i);
+    BalanceChange balanceChangeContract = BalanceChange(_getEcosystem.balanceChangeModelAddress);
+    BalanceChange.Instance memory balanceChange = balanceChangeContract.findByBlockNumber(
+      address(this),
+      _account,
+      _blockNumber,
+      tokenHolder.counter,
+      0
+    );
 
-    while (
-      i <= tokenHolder.counter &&
-      balanceChange.blockNumber != 0 &&
-      balanceChange.blockNumber <= _blockNumber
-    ) {
-      if (balanceChange.isIncreasing) {
-        lambda = SafeMath.add(lambda, balanceChange.deltaLambda);
-      } else {
-        lambda = SafeMath.sub(lambda, balanceChange.deltaLambda);
-      }
-
-      i = SafeMath.add(i, 1);
-      balanceChange = _getBalanceChange(_account, i);
+    if (balanceChange.blockNumber > _blockNumber) {
+      return 0;
     }
 
-    return lambda;
+    return balanceChange.resultingLambda;
   }
 
   /**
@@ -249,6 +262,11 @@ contract ElasticGovernanceToken is IElasticToken {
    */
   function name() external view returns (string memory) {
     return _getToken().name;
+  }
+
+  function subscribeToShareUpdates(address _moduleAddress) external override returns (bool) {
+    shareChangeSubscriberAddresses.push(_moduleAddress);
+    return true;
   }
 
   /**
@@ -414,20 +432,12 @@ contract ElasticGovernanceToken is IElasticToken {
   ) internal returns (TokenHolder.Instance memory) {
     BalanceChange.Instance memory balanceChange;
     balanceChange.blockNumber = block.number;
-
-    balanceChange.deltaLambda = _deltaLambda;
     balanceChange.id = _tokenHolder.counter;
     balanceChange.isIncreasing = _isIncreasing;
-
     balanceChange.k = _token.k;
-
     balanceChange.m = _token.m;
-
     balanceChange.tokenAddress = _token.uuid;
     balanceChange.uuid = _tokenHolder.uuid;
-
-    //_tokenHolder.balanceChanges.(balanceChange);
-
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
 
     if (_isIncreasing) {
@@ -435,6 +445,7 @@ contract ElasticGovernanceToken is IElasticToken {
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
+    balanceChange.resultingLambda = _tokenHolder.lambda;
     BalanceChange(_getEcosystem().balanceChangeModelAddress).serialize(balanceChange);
 
     return _tokenHolder;
@@ -447,9 +458,12 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (BalanceChange.Instance memory)
   {
-    address balanceChangeModelAddress = _getEcosystem().balanceChangeModelAddress;
-
-    return BalanceChange(balanceChangeModelAddress).deserialize(address(this), _uuid, _id);
+    return
+      BalanceChange(_getEcosystem().balanceChangeModelAddress).deserialize(
+        address(this),
+        _uuid,
+        _id
+      );
   }
 
   function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
@@ -462,5 +476,22 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function _getToken() internal view returns (Token.Instance memory) {
     return Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
+  }
+
+  // broadcasters
+
+  function broadcastShareUpdate(
+    address _account,
+    uint256 _previousBalance,
+    uint256 _nextBalance
+  ) internal {
+    for (uint256 i = 0; i < shareChangeSubscriberAddresses.length; i = SafeMath.add(i, 1)) {
+      ITokenSubscriber(shareChangeSubscriberAddresses[i]).shareUpdateCallback(
+        address(this),
+        _account,
+        _previousBalance,
+        _nextBalance
+      );
+    }
   }
 }

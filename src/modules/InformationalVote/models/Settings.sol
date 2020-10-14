@@ -22,6 +22,7 @@ contract InformationalVoteSettings is EternalModel {
     uint256 maxSharesPerTokenHolder;
     uint256 minBlocksForPenalty;
     uint256 minDurationInBlocks;
+    uint256 minPenaltyInShares;
     uint256 minSharesToCreate;
     uint256 penalty;
     uint256 quorum;
@@ -45,6 +46,7 @@ contract InformationalVoteSettings is EternalModel {
       record.minBlocksForPenalty = getUint(keccak256(abi.encode('minBlocksForPenalty', _uuid)));
       record.minDurationInBlocks = getUint(keccak256(abi.encode('minDurationInBlocks', _uuid)));
       record.minSharesToCreate = getUint(keccak256(abi.encode('minSharesToCreate', _uuid)));
+      record.minPenaltyInShares = getUint(keccak256(abi.encode('minPenaltyInShares', _uuid)));
       record.penalty = getUint(keccak256(abi.encode('penalty', _uuid)));
       record.quorum = getUint(keccak256(abi.encode('quorum', _uuid)));
       record.reward = getUint(keccak256(abi.encode('reward', _uuid)));
@@ -56,6 +58,10 @@ contract InformationalVoteSettings is EternalModel {
 
   function exists(address _uuid) external view returns (bool recordExists) {
     return _exists(_uuid);
+  }
+
+  function getQuorumLambda(address _uuid, uint256 _id) external view returns (uint256) {
+    return getUint(keccak256(abi.encode('quorumLambda', _uuid, _id)));
   }
 
   /**
@@ -82,6 +88,7 @@ contract InformationalVoteSettings is EternalModel {
     );
     setUint(keccak256(abi.encode('minBlocksForPenalty', record.uuid)), record.minBlocksForPenalty);
     setUint(keccak256(abi.encode('minDurationInBlocks', record.uuid)), record.minDurationInBlocks);
+    setUint(keccak256(abi.encode('minPenaltyInShares', record.uuid)), record.minPenaltyInShares);
     setUint(keccak256(abi.encode('minSharesToCreate', record.uuid)), record.minSharesToCreate);
     setUint(keccak256(abi.encode('penalty', record.uuid)), record.penalty);
     setUint(keccak256(abi.encode('quorum', record.uuid)), record.quorum);

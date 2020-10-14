@@ -40,7 +40,7 @@ contract InformationalVoteManager {
   function initialize(
     address _votingToken,
     bool _hasPenalty,
-    uint256[8] memory _settings
+    uint256[9] memory _settings
   ) external {
     require(initialized == false, 'ElasticDAO: Informational Vote Manager already initialized.');
     InformationalVoteSettings settingsContract = InformationalVoteSettings(settingsModelAddress);
@@ -53,10 +53,13 @@ contract InformationalVoteManager {
     settings.maxSharesPerTokenHolder = _settings[1];
     settings.minBlocksForPenalty = _settings[2];
     settings.minDurationInBlocks = _settings[3];
-    settings.minSharesToCreate = _settings[4];
-    settings.penalty = _settings[5];
-    settings.quorum = _settings[6];
-    settings.reward = _settings[7];
+    settings.minPenaltyInShares = _settings[4];
+    settings.minSharesToCreate = _settings[5];
+    settings.penalty = _settings[6];
+    settings.quorum = _settings[7];
+    settings.quorumLambda = 0;
+    settings.reward = _settings[8];
+    IElasticToken(_votingToken).subscribeToShareUpdates(address(this));
     settingsContract.serialize(settings);
     initialized = true;
   }
@@ -234,6 +237,20 @@ contract InformationalVoteManager {
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
   }
+
+  // Callbacks
+
+  /* function shareUpdateCallback(
+    address _tokenAddress,
+    address _accountAddress,
+    uint256 _previousBalance,
+    uint256 _nextBalance
+  ) external override {
+
+    if (_previousBalance >= )
+  } */
+
+  // Private
 
   function _getBallot(uint256 _id, address _voter)
     internal
