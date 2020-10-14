@@ -15,6 +15,7 @@ contract Ecosystem is EternalModel {
     address uuid; // dao uuid
     // Models
     address balanceChangeModelAddress;
+    address balanceMultipliersModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
     address elasticModuleModelAddress;
@@ -37,6 +38,9 @@ contract Ecosystem is EternalModel {
       record.uuid = _uuid;
       record.balanceChangeModelAddress = getAddress(
         keccak256(abi.encode('balanceChangeModelAddress', record.uuid))
+      );
+      record.balanceMultipliersModelAddress = getAddress(
+        keccak256(abi.encode('balanceMultipliersModelAddress', record.uuid))
       );
       record.configuratorAddress = getAddress(
         keccak256(abi.encode('configuratorAddress', record.uuid))
@@ -82,6 +86,10 @@ contract Ecosystem is EternalModel {
     setAddress(
       keccak256(abi.encode('balanceChangeModelAddress', record.uuid)),
       record.balanceChangeModelAddress
+    );
+    setAddress(
+      keccak256(abi.encode('balanceMultiplierAddress', record.uuid)),
+      record.balanceMultipliersModelAddress
     );
     setAddress(
       keccak256(abi.encode('configuratorAddress', record.uuid)),
