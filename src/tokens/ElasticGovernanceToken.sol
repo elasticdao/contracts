@@ -107,13 +107,15 @@ contract ElasticGovernanceToken is IElasticToken {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     Balance balanceContract = Balance(_getEcosystem.balanceModelAddress);
     Balance.Instance memory balance = balanceContract.findByBlockNumber(
-      address(this),
+      address(this), // not sure if we need to pass this
       _account,
       _blockNumber,
       tokenHolder.counter,
       0
     );
 
+    // Concerns : balance has no t, resultingLambda
+    // ElasticMath.t should be passed in lambda, k, m
     if (balance.blockNumber <= _blockNumber) {
       t = ElasticMath.t(balance.resultingLambda, balance.t);
     }

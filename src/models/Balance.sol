@@ -35,17 +35,23 @@ contract Balance is EternalModel {
     record.tokenHolder = _tokenHolder;
     record.blockNumber = _blockNumber;
 
-    record.k = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'k');
-    record.lambda = findByBlockNumber(
-      _blockNumber,
-      0,
-      _tokenHolder.counter,
-      _tokenHolder,
-      'lambda'
-    );
-    record.m = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'm');
+    // record.k = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'k');
+    // record.lambda = findByBlockNumber(
+    // //    address _uuid,
+    // // TokenHolder.Instance memory _tokenHolder,
+    // // uint256 _blockNumber,
+    // // uint256 _tokenHolderCounter,
+    // // uint256 _offset
+    //   _uuid,
+    //   _tokenHolder,
+    //   _blockNumber,
+    //   _tokenHolder.counter,
+    //   0
+    // );
+    // record.m = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'm');
 
-    return record;
+    // return record;
+    return findByBlockNumber(_uuid, _tokenHolder, _blockNumber, _tokenHolder.counter, 0);
   }
 
   function exists(
@@ -70,6 +76,7 @@ contract Balance is EternalModel {
       record.lambda
     );
 
+    setUint(keccak256(abi.encode(record.tokenAddress, record.uuid, record.id, 'k')), record.k);
     BalanceMultipliers.Instance memory balanceMultipliers;
     balanceMultipliers.uuid = record.tokenAddress;
     balanceMultipliers.blockNumber = record.blockNumber;
@@ -77,75 +84,63 @@ contract Balance is EternalModel {
     balanceMultipliers.m = record.m;
 
     balanceMultiplersContract.serialize(balanceMultipliers);
-
+    token.id = SafeMath.add(token.id, 1);
     setBool(keccak256(abi.encode('exists', record.tokenAddress, record.uuid, record.id)), true);
   }
 
   function findByBlockNumber(
+    address _uuid,
+    address _account,
     uint256 _blockNumber,
-    uint256 _offset,
     uint256 _numberOfRecords,
-    TokenHolder.Instance memory _tokenHolder,
-    string _key
-  ) internal returns (Instance memory) {
-    getUint(keccak256(abi.encode(record.tokenAddress, record.blockNumber, 'k')));
+    uint256 _offset
+  ) internal view returns (Instance memory record) {
+    if (_numberOfRecords == 0) {
+      record.blockNumber = _blockNumber;
+      record.k = 0;
+      record.m = 0;
+      return record;
+    }
 
     if (_numberOfRecords == 1) {
-      Instance memory instance = deserialize(
-        _tokenHolder.tokenAddress,
-        _tokenHolder.uuid,
-        SafeMath.add(_numberOfRecords, _offset)
-      );
-      if (instance.blockNumber > _blockNumber) {
+      uint256 id = SafeMath.add(_offset, id);
+      record.blockNumber = getUint(keccak256(abi.encode(_uuid, id, 'blockNumber')));
+
+      if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
         if (_offset == 0) {
-          if (_key == 'lambda') {
-            return getUint(keccak256(abi.encode(record.tokenAddress, record.blockNumber, 'k')));
+          record.blockNumber = getUint(keccak256(abi.encode(_uuid, 0, 'blockNumber')));
+          if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
+            record.k = 0;
+            record.m = 0;
+            return record;
           }
-          return getUint(keccak256(abi.encode(record.tokenAddress, record.blockNumber, _key)));
-
-          return deserialize(_tokenHolder.tokenAddress, _tokenHolder.uuid, 0);
+          record.k = getUint(keccak256(abi.encode(_uuid, 0, 'k')));
+          record.m = getUint(keccak256(abi.encode(_uuid, 0, 'm')));
+          return record;
         }
-        return
-          findByBlockNumber(
-            _tokenHolder.tokenAddress,
-            _tokenHolder.uuid,
-            _blockNumber,
-            1,
-            SafeMath.sub(_offset, 1)
-          );
+        return findByBlockNumber(_uuid, _blockNumber, SafeMath.sub(_offset, 1), _numberOfRecords);
       }
-      return instance;
+      record.k = getUint(keccak256(abi.encode(_uuid, id, 'k')));
+      record.m = getUint(keccak256(abi.encode(_uuid, id, 'm')));
+      return record;
     }
 
-    uint256 half = SafeMath.add(SafeMath.div(_numberOfRecords, 2), _offset);
-    uint256 blockNumber = getUint(keccak256(abi.encode(_tokenAddress, _uuid, half, 'blockNumber')));
+    uint256 half = SafeMath.div(id, 2);
+    uint256 middleId = SafeMath.add(half, _offset);
+    record.blockNumber = getUint(keccak256(abi.encode(_uuid, middleId, 'blockNumber')));
 
-    if (blockNumber < _targetNumber) {
-      return
-        findByBlockNumber(
-          _tokenAddress,
-          _uuid,
-          _targetNumber,
-          SafeMath.div(_numberOfRecords, 2),
-          SafeMath.add(_offset, half)
-        );
+    if (record.blockNumber > _blockNumber) {
+      return findByBlockNumber(_uuid, _blockNumber, _offset, half);
     }
 
-    if (blockNumber > _targetNumber) {
-      return
-        findByBlockNumber(
-          _tokenAddress,
-          _uuid,
-          _targetNumber,
-          SafeMath.div(_numberOfRecords, 2),
-          _offset
-        );
+    if (record.blockNumber < _blockNumber) {
+      return findByBlockNumber(_uuid, _blockNumber, middleId, half);
     }
 
-    return deserialize(_tokenAddress, _uuid, half);
+    record.k = getUint(keccak256(abi.encode(_uuid, 0, 'k')));
+    record.m = getUint(keccak256(abi.encode(_uuid, 0, 'm')));
+    return record;
   }
-
-  // private
 
   function _exists(
     address _tokenAddress,
