@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
+import './Token.sol';
 import './TokenHolder.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
@@ -14,6 +15,7 @@ import './TokenHolder.sol';
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Balance is EternalModel {
   struct Instance {
+    address uuid;
     uint256 blockNumber;
     uint256 id; // counter
     uint256 k;
@@ -22,17 +24,14 @@ contract Balance is EternalModel {
     Token.Instance token;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _blockNumber - the blockNumber to get the balance at
-   * @param _tokenHolder - the TokenHolder.Instance
-   * @return record Instance
-   */
-  function deserialize(uint256 _blockNumber, address tokenModelAddress, address balanceMultipliersModelAddress)
-    public
-    view
-    returns (Instance memory record)
-  {
+  // TODO: Clean interface from deserialze and serialize
+
+  function deserialize(
+    address _uuid,
+    uint256 _blockNumber,
+    address _tokenModelAddress,
+    address _balanceMultipliersModelAddress
+  ) public view returns (Instance memory record) {
     record.tokenHolder = _tokenHolder;
     record.blockNumber = _blockNumber;
 
@@ -72,12 +71,12 @@ contract Balance is EternalModel {
     );
 
     BalanceMultipliers.Instance memory balanceMultipliers;
-    balanceMultipliers.uuid = record.tokenAddress
+    balanceMultipliers.uuid = record.tokenAddress;
     balanceMultipliers.blockNumber = record.blockNumber;
     balanceMultipliers.k = record.k;
     balanceMultipliers.m = record.m;
 
-    balanceMultiplersContract.serialize()
+    balanceMultiplersContract.serialize(balanceMultipliers);
 
     setBool(keccak256(abi.encode('exists', record.tokenAddress, record.uuid, record.id)), true);
   }

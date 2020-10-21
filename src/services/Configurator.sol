@@ -34,6 +34,7 @@ contract Configurator {
     dao.summoned = false;
     dao.summoners = _summoners;
     daoStorage.serialize(dao);
+    return dao;
   }
 
   /**
@@ -50,7 +51,8 @@ contract Configurator {
     ecosystem.uuid = msg.sender;
 
     // Models
-    ecosystem.balanceChangeModelAddress = defaults.balanceChangeModelAddress;
+    ecosystem.balanceModelAddress = defaults.balanceModelAddress;
+    ecosystem.balanceMultiplierModelAddress = defaults.balanceMultiplierModelAddress;
     ecosystem.daoModelAddress = defaults.daoModelAddress;
     ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
     ecosystem.elasticModuleModelAddress = defaults.elasticModuleModelAddress;
@@ -62,11 +64,11 @@ contract Configurator {
     ecosystem.registratorAddress = defaults.registratorAddress;
 
     ecosystemStorage.serialize(ecosystem);
+    return ecosystem;
   }
 
   /**
    * @dev creates a governance token and it's storage
-   * @param _ecosystemModelAddress - address of the ecoSystemModelAddress
    * @param _name - the name of the token
    * @param _name - the symbol of the token
    * @param _capitalDelta is the Eth/Egt ratio
@@ -75,20 +77,19 @@ contract Configurator {
    * @param _maxLambdaPurchase - the maximum amount of lambda(shares) that can be
    * purchased by an account
    * m - initital share modifier = 1
+   * @param _ecosystem - ecosystem instance
    * @return token Token.Instance
    */
   function buildToken(
-    address _ecosystemModelAddress,
     string memory _name,
     string memory _symbol,
     uint256 _capitalDelta,
     uint256 _elasticity,
     uint256 _k,
-    uint256 _maxLambdaPurchase
+    uint256 _maxLambdaPurchase,
+    Ecosystem.Instance memory _ecosystem
   ) external returns (Token.Instance memory token) {
-    Ecosystem.Instance memory ecosystem = _getEcosystem(_ecosystemModelAddress);
-
-    Token tokenStorage = Token(ecosystem.tokenModelAddress);
+    Token tokenStorage = Token(_ecosystem.tokenModelAddress);
     token.capitalDelta = _capitalDelta;
     token.elasticity = _elasticity;
     token.k = _k;
@@ -97,18 +98,10 @@ contract Configurator {
     token.maxLambdaPurchase = _maxLambdaPurchase;
     token.name = _name;
     token.symbol = _symbol;
-    token.uuid = address(new ElasticGovernanceToken(msg.sender, _ecosystemModelAddress));
+    token.uuid = address(new ElasticGovernanceToken(msg.sender, _ecosystem.ecosystemModelAddress));
 
     ecosystem.governanceTokenAddress = token.uuid;
-    Ecosystem(_ecosystemModelAddress).serialize(ecosystem);
+    Ecosystem(_ecosystem.ecosystemModelAddress).serialize(_ecosystem);
     tokenStorage.serialize(token);
-  }
-
-  function _getEcosystem(address _uuid)
-    internal
-    view
-    returns (Ecosystem.Instance memory ecosystem)
-  {
-    return Ecosystem(_uuid).deserialize(msg.sender);
   }
 }

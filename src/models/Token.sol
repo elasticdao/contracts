@@ -23,6 +23,7 @@ contract Token is EternalModel {
     uint256 lambda;
     uint256 m;
     uint256 maxLambdaPurchase;
+    uint256 numberOfTokenHolders;
   }
 
   /**
@@ -41,6 +42,7 @@ contract Token is EternalModel {
       record.m = getUint(keccak256(abi.encode('m', _uuid)));
       record.maxLambdaPurchase = getUint(keccak256(abi.encode('maxLambdaPurchase', _uuid)));
       record.name = getString(keccak256(abi.encode('name', _uuid)));
+      record.numberOfTokenHolders = getUint(keccak256(abi.encode('numberOfTokenHolders', _uuid)));
       record.symbol = getString(keccak256(abi.encode('symbol', _uuid)));
     }
 
@@ -71,6 +73,10 @@ contract Token is EternalModel {
     setUint(keccak256(abi.encode('maxLambdaPurchase', record.uuid)), record.maxLambdaPurchase);
 
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
+  }
+
+  function updateNumberOfTokenHolders(Instance memory token, uint256 numberOfTokenHolders) {
+    setUint(keccak256(abi.encode('numberOfTokenHolders', record.uuid)), numberOfTokenHolders);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

@@ -14,7 +14,7 @@ contract Ecosystem is EternalModel {
   struct Instance {
     address uuid; // dao uuid
     // Models
-    address balanceChangeModelAddress;
+    address balanceModelAddress;
     address balanceMultipliersModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
@@ -36,8 +36,8 @@ contract Ecosystem is EternalModel {
   function deserialize(address _uuid) external view returns (Instance memory record) {
     if (_exists(_uuid)) {
       record.uuid = _uuid;
-      record.balanceChangeModelAddress = getAddress(
-        keccak256(abi.encode('balanceChangeModelAddress', record.uuid))
+      record.balanceModelAddress = getAddress(
+        keccak256(abi.encode('balanceModelAddress', record.uuid))
       );
       record.balanceMultipliersModelAddress = getAddress(
         keccak256(abi.encode('balanceMultipliersModelAddress', record.uuid))
@@ -47,7 +47,7 @@ contract Ecosystem is EternalModel {
       );
       record.daoModelAddress = getAddress(keccak256(abi.encode('daoModelAddress', record.uuid)));
       record.ecosystemModelAddress = getAddress(
-        keccak256(abi.encode('ecosystemModelAddress', record.uuid))
+        keccak256(abi.encode('ecosystemModelAddress', address(this)))
       );
       record.elasticModuleModelAddress = getAddress(
         keccak256(abi.encode('elasticModuleModelAddress', record.uuid))
@@ -84,11 +84,11 @@ contract Ecosystem is EternalModel {
    */
   function serialize(Instance memory record) external {
     setAddress(
-      keccak256(abi.encode('balanceChangeModelAddress', record.uuid)),
-      record.balanceChangeModelAddress
+      keccak256(abi.encode('balanceModelAddress', record.uuid)),
+      record.balanceModelAddress
     );
     setAddress(
-      keccak256(abi.encode('balanceMultiplierAddress', record.uuid)),
+      keccak256(abi.encode('balanceMultipliersModelAddress', record.uuid)),
       record.balanceMultipliersModelAddress
     );
     setAddress(
@@ -96,10 +96,6 @@ contract Ecosystem is EternalModel {
       record.configuratorAddress
     );
     setAddress(keccak256(abi.encode('daoModelAddress', record.uuid)), record.daoModelAddress);
-    setAddress(
-      keccak256(abi.encode('ecosystemModelAddress', record.uuid)),
-      record.ecosystemModelAddress
-    );
     setAddress(
       keccak256(abi.encode('elasticModuleModelAddress', record.uuid)),
       record.elasticModuleModelAddress

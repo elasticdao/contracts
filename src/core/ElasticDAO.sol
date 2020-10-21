@@ -67,13 +67,13 @@ contract ElasticDAO {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
     Configurator(ecosystem.configuratorAddress).buildToken(
-      ecosystemModelAddress,
       _name,
       _symbol,
       _capitalDelta,
       _elasticity,
       _k,
-      _maxLambdaPurchase
+      _maxLambdaPurchase,
+      ecosystem
     );
   }
 

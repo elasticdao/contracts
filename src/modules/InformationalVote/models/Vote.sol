@@ -27,6 +27,7 @@ contract InformationalVote is EternalModel {
     uint256 maxSharesPerTokenHolder;
     uint256 minBlocksForPenalty;
     uint256 minPenaltyInShares;
+    uint256 minRewardInShares;
     uint256 noLambda;
     uint256 penalty;
     uint256 quorum;
@@ -62,6 +63,7 @@ contract InformationalVote is EternalModel {
         keccak256(abi.encode('minBlocksForPenalty', _uuid, _id))
       );
       record.minPenaltyInShares = getUint(keccak256(abi.encode('minPenaltyInShares')));
+      record.minRewardInShares = getUint(keccak256(abi.encode('minRewardInShares')));
       record.noLambda = getUint(keccak256(abi.encode('noLambda', _uuid, _id)));
       record.penalty = getUint(keccak256(abi.encode('penalty', _uuid, _id)));
       record.proposal = getString(keccak256(abi.encode('proposal', _uuid, _id)));
@@ -109,6 +111,10 @@ contract InformationalVote is EternalModel {
     setUint(
       keccak256(abi.encode('minPenaltyInShares', record.uuid, record.id)),
       record.minPenaltyInShares
+    );
+    setUint(
+      keccak256(abi.encode('minRewardInShares', record.uuid, record.id)),
+      record.minRewardInShares
     );
     setUint(keccak256(abi.encode('noLambda', record.uuid, record.id)), record.noLambda);
     setUint(keccak256(abi.encode('penalty', record.uuid, record.id)), record.penalty);
