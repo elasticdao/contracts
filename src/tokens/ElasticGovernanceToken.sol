@@ -104,15 +104,7 @@ contract ElasticGovernanceToken is IElasticToken {
   {
     t = 0;
 
-    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    Balance balanceContract = Balance(_getEcosystem.balanceModelAddress);
-    Balance.Instance memory balance = balanceContract.findByBlockNumber(
-      address(this), // not sure if we need to pass this
-      _account,
-      _blockNumber,
-      tokenHolder.counter,
-      0
-    );
+    Balance.Instance balance = _balanceAt(_account, _blockNumber);
 
     if (balance.blockNumber <= _blockNumber) {
       t = ElasticMath.t(balance.lambda, balance.m, balance.k);
@@ -133,15 +125,7 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (uint256 lambda)
   {
-    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    Balance balanceContract = Balance(_getEcosystem.balanceModelAddress);
-    Balance.Instance memory balance = balanceContract.findByBlockNumber(
-      address(this),
-      _account,
-      _blockNumber,
-      tokenHolder.counter,
-      0
-    );
+    Balance.Instance balance = _balanceAt(_account, _blockNumber);
 
     if (balance.blockNumber > _blockNumber) {
       return 0;
@@ -334,7 +318,6 @@ contract ElasticGovernanceToken is IElasticToken {
     return
       balanceContract.findByBlockNumber(
         address(this),
-        _account,
         _blockNumber,
         tokenHolder.counter,
         0 // off

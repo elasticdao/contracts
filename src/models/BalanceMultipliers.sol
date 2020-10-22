@@ -33,7 +33,7 @@ contract BalanceMultipliers is EternalModel {
     uint256 _blockNumber,
     uint256 _counter
   ) public view returns (Instance memory) {
-    return findByBlockNumber(_uuid, _blockNumber, 0, _counter);
+    return _findByBlockNumber(_uuid, _blockNumber, _counter, 0);
   }
 
   function exists(address, uint256) external pure returns (bool recordExists) {
@@ -50,11 +50,11 @@ contract BalanceMultipliers is EternalModel {
     setUint(keccak256(abi.encode(record.uuid, record.index, 'm')), record.m);
   }
 
-  function findByBlockNumber(
+  function _findByBlockNumber(
     address _uuid,
     uint256 _blockNumber,
-    uint256 _offset,
-    uint256 _numberOfRecords
+    uint256 _numberOfRecords,
+    uint256 _offset
   ) internal view returns (Instance memory record) {
     if (_numberOfRecords == 0) {
       record.blockNumber = _blockNumber;

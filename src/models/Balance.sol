@@ -29,21 +29,26 @@ contract Balance is EternalModel {
   function deserialize(
     address _uuid,
     uint256 _blockNumber,
-    address _tokenModelAddress,
-    address _balanceMultipliersModelAddress
-  ) public view returns (Instance memory record) {
-    record.tokenHolder = _tokenHolder;
-    record.blockNumber = _blockNumber;
-
-    return findByBlockNumber(_uuid, _tokenHolder, _blockNumber, _tokenHolder.counter, 0);
+    uint256 _counter
+  ) public view returns (Instance memory) {
+    return _findByBlockNumber(_uuid, _blockNumber, _counter, 0);
   }
 
   function exists(
     address _tokenAddress,
     address _uuid,
     uint256 _index
-  ) external view returns (bool recordExists) {
-    return true;
+  ) external view returns (bool) {
+    return _exists(_tokenAddress, _uuid, _index);
+  }
+
+  function findByBlockNumber(
+    address _uuid,
+    uint256 _blockNumber,
+    uint256 _numberOfRecords,
+    uint256 _offset
+  ) external returns (Instance memory) {
+    return _findByBlockNumber(_uuid, _blockNumber, _numberOfRecords, _offset);
   }
 
   /**
@@ -72,9 +77,8 @@ contract Balance is EternalModel {
     setBool(keccak256(abi.encode('exists', record.token.uuid, record.uuid, record.index)), true);
   }
 
-  function findByBlockNumber(
+  function _findByBlockNumber(
     address _uuid,
-    address _account,
     uint256 _blockNumber,
     uint256 _numberOfRecords,
     uint256 _offset
@@ -102,7 +106,7 @@ contract Balance is EternalModel {
           record.m = getUint(keccak256(abi.encode(_uuid, 0, 'm')));
           return record;
         }
-        return findByBlockNumber(_uuid, _blockNumber, SafeMath.sub(_offset, 1), _numberOfRecords);
+        return _findByBlockNumber(_uuid, _blockNumber, _numberOfRecords, SafeMath.sub(_offset, 1));
       }
       record.k = getUint(keccak256(abi.encode(_uuid, id, 'k')));
       record.m = getUint(keccak256(abi.encode(_uuid, id, 'm')));
@@ -114,11 +118,11 @@ contract Balance is EternalModel {
     record.blockNumber = getUint(keccak256(abi.encode(_uuid, middleId, 'blockNumber')));
 
     if (record.blockNumber > _blockNumber) {
-      return findByBlockNumber(_uuid, _blockNumber, _offset, half);
+      return _findByBlockNumber(_uuid, _blockNumber, half, _offset);
     }
 
     if (record.blockNumber < _blockNumber) {
-      return findByBlockNumber(_uuid, _blockNumber, middleId, half);
+      return _findByBlockNumber(_uuid, _blockNumber, half, middleId);
     }
 
     record.k = getUint(keccak256(abi.encode(_uuid, 0, 'k')));
@@ -130,7 +134,7 @@ contract Balance is EternalModel {
     address _tokenAddress,
     address _uuid,
     uint256 _index
-  ) internal view returns (bool recordExists) {
+  ) internal view returns (bool) {
     return getBool(keccak256(abi.encode('exists', _tokenAddress, _uuid, _index)));
   }
 }
