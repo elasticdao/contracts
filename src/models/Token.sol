@@ -2,6 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import './Ecosystem.sol';
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
@@ -25,6 +26,7 @@ contract Token is EternalModel {
     uint256 m;
     uint256 maxLambdaPurchase;
     uint256 numberOfTokenHolders;
+    Ecosystem.Instance ecosystem;
   }
 
   /**
@@ -32,8 +34,13 @@ contract Token is EternalModel {
    * @param _uuid - address of the unique user ID
    * @return record Instance
    */
-  function deserialize(address _uuid) external view returns (Instance memory record) {
+  function deserialize(address _uuid, Ecosystem.Instance memory _ecosystem)
+    external
+    view
+    returns (Instance memory record)
+  {
     record.uuid = _uuid;
+    record.ecosystem = _ecosystem;
 
     if (_exists(_uuid)) {
       record.capitalDelta = getUint(keccak256(abi.encode('capitalDelta', _uuid)));
@@ -56,7 +63,7 @@ contract Token is EternalModel {
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid) external view returns (bool) {
+  function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
     return _exists(_uuid);
   }
 
@@ -83,7 +90,7 @@ contract Token is EternalModel {
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
   }
 
-  function updateNumberOfTokenHolders(Instance memory token, uint256 numberOfTokenHolders)
+  function updateNumberOfTokenHolders(Instance memory record, uint256 numberOfTokenHolders)
     external
   {
     setUint(keccak256(abi.encode('numberOfTokenHolders', record.uuid)), numberOfTokenHolders);

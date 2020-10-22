@@ -2,6 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import './Ecosystem.sol';
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
@@ -15,6 +16,7 @@ contract DAO is EternalModel {
     bool summoned;
     string name;
     uint256 numberOfSummoners;
+    Ecosystem.Instance ecosystem;
   }
 
   /**
@@ -22,8 +24,13 @@ contract DAO is EternalModel {
    * @param _uuid - address of the unique user ID
    * @return record Instance
    */
-  function deserialize(address _uuid) external view returns (Instance memory record) {
+  function deserialize(address _uuid, Ecosystem.Instance memory _ecosystem)
+    external
+    view
+    returns (Instance memory record)
+  {
     record.uuid = _uuid;
+    record.ecosystem = _ecosystem;
 
     if (_exists(_uuid)) {
       record.name = getString(keccak256(abi.encode('name', _uuid)));
@@ -39,7 +46,7 @@ contract DAO is EternalModel {
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid) external view returns (bool) {
+  function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
     return _exists(_uuid);
   }
 

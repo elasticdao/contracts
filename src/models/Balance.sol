@@ -15,73 +15,72 @@ import './TokenHolder.sol';
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Balance is EternalModel {
   struct Instance {
-    address uuid;
     uint256 blockNumber;
     uint256 index; // tokenHolder.counter
     uint256 k;
     uint256 m;
     uint256 lambda;
+    Ecosystem.Instance ecosystem;
     Token.Instance token;
+    TokenHolder.Instance tokenHolder;
   }
 
   // TODO: Clean interface from deserialze and serialize
 
   function deserialize(
     uint256 _blockNumber,
-    TokenHolder.Instance memory _tokenHolder,
+    Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token,
-    Ecosystem.Instance memory _ecosystem
+    TokenHolder.Instance memory _tokenHolder
   ) public view returns (Instance memory record) {
     record = _findByBlockNumber(
-      _tokenHolder.uuid,
+      _tokenHolder.account,
       _token.uuid,
       _blockNumber,
       _tokenHolder.counter,
       0
     );
 
+    record.ecosystem = _ecosystem;
+    record.token = _token;
+    record.tokenHolder = _tokenHolder;
+
     BalanceMultipliers.Instance memory balanceMultipliers = BalanceMultipliers(
-      _ecosystem
+      record
+        .ecosystem
         .balanceMultipliersModelAddress
     )
-      .deserialize(_token.uuid, _blockNumber, _token.counter);
+      .deserialize(record.token.uuid, _blockNumber, record.token.counter);
 
     record.blockNumber = _blockNumber;
     record.k = balanceMultipliers.k;
     record.m = balanceMultipliers.m;
-    record.token = _token;
 
     return record;
   }
 
   function exists(
-    address,
-    address,
-    uint256
+    uint256,
+    Ecosystem.Instance memory,
+    Token.Instance memory,
+    TokenHolder.Instance memory
   ) external view returns (bool) {
     return true;
-  }
-
-  function findByBlockNumber(
-    address _uuid,
-    uint256 _blockNumber,
-    uint256 _numberOfRecords,
-    uint256 _offset
-  ) external returns (Instance memory) {
-    return _findByBlockNumber(_uuid, _blockNumber, _numberOfRecords, _offset);
   }
 
   /**
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record, Ecosystem.Instance memory ecosystem) external {
+  function serialize(Instance memory record) external {
     setUint(
-      keccak256(abi.encode(record.token.uuid, record.uuid, record.index, 'blockNumber')),
+      keccak256(
+        abi.encode(record.token.uuid, record.tokenHolder.account, record.index, 'blockNumber')
+      ),
       record.blockNumber
     );
     setUint(
-      keccak256(abi.encode(record.token.uuid, record.uuid, record.index, 'lambda')),
+      keccak256(abi.encode(record.token.uuid, record.tokenHolder.account, record.index, 'lambda')),
       record.lambda
     );
 
@@ -91,8 +90,10 @@ contract Balance is EternalModel {
     balanceMultipliers.k = record.k;
     balanceMultipliers.m = record.m;
     balanceMultipliers.index = record.token.counter;
-    BalanceMultipliers(ecosystem.balanceMultipliersModelAddress).serialize(balanceMultipliers);
-    Token(ecosystem.tokenModelAddress).incrementCounter(_token.uuid);
+    BalanceMultipliers(record.ecosystem.balanceMultipliersModelAddress).serialize(
+      balanceMultipliers
+    );
+    Token(record.ecosystem.tokenModelAddress).incrementCounter(_token.uuid);
 
     setBool(keccak256(abi.encode('exists', record.token.uuid, record.uuid, record.index)), true);
   }
@@ -104,8 +105,6 @@ contract Balance is EternalModel {
     uint256 _numberOfRecords,
     uint256 _offset
   ) internal view returns (Instance memory record) {
-    record.uuid = _uuid;
-
     if (_numberOfRecords == 0) {
       record.blockNumber = _blockNumber;
       record.lambda = 0;
@@ -159,13 +158,5 @@ contract Balance is EternalModel {
 
     record.lambda = getUint(keccak256(abi.encode(_tokenAddress, _uuid, 0, 'lambda')));
     return record;
-  }
-
-  function _exists(
-    address _tokenAddress,
-    address _uuid,
-    uint256 _index
-  ) internal view returns (bool) {
-    return getBool(keccak256(abi.encode('exists', _tokenAddress, _uuid, _index)));
   }
 }

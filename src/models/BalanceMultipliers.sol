@@ -15,24 +15,30 @@ import './TokenHolder.sol';
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract BalanceMultipliers is EternalModel {
   struct Instance {
-    address uuid; // tokenAddress
     uint256 blockNumber;
     uint256 index; // counter
     uint256 k;
     uint256 m;
+    Ecosystem.Instance ecosystem;
+    Token.Instance token;
   }
 
-  function deserialize(uint256 _blockNumber, Token.Instance memory _token)
-    public
-    view
-    returns (Instance memory)
-  {
+  function deserialize(
+    uint256 _blockNumber,
+    Ecosystem.Instance memory _ecosystem,
+    Token.Instance memory _token
+  ) public view returns (Instance memory) {
     record = _findByBlockNumber(_token.uuid, _blockNumber, _token.counter, 0);
     record.blockNumber = _blockNumber;
+    record.ecosystem = _ecosystem;
     return record;
   }
 
-  function exists(address, uint256) external pure returns (bool recordExists) {
+  function exists(
+    uint256,
+    Ecosystem.Instance memory,
+    Token.Instance memory
+  ) external pure returns (bool) {
     return true;
   }
 
@@ -41,9 +47,12 @@ contract BalanceMultipliers is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setUint(keccak256(abi.encode(record.uuid, record.index, 'blockNumber')), record.blockNumber);
-    setUint(keccak256(abi.encode(record.uuid, record.index, 'k')), record.k);
-    setUint(keccak256(abi.encode(record.uuid, record.index, 'm')), record.m);
+    setUint(
+      keccak256(abi.encode(record.token.uuid, record.index, 'blockNumber')),
+      record.blockNumber
+    );
+    setUint(keccak256(abi.encode(record.token.uuid, record.index, 'k')), record.k);
+    setUint(keccak256(abi.encode(record.token.uuid, record.index, 'm')), record.m);
   }
 
   function _findByBlockNumber(

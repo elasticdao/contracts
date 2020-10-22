@@ -2,7 +2,9 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import './Ecosystem.sol';
 import './EternalModel.sol';
+import './Token.sol';
 import '../libraries/SafeMath.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
@@ -12,42 +14,36 @@ import '../libraries/SafeMath.sol';
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract TokenHolder is EternalModel {
   struct Instance {
-    address uuid;
-    address tokenAddress;
+    address account;
     uint256 counter;
     uint256 lambda;
+    Ecosystem.Instance ecosystem;
+    Token.Instance token;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _uuid - address of the unique user ID
-   * @param _tokenAddress - the address of the token
-   * @return record Instance
-   */
-  function deserialize(address _uuid, address _tokenAddress)
-    external
-    view
-    returns (Instance memory record)
-  {
-    record.uuid = _uuid;
-    record.tokenAddress = _tokenAddress;
+  function deserialize(
+    address _account,
+    Ecosystem.Instance memory _ecosystem,
+    Token.Instance memory _token
+  ) external view returns (Instance memory record) {
+    record.account = _account;
+    record.ecosystem = _ecosystem;
+    record.token = _token;
 
-    if (_exists(_uuid, _tokenAddress)) {
-      record.counter = getUint(keccak256(abi.encode(_tokenAddress, 'counter', _uuid)));
-      record.lambda = getUint(keccak256(abi.encode(_tokenAddress, 'lambda', _uuid)));
+    if (_exists(_account, _token.uuid)) {
+      record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
+      record.lambda = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')));
     }
 
     return record;
   }
 
-  /**
-   * @dev checks if @param _uuid and @param _name exist
-   * @param _uuid - address of the unique user ID
-   * @param _tokenAddress - the address of the token
-   * @return recordExists bool
-   */
-  function exists(address _uuid, address _tokenAddress) external view returns (bool recordExists) {
-    return _exists(_uuid, _tokenAddress);
+  function exists(
+    address _account,
+    Ecosystem.Instance memory _ecosystem,
+    Token.Instance memory _token
+  ) external view returns (bool recordExists) {
+    return _exists(_account, _token.uuid);
   }
 
   /**
@@ -61,7 +57,11 @@ contract TokenHolder is EternalModel {
     setBool(keccak256(abi.encode('exists', record.uuid, record.tokenAddress)), true);
   }
 
-  function _exists(address _uuid, address _tokenAddress) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _uuid, _tokenAddress)));
+  function _exists(address _account, address _tokenAddress)
+    internal
+    view
+    returns (bool recordExists)
+  {
+    return getBool(keccak256(abi.encode('exists', _account, _tokenAddress)));
   }
 }
