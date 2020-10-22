@@ -313,15 +313,11 @@ contract ElasticGovernanceToken is IElasticToken {
     internal
     returns (Balance.Instance memory)
   {
+    Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    Balance balanceContract = Balance(_getEcosystem().balanceModelAddress);
-    return
-      balanceContract.findByBlockNumber(
-        address(this),
-        _blockNumber,
-        tokenHolder.counter,
-        0 // off
-      );
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Balance balanceContract = Balance(ecosystem.balanceModelAddress);
+    return balanceContract.deserialize(_blockNumber, tokenHolder, token, ecosystem);
   }
 
   function _burn(address _account, uint256 _deltaT) internal {

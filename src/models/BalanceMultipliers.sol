@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
+import './Token.sol';
 import './TokenHolder.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
@@ -21,19 +22,14 @@ contract BalanceMultipliers is EternalModel {
     uint256 m;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _uuid - the address of the token
-   * @param _blockNumber - the blockNumber to get the multipliers at
-   * @param _counter - total number of multiplier records
-   * @return record Instance
-   */
-  function deserialize(
-    address _uuid,
-    uint256 _blockNumber,
-    uint256 _counter
-  ) public view returns (Instance memory) {
-    return _findByBlockNumber(_uuid, _blockNumber, _counter, 0);
+  function deserialize(uint256 _blockNumber, Token.Instance memory _token)
+    public
+    view
+    returns (Instance memory)
+  {
+    record = _findByBlockNumber(_token.uuid, _blockNumber, _token.counter, 0);
+    record.blockNumber = _blockNumber;
+    return record;
   }
 
   function exists(address, uint256) external pure returns (bool recordExists) {
@@ -65,7 +61,7 @@ contract BalanceMultipliers is EternalModel {
 
     if (_numberOfRecords == 1) {
       uint256 index = SafeMath.add(_offset, _numberOfRecords);
-      record.blockNumber = getUint(keccak256(abi.encode(_uuid, id, 'blockNumber')));
+      record.blockNumber = getUint(keccak256(abi.encode(_uuid, index, 'blockNumber')));
 
       if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
         if (_offset == 0) {
@@ -79,7 +75,7 @@ contract BalanceMultipliers is EternalModel {
           record.m = getUint(keccak256(abi.encode(_uuid, 0, 'm')));
           return record;
         }
-        return findByBlockNumber(_uuid, _blockNumber, SafeMath.sub(_offset, 1), _numberOfRecords);
+        return _findByBlockNumber(_uuid, _blockNumber, SafeMath.sub(_offset, 1), _numberOfRecords);
       }
       record.k = getUint(keccak256(abi.encode(_uuid, id, 'k')));
       record.m = getUint(keccak256(abi.encode(_uuid, id, 'm')));
@@ -91,11 +87,11 @@ contract BalanceMultipliers is EternalModel {
     record.blockNumber = getUint(keccak256(abi.encode(_uuid, middleId, 'blockNumber')));
 
     if (record.blockNumber > _blockNumber) {
-      return findByBlockNumber(_uuid, _blockNumber, _offset, half);
+      return _findByBlockNumber(_uuid, _blockNumber, _offset, half);
     }
 
     if (record.blockNumber < _blockNumber) {
-      return findByBlockNumber(_uuid, _blockNumber, middleId, half);
+      return _findByBlockNumber(_uuid, _blockNumber, middleId, half);
     }
 
     record.k = getUint(keccak256(abi.encode(_uuid, 0, 'k')));
