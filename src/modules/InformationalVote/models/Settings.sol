@@ -62,8 +62,8 @@ contract InformationalVoteSettings is EternalModel {
     return _exists(_uuid);
   }
 
-  function getQuorumLambda(address _uuid, uint256 _id) external view returns (uint256) {
-    return getUint(keccak256(abi.encode('quorumLambda', _uuid, _id)));
+  function getQuorumLambda(address _uuid, uint256 _index) external view returns (uint256) {
+    return getUint(keccak256(abi.encode('quorumLambda', _uuid, _index)));
   }
 
   /**

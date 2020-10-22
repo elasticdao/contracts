@@ -16,7 +16,7 @@ contract BalanceMultipliers is EternalModel {
   struct Instance {
     address uuid; // tokenAddress
     uint256 blockNumber;
-    uint256 id; // counter
+    uint256 index; // counter
     uint256 k;
     uint256 m;
   }
@@ -45,9 +45,9 @@ contract BalanceMultipliers is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setUint(keccak256(abi.encode(record.uuid, record.id, 'blockNumber')), record.blockNumber);
-    setUint(keccak256(abi.encode(record.uuid, record.id, 'k')), record.k);
-    setUint(keccak256(abi.encode(record.uuid, record.id, 'm')), record.m);
+    setUint(keccak256(abi.encode(record.uuid, record.index, 'blockNumber')), record.blockNumber);
+    setUint(keccak256(abi.encode(record.uuid, record.index, 'k')), record.k);
+    setUint(keccak256(abi.encode(record.uuid, record.index, 'm')), record.m);
   }
 
   function findByBlockNumber(
@@ -64,7 +64,7 @@ contract BalanceMultipliers is EternalModel {
     }
 
     if (_numberOfRecords == 1) {
-      uint256 id = SafeMath.add(_offset, _numberOfRecords);
+      uint256 index = SafeMath.add(_offset, _numberOfRecords);
       record.blockNumber = getUint(keccak256(abi.encode(_uuid, id, 'blockNumber')));
 
       if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {

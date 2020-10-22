@@ -18,9 +18,8 @@ contract Token is EternalModel {
     string name;
     string symbol;
     uint256 capitalDelta;
-    uint256 counter; //passed as ID to balance multipliers
+    uint256 counter; // passed as ID to balance multipliers
     uint256 elasticity;
-    uint256 id; // counter
     uint256 k;
     uint256 lambda;
     uint256 m;
@@ -40,7 +39,6 @@ contract Token is EternalModel {
       record.capitalDelta = getUint(keccak256(abi.encode('capitalDelta', _uuid)));
       record.counter = getUint(keccak256(abi.encode('counter', _uuid)));
       record.elasticity = getUint(keccak256(abi.encode('elasticity', _uuid)));
-      record.id = getUint(keccak256(abi.encode('id', _uuid)));
       record.k = getUint(keccak256(abi.encode('k', _uuid)));
       record.lambda = getUint(keccak256(abi.encode('lambda', _uuid)));
       record.m = getUint(keccak256(abi.encode('m', _uuid)));
@@ -62,6 +60,11 @@ contract Token is EternalModel {
     return _exists(_uuid);
   }
 
+  function incrementCounter(address _uuid) external {
+    uint256 counter = getUint(keccak256(abi.encode('counter', _uuid)));
+    setUint(keccak256(abi.encode('counter', _uuid)), SafeMath.add(counter, 1));
+  }
+
   /**
    * @dev serializes Instance struct
    * @param record Instance
@@ -70,9 +73,8 @@ contract Token is EternalModel {
     setString(keccak256(abi.encode('name', record.uuid)), record.name);
     setString(keccak256(abi.encode('symbol', record.uuid)), record.symbol);
     setUint(keccak256(abi.encode('capitalDelta', record.uuid)), record.capitalDelta);
-    setUint(keccak256(abi.encode('counter', record.counter)), record.counter);
+    setUint(keccak256(abi.encode('counter', record.uuid)), record.counter);
     setUint(keccak256(abi.encode('elasticity', record.uuid)), record.elasticity);
-    setUint(keccak256(abi.encode('id', record.uuid)), record.id);
     setUint(keccak256(abi.encode('k', record.uuid)), record.k);
     setUint(keccak256(abi.encode('lambda', record.uuid)), record.lambda);
     setUint(keccak256(abi.encode('m', record.uuid)), record.m);

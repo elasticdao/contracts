@@ -114,13 +114,11 @@ contract ElasticGovernanceToken is IElasticToken {
       0
     );
 
-    // Concerns : balance has no t, resultingLambda
-    // ElasticMath.t should be passed in lambda, k, m
     if (balance.blockNumber <= _blockNumber) {
-      t = ElasticMath.t(balance.resultingLambda, balance.t);
+      t = ElasticMath.t(balance.lambda, balance.m, balance.k);
     }
 
-    return balance.resultingLambda;
+    return t;
   }
 
   /**
@@ -149,7 +147,7 @@ contract ElasticGovernanceToken is IElasticToken {
       return 0;
     }
 
-    return balance.resultingLambda;
+    return balance.lambda;
   }
 
   /**
@@ -327,6 +325,22 @@ contract ElasticGovernanceToken is IElasticToken {
     emit Approval(_owner, _spender, _amount);
   }
 
+  function _balanceAt(address _account, uint256 _blockNumber)
+    internal
+    returns (Balance.Instance memory)
+  {
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    Balance balanceContract = Balance(_getEcosystem().balanceModelAddress);
+    return
+      balanceContract.findByBlockNumber(
+        address(this),
+        _account,
+        _blockNumber,
+        tokenHolder.counter,
+        0 // off
+      );
+  }
+
   function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
     uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
@@ -414,7 +428,7 @@ contract ElasticGovernanceToken is IElasticToken {
   ) internal returns (TokenHolder.Instance memory) {
     Balance.Instance memory balance;
     balance.blockNumber = block.number;
-    balance.id = _tokenHolder.counter;
+    balance.index = _tokenHolder.counter;
     balance.k = _token.k;
     balance.m = _token.m;
     balance.token = _token;
@@ -426,9 +440,10 @@ contract ElasticGovernanceToken is IElasticToken {
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
-    balance.resultingLambda = _tokenHolder.lambda;
-    BalanceChange(_getEcosystem().balanceModelAddress).serialize(balance);
 
+    balance.lambda = _tokenHolder.lambda;
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Balance(ecosystem.balanceModelAddress).serialize(balance, ecosystem);
     return _tokenHolder;
   }
 

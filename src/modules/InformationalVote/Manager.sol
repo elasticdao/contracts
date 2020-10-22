@@ -18,7 +18,7 @@ contract InformationalVoteManager {
   address public voteModelAddress;
   bool public initialized;
 
-  event CreateVote(uint256 id);
+  event CreateVote(uint256 index);
 
   constructor(
     address _ballotModelAddress,
@@ -66,11 +66,11 @@ contract InformationalVoteManager {
 
   /**
    * @dev Applies penalties to @param _addressesToPenalize
-   * @param _id - ID of the specific vote
+   * @param _index - ID of the specific vote
    * @param _addressesToPenalize - An array of all the addresses to be penalized
    *
    * The function does the following checks:
-   *   Whether the @param _id is a valid vote ID
+   *   Whether the @param _index is a valid vote ID
    *   Whether the vote has already passed or not
    *   Whether the vote is currently active
    *   Whether the vote has reached quoroum or not
@@ -89,9 +89,9 @@ contract InformationalVoteManager {
    *           has a penalty on it then the @param _addressesToPenalize are penalized
    *
    */
-  function applyPenalty(uint256 _id, address[] memory _addressesToPenalize) external {
-    require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
-    InformationalVote.Instance memory vote = _getVote(_id);
+  function applyPenalty(uint256 _index, address[] memory _addressesToPenalize) external {
+    require(_voteExists(_index), 'ElasticDAO: Invalid vote id.');
+    InformationalVote.Instance memory vote = _getVote(_index);
     require(vote.isApproved == false, 'ElasticDAO: Cannot penalize a vote that passed.');
     require(vote.isActive == false, 'ElasticDAO: Cannot penalize an active vote.');
     require(
@@ -103,10 +103,10 @@ contract InformationalVoteManager {
     IElasticToken tokenContract = IElasticToken(vote.votingToken);
 
     for (uint256 i = 0; i < _addressesToPenalize.length; i = SafeMath.add(i, 1)) {
-      if (ballotContract.exists(address(this), _id, _addressesToPenalize[i]) == false) {
+      if (ballotContract.exists(address(this), _index, _addressesToPenalize[i]) == false) {
         InformationalVoteBallot.Instance memory ballot;
         ballot.uuid = address(this);
-        ballot.voteId = vote.id;
+        ballot.voteId = vote.index;
         ballot.voter = _addressesToPenalize[i];
         ballot.wasPenalized = true;
         uint256 deltaLambda = ElasticMath.wmul(
@@ -156,7 +156,7 @@ contract InformationalVoteManager {
     vote.abstainLambda = 0;
     vote.approval = 0;
     vote.endOnBlock = _endOnBlock;
-    vote.id = settings.counter;
+    vote.index = settings.counter;
     vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
     vote.minBlocksForPenalty = settings.minBlocksForPenalty;
     vote.noLambda = 0;
@@ -169,12 +169,12 @@ contract InformationalVoteManager {
     voteContract.serialize(vote);
     InformationalVoteSettings(settingsModelAddress).incrementCounter(address(this));
 
-    emit CreateVote(vote.id);
+    emit CreateVote(vote.index);
   }
 
   /**
    * @dev casts the vote ballot
-   * @param _id - the ID of the vote
+   * @param _index - the ID of the vote
    * @param _yna - YesNoAbstain value - 0 for Yes, 1 for No, 2 for abstain
    * votingLambda - The current number of shares the voter has
    * lambdaAtStartingBlock - the number of shares the voter has on vote creation
@@ -184,9 +184,9 @@ contract InformationalVoteManager {
    * and if the number of shares exceeds the maximum number of shares per token holder,
    * voter can only vote with the maximum number of shares per token holder,
    */
-  function castBallot(uint256 _id, uint256 _yna) external {
-    require(_voteExists(_id), 'ElasticDAO: Invalid vote id.');
-    InformationalVote.Instance memory vote = _getVote(_id);
+  function castBallot(uint256 _index, uint256 _yna) external {
+    require(_voteExists(_index), 'ElasticDAO: Invalid vote id.');
+    InformationalVote.Instance memory vote = _getVote(_index);
     require(vote.isApproved == false, 'ElasticDAO: InformationalVote has already been approved.');
     require(vote.isActive, 'ElasticDAO: InformationalVote is not active or has ended.');
     require(_voteNotExpired(vote), 'ElasticDAO: InformationalVote is not active or has ended.');
@@ -227,7 +227,7 @@ contract InformationalVoteManager {
 
     InformationalVoteBallot.Instance memory ballot;
     ballot.uuid = address(this);
-    ballot.voteId = vote.id;
+    ballot.voteId = vote.index;
     ballot.voter = msg.sender;
     ballot.lambda = votingLambda;
     ballot.yna = _yna;
@@ -240,24 +240,24 @@ contract InformationalVoteManager {
 
   // Private
 
-  function _getBallot(uint256 _id, address _voter)
+  function _getBallot(uint256 _index, address _voter)
     internal
     view
     returns (InformationalVoteBallot.Instance memory)
   {
-    return InformationalVoteBallot(ballotModelAddress).deserialize(address(this), _id, _voter);
+    return InformationalVoteBallot(ballotModelAddress).deserialize(address(this), _index, _voter);
   }
 
   function _getSettings() internal view returns (InformationalVoteSettings.Instance memory) {
     return InformationalVoteSettings(settingsModelAddress).deserialize(address(this));
   }
 
-  function _getVote(uint256 _id) internal view returns (InformationalVote.Instance memory) {
-    return InformationalVote(voteModelAddress).deserialize(address(this), _id);
+  function _getVote(uint256 _index) internal view returns (InformationalVote.Instance memory) {
+    return InformationalVote(voteModelAddress).deserialize(address(this), _index);
   }
 
-  function _voteExists(uint256 _id) internal view returns (bool) {
-    return InformationalVote(voteModelAddress).exists(address(this), _id);
+  function _voteExists(uint256 _index) internal view returns (bool) {
+    return InformationalVote(voteModelAddress).exists(address(this), _index);
   }
 
   function _voteNotExpired(InformationalVote.Instance memory vote) internal returns (bool) {

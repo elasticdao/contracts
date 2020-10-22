@@ -17,7 +17,7 @@ contract Balance is EternalModel {
   struct Instance {
     address uuid;
     uint256 blockNumber;
-    uint256 id; // counter
+    uint256 index; // tokenHolder.counter
     uint256 k;
     uint256 m;
     uint256 lambda;
@@ -35,29 +35,13 @@ contract Balance is EternalModel {
     record.tokenHolder = _tokenHolder;
     record.blockNumber = _blockNumber;
 
-    // record.k = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'k');
-    // record.lambda = findByBlockNumber(
-    // //    address _uuid,
-    // // TokenHolder.Instance memory _tokenHolder,
-    // // uint256 _blockNumber,
-    // // uint256 _tokenHolderCounter,
-    // // uint256 _offset
-    //   _uuid,
-    //   _tokenHolder,
-    //   _blockNumber,
-    //   _tokenHolder.counter,
-    //   0
-    // );
-    // record.m = findByBlockNumber(_blockNumber, 0, _tokenHolder.counter, _tokenHolder, 'm');
-
-    // return record;
     return findByBlockNumber(_uuid, _tokenHolder, _blockNumber, _tokenHolder.counter, 0);
   }
 
   function exists(
     address _tokenAddress,
     address _uuid,
-    uint256 _id
+    uint256 _index
   ) external view returns (bool recordExists) {
     return true;
   }
@@ -66,26 +50,26 @@ contract Balance is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record) external {
+  function serialize(Instance memory record, Ecosystem.Instance memory ecosystem) external {
     setUint(
-      keccak256(abi.encode(record.tokenAddress, record.uuid, record.id, 'blockNumber')),
+      keccak256(abi.encode(record.token.uuid, record.uuid, record.index, 'blockNumber')),
       record.blockNumber
     );
     setUint(
-      keccak256(abi.encode(record.tokenAddress, record.uuid, record.id, 'lambda')),
+      keccak256(abi.encode(record.token.uuid, record.uuid, record.index, 'lambda')),
       record.lambda
     );
 
-    setUint(keccak256(abi.encode(record.tokenAddress, record.uuid, record.id, 'k')), record.k);
     BalanceMultipliers.Instance memory balanceMultipliers;
-    balanceMultipliers.uuid = record.tokenAddress;
+    balanceMultipliers.uuid = record.token.uuid;
     balanceMultipliers.blockNumber = record.blockNumber;
     balanceMultipliers.k = record.k;
     balanceMultipliers.m = record.m;
+    balanceMultipliers.index = record.token.counter;
+    BalanceMultipliers(ecosystem.balanceMultipliersModelAddress).serialize(balanceMultipliers);
+    Token(ecosystem.tokenModelAddress).incrementCounter(_token.uuid);
 
-    balanceMultiplersContract.serialize(balanceMultipliers);
-    token.id = SafeMath.add(token.id, 1);
-    setBool(keccak256(abi.encode('exists', record.tokenAddress, record.uuid, record.id)), true);
+    setBool(keccak256(abi.encode('exists', record.token.uuid, record.uuid, record.index)), true);
   }
 
   function findByBlockNumber(
@@ -103,7 +87,7 @@ contract Balance is EternalModel {
     }
 
     if (_numberOfRecords == 1) {
-      uint256 id = SafeMath.add(_offset, id);
+      uint256 index = SafeMath.add(_offset, id);
       record.blockNumber = getUint(keccak256(abi.encode(_uuid, id, 'blockNumber')));
 
       if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
@@ -145,8 +129,8 @@ contract Balance is EternalModel {
   function _exists(
     address _tokenAddress,
     address _uuid,
-    uint256 _id
+    uint256 _index
   ) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _tokenAddress, _uuid, _id)));
+    return getBool(keccak256(abi.encode('exists', _tokenAddress, _uuid, _index)));
   }
 }
