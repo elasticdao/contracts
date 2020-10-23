@@ -13,24 +13,22 @@ import '../libraries/SafeMath.sol';
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract ElasticModule is EternalModel {
   struct Instance {
-    address contractAddress;
+    address uuid;
     string name;
     DAO.Instance dao;
     Ecosystem.Instance ecosystem;
   }
 
-  function deserialize(string memory _name, DAO.Instance memory _dao)
+  function deserialize(address _uuid, DAO.Instance memory _dao)
     external
     view
     returns (Instance memory record)
   {
+    record.uuid = _uuid;
     record.dao = _dao;
-    record.name = _name;
 
-    if (_exists(_name, _dao)) {
-      record.contractAddress = getAddress(
-        keccak256(abi.encode('contractAddress', record.dao.uuid, _name))
-      );
+    if (_exists(_uuid, _dao)) {
+      record.name = getAddress(keccak256(abi.encode(record.dao.uuid, record.uuid)));
     }
 
     return record;

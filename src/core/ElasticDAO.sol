@@ -34,8 +34,9 @@ contract ElasticDAO {
     _;
   }
   modifier onlySummoners() {
-    DAO daoContract = DAO(_getEcosystem().daoModelAddress);
-    DAO.Instance memory dao = daoContract.deserialize(address(this));
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    DAO daoContract = DAO(ecosystem.daoModelAddress);
+    DAO.Instance memory dao = daoContract.deserialize(address(this), ecosystem);
     bool summonerCheck = daoContract.isSummoner(dao, msg.sender);
 
     require(summonerCheck, 'ElasticDAO: Only summoners');
@@ -84,7 +85,7 @@ contract ElasticDAO {
   {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Registrator registrator = Registrator(ecosystem.registratorAddress);
-    registrator.registerModule(_moduleAddress, _name);
+    registrator.registerModule(_moduleAddress, _name, ecosystem);
   }
 
   function join(uint256 _deltaLambda) public payable onlyAfterSummoning {
@@ -107,7 +108,7 @@ contract ElasticDAO {
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-    ElasticGovernanceToken(_getEcosystem().governanceTokenAddress).mint(msg.sender, deltaT);
+    ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
   }
 
   // Summoning
@@ -122,9 +123,7 @@ contract ElasticDAO {
     Token.Instance memory token = _getToken();
 
     uint256 deltaE = msg.value;
-
     uint256 deltaLambda = ElasticMath.wdiv(ElasticMath.wdiv(deltaE, token.capitalDelta), token.k);
-
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
@@ -133,9 +132,13 @@ contract ElasticDAO {
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
-    DAO daoContract = DAO(_getEcosystem().daoModelAddress);
-    DAO.Instance memory dao = daoContract.deserialize(address(this));
-    Token.Instance memory token = _getToken();
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    DAO daoContract = DAO(ecosystem.daoModelAddress);
+    DAO.Instance memory dao = daoContract.deserialize(address(this), ecosystem);
+    Token.Instance memory token = Token(ecosystem.tokenModelAddress).deserialize(
+      ecosystem.governanceTokenAddress,
+      ecosystem
+    );
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
@@ -145,7 +148,7 @@ contract ElasticDAO {
     }
 
     dao.summoned = true;
-    DAO(_getEcosystem().daoModelAddress).serialize(dao);
+    daoContract.serialize(dao);
   }
 
   // Getters
@@ -165,7 +168,8 @@ contract ElasticDAO {
   // Private
 
   function _getDAO() internal view returns (DAO.Instance memory) {
-    return DAO(_getEcosystem().daoModelAddress).deserialize(address(this));
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    return DAO(ecosystem.daoModelAddress).deserialize(address(this), _ecosystem);
   }
 
   function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
@@ -183,7 +187,8 @@ contract ElasticDAO {
 
   function _getToken() internal view returns (Token.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    return Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress);
+    return
+      Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
   }
 
   function _getTokenHolder(address _uuid) internal view returns (TokenHolder.Instance memory) {

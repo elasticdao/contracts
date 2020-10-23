@@ -17,7 +17,7 @@ contract Configurator {
    * @param _summoners - an array of the addresses of the summoners
    * @param _name - the name of the DAO
    * @param _numberOfSummoners - the number of summoners
-   * @param ecosystem - an instance of Ecosystem
+   * @param _ecosystem - an instance of Ecosystem
    * @return dao DAO.Instance
    */
 
@@ -25,10 +25,11 @@ contract Configurator {
     address[] memory _summoners,
     string memory _name,
     uint256 _numberOfSummoners,
-    Ecosystem.Instance memory ecosystem
+    Ecosystem.Instance memory _ecosystem
   ) external returns (DAO.Instance memory dao) {
-    DAO daoStorage = DAO(ecosystem.daoModelAddress);
+    DAO daoStorage = DAO(_ecosystem.daoModelAddress);
     dao.uuid = msg.sender;
+    dao.ecosystem = _ecosystem;
     dao.name = _name;
     dao.numberOfSummoners = _numberOfSummoners;
     dao.summoned = false;
@@ -90,6 +91,7 @@ contract Configurator {
     Ecosystem.Instance memory _ecosystem
   ) external returns (Token.Instance memory token) {
     Token tokenStorage = Token(_ecosystem.tokenModelAddress);
+    token.ecosystem = _ecosystem;
     token.capitalDelta = _capitalDelta;
     token.elasticity = _elasticity;
     token.k = _k;

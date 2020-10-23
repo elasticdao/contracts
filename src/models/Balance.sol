@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
+import './BalanceMultipliers.sol';
 import './Token.sol';
 import './TokenHolder.sol';
 
@@ -25,21 +26,13 @@ contract Balance is EternalModel {
     TokenHolder.Instance tokenHolder;
   }
 
-  // TODO: Clean interface from deserialze and serialize
-
   function deserialize(
     uint256 _blockNumber,
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token,
     TokenHolder.Instance memory _tokenHolder
   ) public view returns (Instance memory record) {
-    record = _findByBlockNumber(
-      _tokenHolder.account,
-      _token.uuid,
-      _blockNumber,
-      _tokenHolder.counter,
-      0
-    );
+    record = _findByBlockNumber(_blockNumber, _tokenHolder.counter, 0, _token, _tokenHolder);
 
     record.ecosystem = _ecosystem;
     record.token = _token;
@@ -50,7 +43,7 @@ contract Balance is EternalModel {
         .ecosystem
         .balanceMultipliersModelAddress
     )
-      .deserialize(record.token.uuid, _blockNumber, record.token.counter);
+      .deserialize(_blockNumber, record.ecosystem, record.token);
 
     record.blockNumber = _blockNumber;
     record.k = balanceMultipliers.k;
@@ -85,25 +78,24 @@ contract Balance is EternalModel {
     );
 
     BalanceMultipliers.Instance memory balanceMultipliers;
-    balanceMultipliers.uuid = record.token.uuid;
     balanceMultipliers.blockNumber = record.blockNumber;
+    balanceMultipliers.index = record.token.counter;
     balanceMultipliers.k = record.k;
     balanceMultipliers.m = record.m;
-    balanceMultipliers.index = record.token.counter;
+    balanceMultipliers.ecosystem = record.ecosystem;
+    balanceMultipliers.token = record.token;
     BalanceMultipliers(record.ecosystem.balanceMultipliersModelAddress).serialize(
       balanceMultipliers
     );
-    Token(record.ecosystem.tokenModelAddress).incrementCounter(_token.uuid);
-
-    setBool(keccak256(abi.encode('exists', record.token.uuid, record.uuid, record.index)), true);
+    Token(record.ecosystem.tokenModelAddress).incrementCounter(record.token.uuid);
   }
 
   function _findByBlockNumber(
-    address _uuid,
-    address _tokenAddress,
     uint256 _blockNumber,
     uint256 _numberOfRecords,
-    uint256 _offset
+    uint256 _offset,
+    Token.Instance memory _token,
+    TokenHolder.Instance memory _tokenHolder
   ) internal view returns (Instance memory record) {
     if (_numberOfRecords == 0) {
       record.blockNumber = _blockNumber;
@@ -114,49 +106,55 @@ contract Balance is EternalModel {
     if (_numberOfRecords == 1) {
       uint256 index = SafeMath.add(_offset, _numberOfRecords);
       record.blockNumber = getUint(
-        keccak256(abi.encode(_tokenAddress, _uuid, index, 'blockNumber'))
+        keccak256(abi.encode(_token.uuid, _tokenHolder.account, index, 'blockNumber'))
       );
 
       if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
         if (_offset == 0) {
           record.blockNumber = getUint(
-            keccak256(abi.encode(_tokenAddress, _uuid, 0, 'blockNumber'))
+            keccak256(abi.encode(_token.uuid, _tokenHolder.account, 0, 'blockNumber'))
           );
           if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
             record.lambda = 0;
             return record;
           }
-          record.lambda = getUint(keccak256(abi.encode(_tokenAddress, _uuid, 0, 'lambda')));
+          record.lambda = getUint(
+            keccak256(abi.encode(_token.uuid, _tokenHolder.account, 0, 'lambda'))
+          );
           return record;
         }
         return
           _findByBlockNumber(
-            _uuid,
-            _tokenAddress,
             _blockNumber,
             _numberOfRecords,
-            SafeMath.sub(_offset, 1)
+            SafeMath.sub(_offset, 1),
+            _token,
+            _tokenHolder
           );
       }
-      record.lambda = getUint(keccak256(abi.encode(_tokenAddress, _uuid, id, 'lambda')));
+      record.lambda = getUint(
+        keccak256(abi.encode(_token.uuid, _tokenHolder.account, index, 'lambda'))
+      );
       return record;
     }
 
     uint256 half = SafeMath.div(_numberOfRecords, 2);
-    uint256 middleId = SafeMath.add(half, _offset);
+    uint256 middleIndex = SafeMath.add(half, _offset);
     record.blockNumber = getUint(
-      keccak256(abi.encode(_tokenAddress, _uuid, middleId, 'blockNumber'))
+      keccak256(abi.encode(_token.uuid, _tokenHolder.account, middleIndex, 'blockNumber'))
     );
 
     if (record.blockNumber > _blockNumber) {
-      return _findByBlockNumber(_tokenAddress, _uuid, _blockNumber, half, _offset);
+      return _findByBlockNumber(_blockNumber, half, _offset, _token, _tokenHolder);
     }
 
     if (record.blockNumber < _blockNumber) {
-      return _findByBlockNumber(_tokenAddress, _uuid, _blockNumber, half, middleId);
+      return _findByBlockNumber(_blockNumber, half, middleIndex, _token, _tokenHolder);
     }
 
-    record.lambda = getUint(keccak256(abi.encode(_tokenAddress, _uuid, 0, 'lambda')));
+    record.lambda = getUint(
+      keccak256(abi.encode(_token.uuid, _tokenHolder.account, middleIndex, 'lambda'))
+    );
     return record;
   }
 }

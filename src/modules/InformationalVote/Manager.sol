@@ -59,7 +59,7 @@ contract InformationalVoteManager {
     settings.penalty = _settings[7];
     settings.quorum = _settings[8];
     settings.reward = _settings[9];
-    IElasticToken(_votingToken).subscribeToShareUpdates(address(this));
+    // IElasticToken(_votingToken).subscribeToShareUpdates(address(this));
     settingsContract.serialize(settings);
     initialized = true;
   }
