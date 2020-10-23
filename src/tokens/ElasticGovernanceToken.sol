@@ -19,7 +19,6 @@ import '../models/TokenHolder.sol';
 contract ElasticGovernanceToken is IElasticToken {
   address daoAddress;
   address ecosystemModelAddress;
-  address[] shareChangeSubscriberAddresses;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -104,7 +103,7 @@ contract ElasticGovernanceToken is IElasticToken {
   {
     t = 0;
 
-    Balance.Instance balance = _balanceAt(_account, _blockNumber);
+    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
 
     if (balance.blockNumber <= _blockNumber) {
       t = ElasticMath.t(balance.lambda, balance.m, balance.k);
@@ -125,7 +124,7 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (uint256 lambda)
   {
-    Balance.Instance balance = _balanceAt(_account, _blockNumber);
+    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
 
     if (balance.blockNumber > _blockNumber) {
       return 0;
@@ -316,20 +315,20 @@ contract ElasticGovernanceToken is IElasticToken {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance balanceContract = Balance(ecosystem.balanceModelAddress);
-    return balanceContract.deserialize(_blockNumber, tokenHolder, token, ecosystem);
+    Balance balanceStorage = Balance(ecosystem.balanceModelAddress);
+    return balanceStorage.deserialize(_blockNumber, ecosystem, token, tokenHolder);
   }
 
   function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
     _burnShares(_account, deltaLambda);
   }
 
   function _burnShares(address _account, uint256 _deltaLambda) internal {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
-    Token.Instance memory token = tokenStorage.deserialize(address(this));
+    Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
@@ -345,14 +344,14 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function _mint(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
     _mintShares(_account, deltaLambda);
   }
 
   function _mintShares(address _account, uint256 _deltaLambda) internal {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
-    Token.Instance memory token = tokenStorage.deserialize(address(this));
+    Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
@@ -377,14 +376,14 @@ contract ElasticGovernanceToken is IElasticToken {
   ) internal {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
-    Token.Instance memory token = tokenStorage.deserialize(address(this));
+    Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
 
     TokenHolder.Instance memory fromTokenHolder = _getTokenHolder(_from);
     TokenHolder.Instance memory toTokenHolder = _getTokenHolder(_to);
     bool fromAlreadyTokenHolder = fromTokenHolder.lambda > 0;
     bool toAlreadyTokenHolder = toTokenHolder.lambda > 0;
 
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.div(token.k, token.m));
+    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
@@ -405,13 +404,15 @@ contract ElasticGovernanceToken is IElasticToken {
     bool _isIncreasing,
     uint256 _deltaLambda
   ) internal returns (TokenHolder.Instance memory) {
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
     Balance.Instance memory balance;
     balance.blockNumber = block.number;
+    balance.ecosystem = ecosystem;
     balance.index = _tokenHolder.counter;
     balance.k = _token.k;
     balance.m = _token.m;
     balance.token = _token;
-    balance.uuid = _tokenHolder.uuid;
+    balance.tokenHolder = _tokenHolder;
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
 
     if (_isIncreasing) {
@@ -421,8 +422,9 @@ contract ElasticGovernanceToken is IElasticToken {
     }
 
     balance.lambda = _tokenHolder.lambda;
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance(ecosystem.balanceModelAddress).serialize(balance, ecosystem);
+
+    Balance(ecosystem.balanceModelAddress).serialize(balance);
+
     return _tokenHolder;
   }
 
@@ -433,11 +435,11 @@ contract ElasticGovernanceToken is IElasticToken {
     Token tokenStorage
   ) internal {
     if (tokenHolder.lambda > 0 && alreadyTokenHolder == false) {
-      tokenStorage.updateNumberOfTokenHolders(SafeMath.add(token.numberOfTokenHolders, 1));
+      tokenStorage.updateNumberOfTokenHolders(token, SafeMath.add(token.numberOfTokenHolders, 1));
     }
 
     if (tokenHolder.lambda == 0 && alreadyTokenHolder) {
-      tokenStorage.updateNumberOfTokenHolders(SafeMath.sub(token.numberOfTokenHolders, 1));
+      tokenStorage.updateNumberOfTokenHolders(token, SafeMath.sub(token.numberOfTokenHolders, 1));
     }
   }
 
@@ -447,11 +449,18 @@ contract ElasticGovernanceToken is IElasticToken {
     return Ecosystem(ecosystemModelAddress).deserialize(daoAddress);
   }
 
-  function _getTokenHolder(address _uuid) internal view returns (TokenHolder.Instance memory) {
-    return TokenHolder(_getEcosystem().tokenHolderModelAddress).deserialize(_uuid, address(this));
+  function _getTokenHolder(address _account) internal view returns (TokenHolder.Instance memory) {
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    return
+      TokenHolder(ecosystem.tokenHolderModelAddress).deserialize(
+        _account,
+        ecosystem,
+        Token(ecosystem.tokenModelAddress).deserialize(address(this), ecosystem)
+      );
   }
 
   function _getToken() internal view returns (Token.Instance memory) {
-    return Token(_getEcosystem().tokenModelAddress).deserialize(address(this));
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    return Token(ecosystem.tokenModelAddress).deserialize(address(this), ecosystem);
   }
 }
