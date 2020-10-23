@@ -161,10 +161,6 @@ contract ElasticDAO {
     return _getEcosystem();
   }
 
-  function getModuleAddress(string memory _name) external view returns (address) {
-    return _getElasticModule(_name).contractAddress;
-  }
-
   // Private
 
   function _getDAO() internal view returns (DAO.Instance memory) {
@@ -176,27 +172,9 @@ contract ElasticDAO {
     return Ecosystem(ecosystemModelAddress).deserialize(address(this));
   }
 
-  function _getElasticModule(string memory _name)
-    internal
-    view
-    returns (ElasticModule.Instance memory)
-  {
-    return
-      ElasticModule(_getEcosystem().elasticModuleModelAddress).deserialize(address(this), _name);
-  }
-
   function _getToken() internal view returns (Token.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     return
       Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
-  }
-
-  function _getTokenHolder(address _uuid) internal view returns (TokenHolder.Instance memory) {
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    return
-      TokenHolder(ecosystem.tokenHolderModelAddress).deserialize(
-        _uuid,
-        ecosystem.governanceTokenAddress
-      );
   }
 }

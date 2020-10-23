@@ -44,9 +44,9 @@ contract ElasticModule is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setAddress(keccak256(abi.encode(record.dao.uuid, record.name, 'contractAddress')), record.uuid);
+    setAddress(keccak256(abi.encode(record.dao.uuid, record.uuid, 'contractAddress')), record.uuid);
 
-    setBool(keccak256(abi.encode(record.dao.uuid, record.name, 'exists')), true);
+    setBool(keccak256(abi.encode(record.dao.uuid, record.uuid, 'exists')), true);
   }
 
   function _exists(address _uuid, DAO.Instance memory _dao)
