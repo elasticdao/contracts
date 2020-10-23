@@ -51,17 +51,17 @@ contract TokenHolder is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setUint(keccak256(abi.encode(record.tokenAddress, 'counter', record.uuid)), record.counter);
-    setUint(keccak256(abi.encode(record.tokenAddress, 'lambda', record.uuid)), record.lambda);
+    setUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')), record.counter);
+    setUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')), record.lambda);
 
-    setBool(keccak256(abi.encode('exists', record.uuid, record.tokenAddress)), true);
+    setBool(keccak256(abi.encode(record.token.uuid, record.account, 'exists')), true);
   }
 
-  function _exists(address _account, address _tokenAddress)
+  function _exists(address _account, Token.Instance memory _token)
     internal
     view
     returns (bool recordExists)
   {
-    return getBool(keccak256(abi.encode('exists', _account, _tokenAddress)));
+    return getBool(keccak256(abi.encode(_token.uuid, _account, 'exists')));
   }
 }

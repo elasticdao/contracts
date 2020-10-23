@@ -26,20 +26,17 @@ contract ElasticModule is EternalModel {
   {
     record.uuid = _uuid;
     record.dao = _dao;
-
-    if (_exists(_uuid, _dao)) {
-      record.name = getAddress(keccak256(abi.encode(record.dao.uuid, record.uuid)));
-    }
+    record.name = getString(keccak256(abi.encode(record.dao.uuid, record.uuid)));
 
     return record;
   }
 
-  function exists(string memory _name, DAO.Instance memory _dao)
+  function exists(address _uuid, DAO.Instance memory _dao)
     external
     view
     returns (bool recordExists)
   {
-    return _exists(_name, _dao);
+    return _exists(_uuid, _dao);
   }
 
   /**
@@ -47,19 +44,16 @@ contract ElasticModule is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setAddress(
-      keccak256(abi.encode('contractAddress', record.dao.uuid, record.name)),
-      record.contractAddress
-    );
+    setAddress(keccak256(abi.encode(record.dao.uuid, record.name, 'contractAddress')), record.uuid);
 
-    setBool(keccak256(abi.encode('exists', record.dao.uuid, record.name)), true);
+    setBool(keccak256(abi.encode(record.dao.uuid, record.name, 'exists')), true);
   }
 
-  function _exists(string memory _name, DAO.Instance memory _dao)
+  function _exists(address _uuid, DAO.Instance memory _dao)
     internal
     view
     returns (bool recordExists)
   {
-    return getBool(keccak256(abi.encode('exists', _dao.uuid, _name)));
+    return getBool(keccak256(abi.encode(_dao.uuid, _uuid, 'exists')));
   }
 }
