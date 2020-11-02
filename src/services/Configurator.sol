@@ -49,11 +49,11 @@ contract Configurator {
   {
     Ecosystem ecosystemStorage = Ecosystem(defaults.ecosystemModelAddress);
 
-    ecosystem.uuid = msg.sender;
+    ecosystem.daoAddress = msg.sender;
 
     // Models
     ecosystem.balanceModelAddress = defaults.balanceModelAddress;
-    ecosystem.balanceMultiplierModelAddress = defaults.balanceMultiplierModelAddress;
+    ecosystem.balanceMultipliersModelAddress = defaults.balanceMultipliersModelAddress;
     ecosystem.daoModelAddress = defaults.daoModelAddress;
     ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
     ecosystem.elasticModuleModelAddress = defaults.elasticModuleModelAddress;
@@ -102,7 +102,7 @@ contract Configurator {
     token.symbol = _symbol;
     token.uuid = address(new ElasticGovernanceToken(msg.sender, _ecosystem.ecosystemModelAddress));
 
-    ecosystem.governanceTokenAddress = token.uuid;
+    _ecosystem.governanceTokenAddress = token.uuid;
     Ecosystem(_ecosystem.ecosystemModelAddress).serialize(_ecosystem);
     tokenStorage.serialize(token);
   }

@@ -23,7 +23,8 @@ contract ElasticDAO {
   modifier onlyAfterTokenInitialized() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     bool tokenInitialized = Token(_getEcosystem().tokenModelAddress).exists(
-      ecosystem.governanceTokenAddress
+      ecosystem.governanceTokenAddress,
+      ecosystem
     );
     require(tokenInitialized, 'ElasticDAO: Please call initializeToken first');
     _;
@@ -165,7 +166,7 @@ contract ElasticDAO {
 
   function _getDAO() internal view returns (DAO.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    return DAO(ecosystem.daoModelAddress).deserialize(address(this), _ecosystem);
+    return DAO(ecosystem.daoModelAddress).deserialize(address(this), ecosystem);
   }
 
   function _getEcosystem() internal view returns (Ecosystem.Instance memory) {

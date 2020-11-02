@@ -310,6 +310,7 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function _balanceAt(address _account, uint256 _blockNumber)
     internal
+    view
     returns (Balance.Instance memory)
   {
     Token.Instance memory token = _getToken();
