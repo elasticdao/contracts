@@ -94,7 +94,7 @@ describe('ElasticDAO: Core', () => {
 
     tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
     const ecosystem = await elasticDAO.getEcosystem();
-    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress, ecosystem);
 
     await expect(elasticDAO.summon(token.maxLambdaPurchase)).to.be.revertedWith(
       'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio',

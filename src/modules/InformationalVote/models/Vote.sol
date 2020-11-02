@@ -43,7 +43,11 @@ contract InformationalVote is EternalModel {
    * @param _index - the counter value of this vote
    * @return record Instance
    */
-  function deserialize(address _uuid, uint256 _index) external view returns (Instance memory record) {
+  function deserialize(address _uuid, uint256 _index)
+    external
+    view
+    returns (Instance memory record)
+  {
     record.index = _index;
     record.uuid = _uuid;
 
@@ -97,7 +101,10 @@ contract InformationalVote is EternalModel {
     setBool(keccak256(abi.encode('isActive', record.uuid, record.index)), record.isActive);
     setBool(keccak256(abi.encode('isApproved', record.uuid, record.index)), record.isApproved);
     setString(keccak256(abi.encode('proposal', record.uuid, record.index)), record.proposal);
-    setUint(keccak256(abi.encode('abstainLambda', record.uuid, record.index)), record.abstainLambda);
+    setUint(
+      keccak256(abi.encode('abstainLambda', record.uuid, record.index)),
+      record.abstainLambda
+    );
     setUint(keccak256(abi.encode('approval', record.uuid, record.index)), record.approval);
     setUint(keccak256(abi.encode('endOnBlock', record.uuid, record.index)), record.endOnBlock);
     setUint(

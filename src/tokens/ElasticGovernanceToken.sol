@@ -244,7 +244,7 @@ contract ElasticGovernanceToken is IElasticToken {
    */
   function totalSupply() external override view returns (uint256) {
     Token.Instance memory token = _getToken();
-    return SafeMath.mul(token.lambda, SafeMath.mul(token.k, token.m));
+    return ElasticMath.t(token.lambda, token.k, token.m);
   }
 
   function totalSupplyInShares() external override view returns (uint256) {
@@ -322,7 +322,7 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
+    uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
     _burnShares(_account, deltaLambda);
   }
 
@@ -345,7 +345,7 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function _mint(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
+    uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
     _mintShares(_account, deltaLambda);
   }
 
@@ -384,7 +384,7 @@ contract ElasticGovernanceToken is IElasticToken {
     bool fromAlreadyTokenHolder = fromTokenHolder.lambda > 0;
     bool toAlreadyTokenHolder = toTokenHolder.lambda > 0;
 
-    uint256 deltaLambda = SafeMath.div(_deltaT, SafeMath.mul(token.k, token.m));
+    uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
