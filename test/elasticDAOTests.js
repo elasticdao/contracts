@@ -129,6 +129,10 @@ describe('ElasticDAO: Core', () => {
     expect(await tokenContract.balanceOf(summoner._address)).to.equal(TEN);
     /// get balance at block
     const blockNumber = await bre.provider.getBlockNumber();
+    console.log('#### balanceOfAt expect:');
+    console.log('summoner adddress:', summoner._address);
+    console.log('blockNumber:', blockNumber);
+    console.log(' ');
     expect(await tokenContract.balanceOfAt(summoner._address, blockNumber)).to.equal(TEN);
   });
 
@@ -173,7 +177,7 @@ describe('ElasticDAO: Core', () => {
 
     tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
     const ecosystem = await elasticDAO.getEcosystem();
-    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress, ecosystem);
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
 
@@ -196,7 +200,7 @@ describe('ElasticDAO: Core', () => {
 
     tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
     const ecosystem = await elasticDAO.getEcosystem();
-    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress, ecosystem);
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
     await elasticDAO.summon(token.maxLambdaPurchase);
@@ -231,7 +235,7 @@ describe('ElasticDAO: Core', () => {
 
     tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
     const ecosystem = await elasticDAO.getEcosystem();
-    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress);
+    const token = await tokenStorage.deserialize(ecosystem.governanceTokenAddress, ecosystem);
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
     await elasticDAO.summon(token.maxLambdaPurchase);

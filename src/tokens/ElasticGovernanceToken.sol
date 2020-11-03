@@ -13,6 +13,8 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 /**
  * @dev Implementation of the IERC20 interface
  */
@@ -102,13 +104,16 @@ contract ElasticGovernanceToken is IElasticToken {
     returns (uint256 t)
   {
     t = 0;
-
+    console.log('balanceOfAt #1');
+    console.log('Account: ', _account);
+    console.log('BlockNumber: ', _blockNumber);
+    console.log(' ');
     Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
 
     if (balance.blockNumber <= _blockNumber) {
       t = ElasticMath.t(balance.lambda, balance.m, balance.k);
     }
-
+    console.log('t:', t);
     return t;
   }
 
@@ -313,10 +318,15 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (Balance.Instance memory)
   {
+    console.log('_balanceAt: ');
+    console.log('_account:', _account);
+    console.log('_blockNumber:', _blockNumber);
+
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Balance balanceStorage = Balance(ecosystem.balanceModelAddress);
+
     return balanceStorage.deserialize(_blockNumber, ecosystem, token, tokenHolder);
   }
 
