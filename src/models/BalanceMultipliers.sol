@@ -30,7 +30,7 @@ contract BalanceMultipliers is EternalModel {
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
   ) public view returns (Instance memory record) {
-    record = _findByBlockNumber(_blockNumber, 0, _token.counter, _token);
+    record = _findByBlockNumber(_blockNumber, _token.counter, 0, _token);
     record.blockNumber = _blockNumber;
     record.ecosystem = _ecosystem;
     record.token = _token;
@@ -56,12 +56,6 @@ contract BalanceMultipliers is EternalModel {
     );
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'k')), record.k);
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'm')), record.m);
-    console.log(' ');
-    console.log('BalanceMultiplier serialize: ');
-    console.log('record index: ', record.index);
-    console.log('record k: ', record.k);
-    console.log('record m: ', record.m);
-    console.log(' ');
   }
 
   function _findByBlockNumber(

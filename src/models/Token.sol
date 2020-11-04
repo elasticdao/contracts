@@ -8,6 +8,8 @@ import '../libraries/SafeMath.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -75,7 +77,6 @@ contract Token is EternalModel {
     setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
     setString(keccak256(abi.encode(record.uuid, 'symbol')), record.symbol);
     setUint(keccak256(abi.encode(record.uuid, 'capitalDelta')), record.capitalDelta);
-    setUint(keccak256(abi.encode(record.uuid, 'counter')), record.counter);
     setUint(keccak256(abi.encode(record.uuid, 'elasticity')), record.elasticity);
     setUint(keccak256(abi.encode(record.uuid, 'k')), record.k);
     setUint(keccak256(abi.encode(record.uuid, 'lambda')), record.lambda);

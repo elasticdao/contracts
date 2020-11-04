@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
+const bre = require('@nomiclabs/buidler').ethers; 
 const { deployments } = require('@nomiclabs/buidler');
 const elasticGovernanceTokenArtifact = require('../artifacts/ElasticGovernanceToken.json');
 
@@ -101,7 +101,7 @@ describe('ElasticDAO: Core', () => {
     );
   });
 
-  it.only('Should allow summoners to seed', async () => {
+  it('Should allow summoners to seed', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
     await elasticDAO.initializeToken(
@@ -127,12 +127,14 @@ describe('ElasticDAO: Core', () => {
     expect(balance).to.equal(ethers.constants.WeiPerEther);
     /// signers token balance is correct
     expect(await tokenContract.balanceOf(summoner._address)).to.equal(TEN);
-    /// get balance at block
+		/// get balance at block
+		await bre.provider.send('evm_mine');
     const blockNumber = await bre.provider.getBlockNumber();
     console.log('#### balanceOfAt expect:');
     console.log('summoner adddress:', summoner._address);
-    console.log('blockNumber:', blockNumber);
-    console.log('Value:', await tokenContract.balanceOfAt(summoner._address, blockNumber));
+		console.log('blockNumber:', blockNumber);
+		const balanceOfAt = await tokenContract.balanceOfAt(summoner._address, blockNumber);
+    console.log('Value:', balanceOfAt);
     console.log(' ');
     expect(await tokenContract.balanceOfAt(summoner._address, blockNumber)).to.equal(TEN);
   });

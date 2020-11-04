@@ -51,6 +51,7 @@ contract TokenHolder is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    // TODO: make counter increments consistent with the approach used in Token
     setUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')), record.counter);
     setUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')), record.lambda);
 
