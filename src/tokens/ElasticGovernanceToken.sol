@@ -104,15 +104,17 @@ contract ElasticGovernanceToken is IElasticToken {
     returns (uint256 t)
   {
     t = 0;
-    console.log('balanceOfAt #1');
+    console.log('balanceOfAt:');
     console.log('Account: ', _account);
     console.log('BlockNumber: ', _blockNumber);
     console.log(' ');
     Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
-
+    console.log(' ');
+    console.log('balance BlockNumber', balance.blockNumber);
     if (balance.blockNumber <= _blockNumber) {
       t = ElasticMath.t(balance.lambda, balance.m, balance.k);
     }
+    console.log(' ');
     console.log('t:', t);
     return t;
   }
@@ -318,9 +320,11 @@ contract ElasticGovernanceToken is IElasticToken {
     view
     returns (Balance.Instance memory)
   {
+    console.log(' ');
     console.log('_balanceAt: ');
     console.log('_account:', _account);
     console.log('_blockNumber:', _blockNumber);
+    console.log(' ');
 
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);

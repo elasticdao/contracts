@@ -8,6 +8,8 @@ import '../libraries/SafeMath.sol';
 import './Token.sol';
 import './TokenHolder.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token balance change data
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -54,6 +56,12 @@ contract BalanceMultipliers is EternalModel {
     );
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'k')), record.k);
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'm')), record.m);
+    console.log(' ');
+    console.log('BalanceMultiplier serialize: ');
+    console.log('record index: ', record.index);
+    console.log('record k: ', record.k);
+    console.log('record m: ', record.m);
+    console.log(' ');
   }
 
   function _findByBlockNumber(

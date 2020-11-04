@@ -9,6 +9,8 @@ import './BalanceMultipliers.sol';
 import './Token.sol';
 import './TokenHolder.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token balance change data
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -88,6 +90,14 @@ contract Balance is EternalModel {
       balanceMultipliers
     );
     Token(record.ecosystem.tokenModelAddress).incrementCounter(record.token.uuid);
+    console.log(' ');
+    console.log('Balance serialize: ');
+    console.log('record token uuid:', record.token.uuid);
+    console.log('balanceMultipliers index: ', balanceMultipliers.index);
+    console.log('balanceMultipliers k: ', balanceMultipliers.k);
+    console.log('balanceMultipliers m: ', balanceMultipliers.m);
+    console.log('record lambda: ', record.lambda);
+    console.log(' ');
   }
 
   function _findByBlockNumber(
@@ -97,6 +107,7 @@ contract Balance is EternalModel {
     Token.Instance memory _token,
     TokenHolder.Instance memory _tokenHolder
   ) internal view returns (Instance memory record) {
+    console.log('findByBlockNumber: ');
     if (_numberOfRecords == 0) {
       record.blockNumber = _blockNumber;
       record.lambda = 0;

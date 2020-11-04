@@ -101,7 +101,7 @@ describe('ElasticDAO: Core', () => {
     );
   });
 
-  it('Should allow summoners to seed', async () => {
+  it.only('Should allow summoners to seed', async () => {
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
 
     await elasticDAO.initializeToken(
@@ -132,6 +132,7 @@ describe('ElasticDAO: Core', () => {
     console.log('#### balanceOfAt expect:');
     console.log('summoner adddress:', summoner._address);
     console.log('blockNumber:', blockNumber);
+    console.log('Value:', await tokenContract.balanceOfAt(summoner._address, blockNumber));
     console.log(' ');
     expect(await tokenContract.balanceOfAt(summoner._address, blockNumber)).to.equal(TEN);
   });
