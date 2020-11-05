@@ -216,14 +216,9 @@ describe('ElasticDAO: Informational Vote Module', () => {
       expect(await voteStorage.exists(informationalVoteManager.address, 1)).to.equal(true);
 
       const voteRecord1 = await voteStorage.deserialize(informationalVoteManager.address, 0);
-      const voteRecord2 = await voteStorage.deserialize(informationalVoteManager.address, 0);
+      const voteRecord2 = await voteStorage.deserialize(informationalVoteManager.address, 1);
       expect(voteRecord1.proposal).to.equal('First vote should be created');
       expect(voteRecord2.proposal).to.equal('Second vote should be created');
-      // const wait1 = await vote.wait();
-      // const wait2 = await vote2.wait();
-
-      // expect(wait1.events[0].args.id).to.equal(ethers.BigNumber.from('0'));
-      // expect(wait2.events[0].args.id).to.equal(ethers.BigNumber.from('1'));
     });
   });
 });
