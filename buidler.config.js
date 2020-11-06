@@ -11,6 +11,21 @@ usePlugin('buidler-contract-sizer');
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 
+// Tasks
+task('seed', 'Seed account with Buidler ETH')
+  .addParam('account', "The account's address")
+  .setAction(async (taskArgs) => {
+    const accounts = await ethers.getSigners();
+
+    const tx = await accounts[0].sendTransaction({
+      to: taskArgs.account,
+      value: ethers.utils.parseEther('1000.0'),
+    });
+
+    console.log(`ElasticDAO: Seeded ${taskArgs.account} with 1000 ETH`);
+  });
+
+// Config
 module.exports = {
   defaultNetwork: 'buidlerevm',
   solc: {
