@@ -14,6 +14,7 @@ import '../services/Registrator.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
+  address deployer;
 
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();
@@ -34,6 +35,7 @@ contract ElasticDAO {
     require(dao.summoned == false, 'ElasticDAO: DAO must not be summoned');
     _;
   }
+
   modifier onlySummoners() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     DAO daoContract = DAO(ecosystem.daoModelAddress);
@@ -51,6 +53,7 @@ contract ElasticDAO {
     uint256 _numberOfSummoners
   ) {
     ecosystemModelAddress = _ecosystemModelAddress;
+    deployer = msg.sender;
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
@@ -65,7 +68,11 @@ contract ElasticDAO {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) external onlyBeforeSummoning onlySummoners {
+  ) external onlyBeforeSummoning {
+     require(
+      msg.sender == deployer,
+      'ElasticDAO: Only deployer can initialize the Token'
+    );
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
     Configurator(ecosystem.configuratorAddress).buildToken(

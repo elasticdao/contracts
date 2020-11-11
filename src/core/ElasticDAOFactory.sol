@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 import '../models/Ecosystem.sol';
 
+import '@nomiclabs/buidler/console.sol';
+
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
@@ -54,6 +56,7 @@ contract ElasticDAOFactory {
       k,
       maxLambdaPurchase
     );
+    console.log('elasticDAO intitialize check');
 
     return true;
   }
