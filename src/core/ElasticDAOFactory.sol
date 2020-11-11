@@ -10,20 +10,11 @@ import '@nomiclabs/buidler/console.sol';
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
-  uint256 elasticity;
-  uint256 k;
-  uint256 maxLambdaPurchase;
 
   constructor(
-    address _ecosystemModelAddress,
-    uint256 _elasticity,
-    uint256 _k,
-    uint256 _maxLambdaPurchase
+    address _ecosystemModelAddress
   ) {
     ecosystemModelAddress = _ecosystemModelAddress;
-    elasticity = _elasticity;
-    k = _k;
-    maxLambdaPurchase = _maxLambdaPurchase;
   }
 
   /**
@@ -37,7 +28,10 @@ contract ElasticDAOFactory {
     uint256 _numberOfSummoners,
     string memory _nameOfToken,
     string memory _symbol,
-    uint256 _capitalDelta
+    uint256 _capitalDelta,
+    uint256 _elasticity,
+    uint256 _k,
+    uint256 _maxLambdaPurchase
   ) external returns (bool) {
     // create the DAO
     ElasticDAO elasticDAO = new ElasticDAO(
@@ -52,9 +46,9 @@ contract ElasticDAOFactory {
       _nameOfToken,
       _symbol,
       _capitalDelta,
-      elasticity,
-      k,
-      maxLambdaPurchase
+      _elasticity,
+      _k,
+      _maxLambdaPurchase
     );
     console.log('elasticDAO intitialize check');
 

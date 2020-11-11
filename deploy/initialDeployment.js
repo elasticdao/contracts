@@ -16,6 +16,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     bre.provider.getSigner(agent),
   );
   const ElasticModule = await deployments.get('ElasticModule');
+  const ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
   const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
   const TokenHolder = await deployments.get('TokenHolder');
@@ -27,6 +28,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     BalanceMultipliers.address,
     Dao.address,
     Ecosystem.address,
+    ElasticDAOFactory.address,
     ElasticModule.address,
     TokenHolder.address,
     Token.address,
@@ -48,6 +50,7 @@ module.exports.dependencies = [
   'Configurator',
   'DAO',
   'Ecosystem',
+  'ElasticDAOFactory',
   'ElasticModule',
   'InformationalVote',
   'Registrator',
