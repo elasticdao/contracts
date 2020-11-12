@@ -9,7 +9,7 @@ import './BalanceMultipliers.sol';
 import './Token.sol';
 import './TokenHolder.sol';
 
-import '@nomiclabs/buidler/console.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token balance change data

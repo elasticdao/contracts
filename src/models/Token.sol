@@ -8,7 +8,7 @@ import '../libraries/SafeMath.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
 
-import '@nomiclabs/buidler/console.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data

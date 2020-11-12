@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
-const { deployments } = require('@nomiclabs/buidler');
+const hre = require('hardhat').ethers;
+const { deployments } = require('hardhat');
 
 describe('ElasticDAO: Ecosystem Model', () => {
   let agent;
@@ -17,7 +17,7 @@ describe('ElasticDAO: Ecosystem Model', () => {
   let Token;
 
   beforeEach(async () => {
-    [agent] = await bre.getSigners();
+    [agent] = await hre.getSigners();
 
     await deployments.fixture();
 

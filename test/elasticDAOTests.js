@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
-const { deployments } = require('@nomiclabs/buidler');
+const hre = require('hardhat').ethers;
+const { deployments } = require('hardhat');
 const elasticGovernanceTokenArtifact = require('../artifacts/ElasticGovernanceToken.json');
 
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
@@ -22,7 +22,7 @@ describe('ElasticDAO: Core', () => {
   let tokenStorage;
 
   beforeEach(async () => {
-    [agent, summoner, summoner1, summoner2] = await bre.getSigners();
+    [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { deploy } = deployments;
 
     await deployments.fixture();

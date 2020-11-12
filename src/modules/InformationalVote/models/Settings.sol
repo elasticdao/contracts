@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import '../../../models/EternalModel.sol';
 import '../../../libraries/SafeMath.sol';
 
-import '@nomiclabs/buidler/console.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing information vote settings data
