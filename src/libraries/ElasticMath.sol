@@ -30,14 +30,22 @@ library ElasticMath {
     uint256 m
   ) internal pure returns (uint256 deltaEValue) {
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
-    deltaEValue = SafeMath.mul(
-      SafeMath.mul(capitalDelta, k),
+    deltaEValue = wmul(
+      wmul(capitalDelta, k),
       SafeMath.sub(
-        SafeMath.mul(lambdaDash, SafeMath.mul(mDash(lambdaDash, lambda, m), revamp(elasticity))),
-        SafeMath.mul(lambda, m)
+        wmul(lambdaDash, wmul(mDash(lambdaDash, lambda, m), revamp(elasticity))),
+        wmul(lambda, m)
       )
     );
     return deltaEValue;
+  }
+
+  function lambdaFromT(
+    uint256 t,
+    uint256 k,
+    uint256 m
+  ) internal pure returns (uint256 lambda) {
+    return wdiv(t, wmul(k, m));
   }
 
   /**
@@ -55,7 +63,7 @@ library ElasticMath {
     uint256 lambda,
     uint256 m
   ) internal pure returns (uint256 mDashValue) {
-    return SafeMath.mul(SafeMath.div(lambdaDash, lambda), m);
+    return wmul(wdiv(lambdaDash, lambda), m);
   }
 
   /**

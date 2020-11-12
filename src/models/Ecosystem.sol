@@ -11,14 +11,14 @@ import '../libraries/SafeMath.sol';
 /// Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract Ecosystem is EternalModel {
-  constructor() EternalModel() {}
-
   struct Instance {
-    address uuid; // dao uuid
+    address daoAddress;
     // Models
-    address balanceChangeModelAddress;
+    address balanceModelAddress;
+    address balanceMultipliersModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
+    address elasticDAOFactoryAddress;
     address elasticModuleModelAddress;
     address tokenHolderModelAddress;
     address tokenModelAddress;
@@ -31,36 +31,42 @@ contract Ecosystem is EternalModel {
 
   /**
    * @dev deserializes Instance struct
-   * @param _uuid - address of the unique user ID
+   * @param _daoAddress - address of the unique user ID
    * @return record Instance
    */
-  function deserialize(address _uuid) external view returns (Instance memory record) {
-    if (_exists(_uuid)) {
-      record.uuid = _uuid;
-      record.balanceChangeModelAddress = getAddress(
-        keccak256(abi.encode('balanceChangeModelAddress', record.uuid))
+  function deserialize(address _daoAddress) external view returns (Instance memory record) {
+    if (_exists(_daoAddress)) {
+      record.daoAddress = _daoAddress;
+      record.balanceModelAddress = getAddress(
+        keccak256(abi.encode(record.daoAddress, 'balanceModelAddress'))
+      );
+      record.balanceMultipliersModelAddress = getAddress(
+        keccak256(abi.encode(record.daoAddress, 'balanceMultipliersModelAddress'))
       );
       record.configuratorAddress = getAddress(
-        keccak256(abi.encode('configuratorAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'configuratorAddress'))
       );
-      record.daoModelAddress = getAddress(keccak256(abi.encode('daoModelAddress', record.uuid)));
-      record.ecosystemModelAddress = getAddress(
-        keccak256(abi.encode('ecosystemModelAddress', record.uuid))
+      record.daoModelAddress = getAddress(
+        keccak256(abi.encode(record.daoAddress, 'daoModelAddress'))
+      );
+      record.ecosystemModelAddress = address(this);
+      record.elasticDAOFactoryAddress = getAddress(
+        keccak256(abi.encode(record.daoAddress, 'elasticDAOFactoryAddress'))
       );
       record.elasticModuleModelAddress = getAddress(
-        keccak256(abi.encode('elasticModuleModelAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'elasticModuleModelAddress'))
       );
       record.governanceTokenAddress = getAddress(
-        keccak256(abi.encode('governanceTokenAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'governanceTokenAddress'))
       );
       record.registratorAddress = getAddress(
-        keccak256(abi.encode('registratorAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'registratorAddress'))
       );
       record.tokenHolderModelAddress = getAddress(
-        keccak256(abi.encode('tokenHolderModelAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'tokenHolderModelAddress'))
       );
       record.tokenModelAddress = getAddress(
-        keccak256(abi.encode('tokenModelAddress', record.uuid))
+        keccak256(abi.encode(record.daoAddress, 'tokenModelAddress'))
       );
     }
 
@@ -68,12 +74,12 @@ contract Ecosystem is EternalModel {
   }
 
   /**
-   * @dev checks if @param _uuid and @param _name exist
-   * @param _uuid - address of the unique user ID
+   * @dev checks if @param _daoAddress and @param _name exist
+   * @param _daoAddress - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid) external view returns (bool recordExists) {
-    return _exists(_uuid);
+  function exists(address _daoAddress) external view returns (bool recordExists) {
+    return _exists(_daoAddress);
   }
 
   /**
@@ -82,37 +88,47 @@ contract Ecosystem is EternalModel {
    */
   function serialize(Instance memory record) external {
     setAddress(
-      keccak256(abi.encode('balanceChangeModelAddress', record.uuid)),
-      record.balanceChangeModelAddress
+      keccak256(abi.encode(record.daoAddress, 'balanceModelAddress')),
+      record.balanceModelAddress
     );
     setAddress(
-      keccak256(abi.encode('configuratorAddress', record.uuid)),
+      keccak256(abi.encode(record.daoAddress, 'balanceMultipliersModelAddress')),
+      record.balanceMultipliersModelAddress
+    );
+    setAddress(
+      keccak256(abi.encode(record.daoAddress, 'configuratorAddress')),
       record.configuratorAddress
     );
-    setAddress(keccak256(abi.encode('daoModelAddress', record.uuid)), record.daoModelAddress);
+    setAddress(keccak256(abi.encode(record.daoAddress, 'daoModelAddress')), record.daoModelAddress);
     setAddress(
-      keccak256(abi.encode('ecosystemModelAddress', record.uuid)),
-      record.ecosystemModelAddress
+      keccak256(abi.encode(record.daoAddress, 'elasticDAOFactoryAddress')),
+      record.elasticDAOFactoryAddress
     );
     setAddress(
-      keccak256(abi.encode('elasticModuleModelAddress', record.uuid)),
+      keccak256(abi.encode(record.daoAddress, 'elasticModuleModelAddress')),
       record.elasticModuleModelAddress
     );
     setAddress(
-      keccak256(abi.encode('governanceTokenAddress', record.uuid)),
+      keccak256(abi.encode(record.daoAddress, 'governanceTokenAddress')),
       record.governanceTokenAddress
     );
-    setAddress(keccak256(abi.encode('registratorAddress', record.uuid)), record.registratorAddress);
     setAddress(
-      keccak256(abi.encode('tokenHolderModelAddress', record.uuid)),
+      keccak256(abi.encode(record.daoAddress, 'registratorAddress')),
+      record.registratorAddress
+    );
+    setAddress(
+      keccak256(abi.encode(record.daoAddress, 'tokenHolderModelAddress')),
       record.tokenHolderModelAddress
     );
-    setAddress(keccak256(abi.encode('tokenModelAddress', record.uuid)), record.tokenModelAddress);
+    setAddress(
+      keccak256(abi.encode(record.daoAddress, 'tokenModelAddress')),
+      record.tokenModelAddress
+    );
 
-    setBool(keccak256(abi.encode('exists', record.uuid)), true);
+    setBool(keccak256(abi.encode(record.daoAddress, 'exists')), true);
   }
 
-  function _exists(address _uuid) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _uuid)));
+  function _exists(address _daoAddress) internal view returns (bool recordExists) {
+    return getBool(keccak256(abi.encode(_daoAddress, 'exists')));
   }
 }

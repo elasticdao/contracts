@@ -1,0 +1,1770 @@
+{
+  "contractName": "Balance",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_blockNumber",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "daoAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceMultipliersModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "daoModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "ecosystemModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticDAOFactoryAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticModuleModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenHolderModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "configuratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "registratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "governanceTokenAddress",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Ecosystem.Instance",
+          "name": "_ecosystem",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "capitalDelta",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "counter",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "elasticity",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "k",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "m",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxLambdaPurchase",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfTokenHolders",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Token.Instance",
+          "name": "_token",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "counter",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "uuid",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "name",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "symbol",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "capitalDelta",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "elasticity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "k",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "m",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxLambdaPurchase",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numberOfTokenHolders",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Token.Instance",
+              "name": "token",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct TokenHolder.Instance",
+          "name": "_tokenHolder",
+          "type": "tuple"
+        }
+      ],
+      "name": "deserialize",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "k",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "m",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "uuid",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "name",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "symbol",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "capitalDelta",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "elasticity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "k",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "m",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxLambdaPurchase",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numberOfTokenHolders",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Token.Instance",
+              "name": "token",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "uuid",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "symbol",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "capitalDelta",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "elasticity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "k",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "lambda",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "m",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxLambdaPurchase",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "numberOfTokenHolders",
+                      "type": "uint256"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "address",
+                          "name": "daoAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "balanceModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "balanceMultipliersModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "daoModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "ecosystemModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "elasticDAOFactoryAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "elasticModuleModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "tokenHolderModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "tokenModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "configuratorAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "registratorAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "governanceTokenAddress",
+                          "type": "address"
+                        }
+                      ],
+                      "internalType": "struct Ecosystem.Instance",
+                      "name": "ecosystem",
+                      "type": "tuple"
+                    }
+                  ],
+                  "internalType": "struct Token.Instance",
+                  "name": "token",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct TokenHolder.Instance",
+              "name": "tokenHolder",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Balance.Instance",
+          "name": "record",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "daoAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceMultipliersModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "daoModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "ecosystemModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticDAOFactoryAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticModuleModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenHolderModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "configuratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "registratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "governanceTokenAddress",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Ecosystem.Instance",
+          "name": "",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "symbol",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "capitalDelta",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "counter",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "elasticity",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "k",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "m",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxLambdaPurchase",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfTokenHolders",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Token.Instance",
+          "name": "",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "counter",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "uuid",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "name",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "symbol",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "capitalDelta",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "elasticity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "k",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "m",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxLambdaPurchase",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numberOfTokenHolders",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Token.Instance",
+              "name": "token",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct TokenHolder.Instance",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "exists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "k",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "m",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lambda",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticDAOFactoryAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "uuid",
+                  "type": "address"
+                },
+                {
+                  "internalType": "string",
+                  "name": "name",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "symbol",
+                  "type": "string"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "capitalDelta",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "elasticity",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "k",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "m",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxLambdaPurchase",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "numberOfTokenHolders",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Token.Instance",
+              "name": "token",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "account",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "counter",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lambda",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "daoAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "balanceMultipliersModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "daoModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "ecosystemModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticDAOFactoryAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "elasticModuleModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenHolderModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenModelAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "configuratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "registratorAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "governanceTokenAddress",
+                      "type": "address"
+                    }
+                  ],
+                  "internalType": "struct Ecosystem.Instance",
+                  "name": "ecosystem",
+                  "type": "tuple"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "uuid",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "string",
+                      "name": "symbol",
+                      "type": "string"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "capitalDelta",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "counter",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "elasticity",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "k",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "lambda",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "m",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "maxLambdaPurchase",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "numberOfTokenHolders",
+                      "type": "uint256"
+                    },
+                    {
+                      "components": [
+                        {
+                          "internalType": "address",
+                          "name": "daoAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "balanceModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "balanceMultipliersModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "daoModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "ecosystemModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "elasticDAOFactoryAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "elasticModuleModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "tokenHolderModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "tokenModelAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "configuratorAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "registratorAddress",
+                          "type": "address"
+                        },
+                        {
+                          "internalType": "address",
+                          "name": "governanceTokenAddress",
+                          "type": "address"
+                        }
+                      ],
+                      "internalType": "struct Ecosystem.Instance",
+                      "name": "ecosystem",
+                      "type": "tuple"
+                    }
+                  ],
+                  "internalType": "struct Token.Instance",
+                  "name": "token",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct TokenHolder.Instance",
+              "name": "tokenHolder",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Balance.Instance",
+          "name": "record",
+          "type": "tuple"
+        }
+      ],
+      "name": "serialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5061141f806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c806362ab7c68146100465780637bb8bf661461006f578063f3dabcd014610084575b600080fd5b610059610054366004610e3e565b6100a4565b60405161006691906111fb565b60405180910390f35b61008261007d366004610cb3565b6100ae565b005b610097610092366004610e3e565b610259565b604051610066919061124e565b6001949350505050565b60c08101515160e0820151516020808401516040516100f6946100d6949093909291016111c9565b604051602081830303815290604052805190602001208260000151610344565b60c08101515160e08201515160208084015160405161013e9461011e94909390929101611197565b604051602081830303815290604052805190602001208260800151610344565b610146610640565b8151815260c0820180516080908101516020840152604080850151818501526060808601519085015260a0808601805193860193909352925192840192909252518101519051637a6b4dfd60e01b81526001600160a01b0390911690637a6b4dfd906101b69084906004016112d9565b600060405180830381600087803b1580156101d057600080fd5b505af11580156101e4573d6000803e3d6000fd5b5050505060a0820151610100015160c08301515160405163e5910ae760e01b81526001600160a01b039092169163e5910ae7916102239160040161111b565b600060405180830381600087803b15801561023d57600080fd5b505af1158015610251573d6000803e3d6000fd5b505050505050565b610261610681565b61027385836020015160008686610356565b60a0810185905260c0810184905260e081018390529050610292610640565b60a082015160408082015160c085015191516399a4562360e01b81526001600160a01b03909116926399a45623926102d0928b929190600401611339565b60006040518083038186803b1580156102e857600080fd5b505afa1580156102fc573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526103249190810190610d88565b868352604080820151908401526060908101519083015250949350505050565b60009182526020829052604090912055565b61035e610681565b846103725785815260006080820152610509565b84600114156104775760006103878587610512565b845184516040519293506103c0926103a592919085906020016111c9565b60405160208183030381529060405280519060200120610547565b80835215806103cf5750815187105b1561045c578461043d57835183516040516103f5926103a5929091600090602001611163565b80835215806104045750815187105b15610416575060006080820152610509565b83518351604051610432926103a592909160009060200161112f565b608083015250610509565b610454878761044d88600161055c565b8787610356565b915050610509565b83518351604051610432926103a59290918590602001611197565b600061048486600261059e565b905060006104928287610512565b855185516040519293506104b0926103a592919085906020016111c9565b8084528810156104d0576104c78883888888610356565b92505050610509565b82518811156104e6576104c78883838888610356565b84518451604051610501926103a59290918590602001611197565b608084015250505b95945050505050565b6000828201838110156105405760405162461bcd60e51b815260040161053790611219565b60405180910390fd5b9392505050565b6000818152602081905260409020545b919050565b600061054083836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f7700008152506105dd565b600061054083836040518060400160405280601a815260200179536166654d6174683a206469766973696f6e206279207a65726f60301b815250610609565b600081848411156106015760405162461bcd60e51b81526004016105379190611206565b505050900390565b6000818361062a5760405162461bcd60e51b81526004016105379190611206565b50600083858161063657fe5b0495945050505050565b6040518060c001604052806000815260200160008152602001600081526020016000815260200161066f6106d2565b815260200161067c610736565b905290565b60405180610100016040528060008152602001600081526020016000815260200160008152602001600081526020016106b86106d2565b81526020016106c5610736565b815260200161067c6107a0565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e0810182905261010081018290526101208101829052610140810182905261016081019190915290565b60405180610180016040528060006001600160a01b031681526020016060815260200160608152602001600081526020016000815260200160008152602001600081526020016000815260200160008152602001600081526020016000815260200161067c6106d2565b6040518060a0016040528060006001600160a01b03168152602001600081526020016000815260200161066f6106d2565b8035610557816113d1565b8051610557816113d1565b600082601f8301126107f7578081fd5b813561080a61080582611384565b611361565b915080825283602082850101111561082157600080fd5b8060208401602084013760009082016020015292915050565b600082601f83011261084a578081fd5b815161085861080582611384565b915080825283602082850101111561086f57600080fd5b6108808160208401602086016113a5565b5092915050565b600061018080838503121561089a578182fd5b6108a381611361565b9150506108af826107d1565b81526108bd602083016107d1565b60208201526108ce604083016107d1565b60408201526108df606083016107d1565b60608201526108f0608083016107d1565b608082015261090160a083016107d1565b60a082015261091260c083016107d1565b60c082015261092360e083016107d1565b60e08201526101006109368184016107d1565b908201526101206109488382016107d1565b9082015261014061095a8382016107d1565b9082015261016061096c8382016107d1565b9082015292915050565b6000610180808385031215610989578182fd5b61099281611361565b91505061099e826107dc565b81526109ac602083016107dc565b60208201526109bd604083016107dc565b60408201526109ce606083016107dc565b60608201526109df608083016107dc565b60808201526109f060a083016107dc565b60a0820152610a0160c083016107dc565b60c0820152610a1260e083016107dc565b60e0820152610100610a258184016107dc565b90820152610120610a378382016107dc565b90820152610140610a498382016107dc565b9082015261016061096c8382016107dc565b60006102e08284031215610a6d578081fd5b610a78610180611361565b9050610a83826107d1565b815260208201356001600160401b0380821115610a9f57600080fd5b610aab858386016107e7565b60208401526040840135915080821115610ac457600080fd5b50610ad1848285016107e7565b604083015250606082013560608201526080820135608082015260a082013560a082015260c082013560c082015260e082013560e082015261010080830135818301525061012080830135818301525061014080830135818301525061016061096c84828501610887565b60006102e08284031215610b4e578081fd5b610b59610180611361565b9050610b64826107dc565b815260208201516001600160401b0380821115610b8057600080fd5b610b8c8583860161083a565b60208401526040840151915080821115610ba557600080fd5b50610bb28482850161083a565b604083015250606082015160608201526080820151608082015260a082015160a082015260c082015160c082015260e082015160e082015261010080830151818301525061012080830151818301525061014080830151818301525061016061096c84828501610976565b60006102008284031215610c2f578081fd5b60405160a081016001600160401b038082118383101715610c4c57fe5b81604052829350610c5c856107d1565b83526020850135602084015260408501356040840152610c7f8660608701610887565b60608401526101e0850135915080821115610c9957600080fd5b50610ca685828601610a5b565b6080830152505092915050565b600060208284031215610cc4578081fd5b81356001600160401b0380821115610cda578283fd5b908301906102608286031215610cee578283fd5b610cf9610100611361565b8235815260208301356020820152604083013560408201526060830135606082015260808301356080820152610d328660a08501610887565b60a082015261022083013582811115610d49578485fd5b610d5587828601610a5b565b60c08301525061024083013582811115610d6d578485fd5b610d7987828601610c1d565b60e08301525095945050505050565b600060208284031215610d99578081fd5b81516001600160401b0380821115610daf578283fd5b908301906102208286031215610dc3578283fd5b60405160c081018181108382111715610dd857fe5b806040525082518152602083015160208201526040830151604082015260608301516060820152610e0c8660808501610976565b608082015261020083015182811115610e23578485fd5b610e2f87828601610b3c565b60a08301525095945050505050565b6000806000806101e08587031215610e54578283fd5b84359350610e658660208701610887565b92506101a08501356001600160401b0380821115610e81578384fd5b610e8d88838901610a5b565b93506101c0870135915080821115610ea3578283fd5b50610eb087828801610c1d565b91505092959194509250565b6001600160a01b03169052565b60008151808452610ee18160208601602086016113a5565b601f01601f19169290920160200192915050565b60068152656c616d62646160d01b602082015260400190565b600b81526a313637b1b5a73ab6b132b960a91b602082015260400190565b610f37828251610ebc565b6020810151610f496020840182610ebc565b506040810151610f5c6040840182610ebc565b506060810151610f6f6060840182610ebc565b506080810151610f826080840182610ebc565b5060a0810151610f9560a0840182610ebc565b5060c0810151610fa860c0840182610ebc565b5060e0810151610fbb60e0840182610ebc565b5061010080820151610fcf82850182610ebc565b505061012080820151610fe482850182610ebc565b505061014080820151610ff982850182610ebc565b50506101608082015161100e82850182610ebc565b50505050565b60006102e0611024848451610ebc565b602083015181602086015261103b82860182610ec9565b915050604083015184820360408601526110558282610ec9565b915050606083015160608501526080830151608085015260a083015160a085015260c083015160c085015260e083015160e0850152610100808401518186015250610120808401518186015250610140808401518186015250610160808401516110c182870182610f2c565b5090949350505050565b600061020060018060a01b038351168452602083015160208501526040830151604085015260608301516111026060860182610f2c565b506080830151816101e086015261050982860182611014565b6001600160a01b0391909116815260200190565b6001600160a01b0384811682528316602082015260ff82166040820152608060608201819052600090610509908301610ef5565b6001600160a01b0384811682528316602082015260ff82166040820152608060608201819052600090610509908301610f0e565b6001600160a01b0384811682528316602082015260408101829052608060608201819052600090610509908301610ef5565b6001600160a01b0384811682528316602082015260408101829052608060608201819052600090610509908301610f0e565b901515815260200190565b6000602082526105406020830184610ec9565b6020808252601b908201527a536166654d6174683a206164646974696f6e206f766572666c6f7760281b604082015260600190565b60006020825282516020830152602083015160408301526040830151606083015260608301516080830152608083015160a083015260a083015161129560c0840182610f2c565b5060c0830151610260806102408501526112b3610280850183611014565b915060e0850151601f1985840301828601526112cf83826110cb565b9695505050505050565b60006020825282516020830152602083015160408301526040830151606083015260608301516080830152608083015161131660a0840182610f2c565b5060a083015161022083810152611331610240840182611014565b949350505050565b60006101c085835261134e6020840186610f2c565b806101a08401526112cf81840185611014565b6040518181016001600160401b038111828210171561137c57fe5b604052919050565b60006001600160401b0382111561139757fe5b50601f01601f191660200190565b60005b838110156113c05781810151838201526020016113a8565b8381111561100e5750506000910152565b6001600160a01b03811681146113e657600080fd5b5056fea2646970667358221220ba5931092e996f5421c96c6f9d0c7e2c2a052447a7f88fbda17a045caa225fe364736f6c63430007020033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c806362ab7c68146100465780637bb8bf661461006f578063f3dabcd014610084575b600080fd5b610059610054366004610e3e565b6100a4565b60405161006691906111fb565b60405180910390f35b61008261007d366004610cb3565b6100ae565b005b610097610092366004610e3e565b610259565b604051610066919061124e565b6001949350505050565b60c08101515160e0820151516020808401516040516100f6946100d6949093909291016111c9565b604051602081830303815290604052805190602001208260000151610344565b60c08101515160e08201515160208084015160405161013e9461011e94909390929101611197565b604051602081830303815290604052805190602001208260800151610344565b610146610640565b8151815260c0820180516080908101516020840152604080850151818501526060808601519085015260a0808601805193860193909352925192840192909252518101519051637a6b4dfd60e01b81526001600160a01b0390911690637a6b4dfd906101b69084906004016112d9565b600060405180830381600087803b1580156101d057600080fd5b505af11580156101e4573d6000803e3d6000fd5b5050505060a0820151610100015160c08301515160405163e5910ae760e01b81526001600160a01b039092169163e5910ae7916102239160040161111b565b600060405180830381600087803b15801561023d57600080fd5b505af1158015610251573d6000803e3d6000fd5b505050505050565b610261610681565b61027385836020015160008686610356565b60a0810185905260c0810184905260e081018390529050610292610640565b60a082015160408082015160c085015191516399a4562360e01b81526001600160a01b03909116926399a45623926102d0928b929190600401611339565b60006040518083038186803b1580156102e857600080fd5b505afa1580156102fc573d6000803e3d6000fd5b505050506040513d6000823e601f3d908101601f191682016040526103249190810190610d88565b868352604080820151908401526060908101519083015250949350505050565b60009182526020829052604090912055565b61035e610681565b846103725785815260006080820152610509565b84600114156104775760006103878587610512565b845184516040519293506103c0926103a592919085906020016111c9565b60405160208183030381529060405280519060200120610547565b80835215806103cf5750815187105b1561045c578461043d57835183516040516103f5926103a5929091600090602001611163565b80835215806104045750815187105b15610416575060006080820152610509565b83518351604051610432926103a592909160009060200161112f565b608083015250610509565b610454878761044d88600161055c565b8787610356565b915050610509565b83518351604051610432926103a59290918590602001611197565b600061048486600261059e565b905060006104928287610512565b855185516040519293506104b0926103a592919085906020016111c9565b8084528810156104d0576104c78883888888610356565b92505050610509565b82518811156104e6576104c78883838888610356565b84518451604051610501926103a59290918590602001611197565b608084015250505b95945050505050565b6000828201838110156105405760405162461bcd60e51b815260040161053790611219565b60405180910390fd5b9392505050565b6000818152602081905260409020545b919050565b600061054083836040518060400160405280601e81526020017f536166654d6174683a207375627472616374696f6e206f766572666c6f7700008152506105dd565b600061054083836040518060400160405280601a815260200179536166654d6174683a206469766973696f6e206279207a65726f60301b815250610609565b600081848411156106015760405162461bcd60e51b81526004016105379190611206565b505050900390565b6000818361062a5760405162461bcd60e51b81526004016105379190611206565b50600083858161063657fe5b0495945050505050565b6040518060c001604052806000815260200160008152602001600081526020016000815260200161066f6106d2565b815260200161067c610736565b905290565b60405180610100016040528060008152602001600081526020016000815260200160008152602001600081526020016106b86106d2565b81526020016106c5610736565b815260200161067c6107a0565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e0810182905261010081018290526101208101829052610140810182905261016081019190915290565b60405180610180016040528060006001600160a01b031681526020016060815260200160608152602001600081526020016000815260200160008152602001600081526020016000815260200160008152602001600081526020016000815260200161067c6106d2565b6040518060a0016040528060006001600160a01b03168152602001600081526020016000815260200161066f6106d2565b8035610557816113d1565b8051610557816113d1565b600082601f8301126107f7578081fd5b813561080a61080582611384565b611361565b915080825283602082850101111561082157600080fd5b8060208401602084013760009082016020015292915050565b600082601f83011261084a578081fd5b815161085861080582611384565b915080825283602082850101111561086f57600080fd5b6108808160208401602086016113a5565b5092915050565b600061018080838503121561089a578182fd5b6108a381611361565b9150506108af826107d1565b81526108bd602083016107d1565b60208201526108ce604083016107d1565b60408201526108df606083016107d1565b60608201526108f0608083016107d1565b608082015261090160a083016107d1565b60a082015261091260c083016107d1565b60c082015261092360e083016107d1565b60e08201526101006109368184016107d1565b908201526101206109488382016107d1565b9082015261014061095a8382016107d1565b9082015261016061096c8382016107d1565b9082015292915050565b6000610180808385031215610989578182fd5b61099281611361565b91505061099e826107dc565b81526109ac602083016107dc565b60208201526109bd604083016107dc565b60408201526109ce606083016107dc565b60608201526109df608083016107dc565b60808201526109f060a083016107dc565b60a0820152610a0160c083016107dc565b60c0820152610a1260e083016107dc565b60e0820152610100610a258184016107dc565b90820152610120610a378382016107dc565b90820152610140610a498382016107dc565b9082015261016061096c8382016107dc565b60006102e08284031215610a6d578081fd5b610a78610180611361565b9050610a83826107d1565b815260208201356001600160401b0380821115610a9f57600080fd5b610aab858386016107e7565b60208401526040840135915080821115610ac457600080fd5b50610ad1848285016107e7565b604083015250606082013560608201526080820135608082015260a082013560a082015260c082013560c082015260e082013560e082015261010080830135818301525061012080830135818301525061014080830135818301525061016061096c84828501610887565b60006102e08284031215610b4e578081fd5b610b59610180611361565b9050610b64826107dc565b815260208201516001600160401b0380821115610b8057600080fd5b610b8c8583860161083a565b60208401526040840151915080821115610ba557600080fd5b50610bb28482850161083a565b604083015250606082015160608201526080820151608082015260a082015160a082015260c082015160c082015260e082015160e082015261010080830151818301525061012080830151818301525061014080830151818301525061016061096c84828501610976565b60006102008284031215610c2f578081fd5b60405160a081016001600160401b038082118383101715610c4c57fe5b81604052829350610c5c856107d1565b83526020850135602084015260408501356040840152610c7f8660608701610887565b60608401526101e0850135915080821115610c9957600080fd5b50610ca685828601610a5b565b6080830152505092915050565b600060208284031215610cc4578081fd5b81356001600160401b0380821115610cda578283fd5b908301906102608286031215610cee578283fd5b610cf9610100611361565b8235815260208301356020820152604083013560408201526060830135606082015260808301356080820152610d328660a08501610887565b60a082015261022083013582811115610d49578485fd5b610d5587828601610a5b565b60c08301525061024083013582811115610d6d578485fd5b610d7987828601610c1d565b60e08301525095945050505050565b600060208284031215610d99578081fd5b81516001600160401b0380821115610daf578283fd5b908301906102208286031215610dc3578283fd5b60405160c081018181108382111715610dd857fe5b806040525082518152602083015160208201526040830151604082015260608301516060820152610e0c8660808501610976565b608082015261020083015182811115610e23578485fd5b610e2f87828601610b3c565b60a08301525095945050505050565b6000806000806101e08587031215610e54578283fd5b84359350610e658660208701610887565b92506101a08501356001600160401b0380821115610e81578384fd5b610e8d88838901610a5b565b93506101c0870135915080821115610ea3578283fd5b50610eb087828801610c1d565b91505092959194509250565b6001600160a01b03169052565b60008151808452610ee18160208601602086016113a5565b601f01601f19169290920160200192915050565b60068152656c616d62646160d01b602082015260400190565b600b81526a313637b1b5a73ab6b132b960a91b602082015260400190565b610f37828251610ebc565b6020810151610f496020840182610ebc565b506040810151610f5c6040840182610ebc565b506060810151610f6f6060840182610ebc565b506080810151610f826080840182610ebc565b5060a0810151610f9560a0840182610ebc565b5060c0810151610fa860c0840182610ebc565b5060e0810151610fbb60e0840182610ebc565b5061010080820151610fcf82850182610ebc565b505061012080820151610fe482850182610ebc565b505061014080820151610ff982850182610ebc565b50506101608082015161100e82850182610ebc565b50505050565b60006102e0611024848451610ebc565b602083015181602086015261103b82860182610ec9565b915050604083015184820360408601526110558282610ec9565b915050606083015160608501526080830151608085015260a083015160a085015260c083015160c085015260e083015160e0850152610100808401518186015250610120808401518186015250610140808401518186015250610160808401516110c182870182610f2c565b5090949350505050565b600061020060018060a01b038351168452602083015160208501526040830151604085015260608301516111026060860182610f2c565b506080830151816101e086015261050982860182611014565b6001600160a01b0391909116815260200190565b6001600160a01b0384811682528316602082015260ff82166040820152608060608201819052600090610509908301610ef5565b6001600160a01b0384811682528316602082015260ff82166040820152608060608201819052600090610509908301610f0e565b6001600160a01b0384811682528316602082015260408101829052608060608201819052600090610509908301610ef5565b6001600160a01b0384811682528316602082015260408101829052608060608201819052600090610509908301610f0e565b901515815260200190565b6000602082526105406020830184610ec9565b6020808252601b908201527a536166654d6174683a206164646974696f6e206f766572666c6f7760281b604082015260600190565b60006020825282516020830152602083015160408301526040830151606083015260608301516080830152608083015160a083015260a083015161129560c0840182610f2c565b5060c0830151610260806102408501526112b3610280850183611014565b915060e0850151601f1985840301828601526112cf83826110cb565b9695505050505050565b60006020825282516020830152602083015160408301526040830151606083015260608301516080830152608083015161131660a0840182610f2c565b5060a083015161022083810152611331610240840182611014565b949350505050565b60006101c085835261134e6020840186610f2c565b806101a08401526112cf81840185611014565b6040518181016001600160401b038111828210171561137c57fe5b604052919050565b60006001600160401b0382111561139757fe5b50601f01601f191660200190565b60005b838110156113c05781810151838201526020016113a8565b8381111561100e5750506000910152565b6001600160a01b03811681146113e657600080fd5b5056fea2646970667358221220ba5931092e996f5421c96c6f9d0c7e2c2a052447a7f88fbda17a045caa225fe364736f6c63430007020033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

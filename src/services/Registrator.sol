@@ -9,26 +9,16 @@ import '../models/ElasticModule.sol';
 /// @notice This contract is used for registering ElasticDAO modules
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract Registrator {
-  /**
-   * @dev registers the module
-   * @param _moduleAddress - the address of the module
-   * @param _name - the name of the module
-   */
-  function registerModule(address _moduleAddress, string memory _name) external {
-    Ecosystem.Instance memory ecosystem = _getEcosystem(msg.sender);
-    ElasticModule elasticModuleStorage = ElasticModule(ecosystem.elasticModuleModelAddress);
+  function registerModule(
+    address _moduleAddress,
+    string memory _name,
+    Ecosystem.Instance memory _ecosystem
+  ) external {
+    ElasticModule elasticModuleStorage = ElasticModule(_ecosystem.elasticModuleModelAddress);
     ElasticModule.Instance memory elasticModule;
-    elasticModule.uuid = msg.sender;
+    elasticModule.dao = DAO(_ecosystem.daoModelAddress).deserialize(msg.sender, _ecosystem);
     elasticModule.name = _name;
-    elasticModule.contractAddress = _moduleAddress; // TODO: Check against TBD whitelist
+    elasticModule.uuid = _moduleAddress; // TODO: Check against TBD whitelist
     elasticModuleStorage.serialize(elasticModule);
-  }
-
-  function _getEcosystem(address _uuid)
-    internal
-    view
-    returns (Ecosystem.Instance memory ecosystem)
-  {
-    return Ecosystem(_uuid).deserialize(msg.sender);
   }
 }

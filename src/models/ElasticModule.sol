@@ -2,6 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import './DAO.sol';
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 
@@ -13,39 +14,29 @@ import '../libraries/SafeMath.sol';
 contract ElasticModule is EternalModel {
   struct Instance {
     address uuid;
-    address contractAddress;
     string name;
+    DAO.Instance dao;
+    Ecosystem.Instance ecosystem;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _uuid - address of the unique user ID
-   * @param _name - the name of the module
-   * @return record Instance
-   */
-  function deserialize(address _uuid, string memory _name)
+  function deserialize(address _uuid, DAO.Instance memory _dao)
     external
     view
     returns (Instance memory record)
   {
     record.uuid = _uuid;
-    record.name = _name;
-
-    if (_exists(_uuid, _name)) {
-      record.contractAddress = getAddress(keccak256(abi.encode('contractAddress', _uuid, _name)));
-    }
+    record.dao = _dao;
+    record.name = getString(keccak256(abi.encode(record.dao.uuid, record.uuid)));
 
     return record;
   }
 
-  /**
-   * @dev checks if @param _uuid and @param _name exist
-   * @param _uuid - address of the unique user ID
-   * @param _name - the name of the module
-   * @return recordExists bool
-   */
-  function exists(address _uuid, string memory _name) external view returns (bool recordExists) {
-    return _exists(_uuid, _name);
+  function exists(address _uuid, DAO.Instance memory _dao)
+    external
+    view
+    returns (bool recordExists)
+  {
+    return _exists(_uuid, _dao);
   }
 
   /**
@@ -53,15 +44,16 @@ contract ElasticModule is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setAddress(
-      keccak256(abi.encode('contractAddress', record.uuid, record.name)),
-      record.contractAddress
-    );
+    setAddress(keccak256(abi.encode(record.dao.uuid, record.uuid, 'contractAddress')), record.uuid);
 
-    setBool(keccak256(abi.encode('exists', record.uuid, record.name)), true);
+    setBool(keccak256(abi.encode(record.dao.uuid, record.uuid, 'exists')), true);
   }
 
-  function _exists(address _uuid, string memory _name) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _uuid, _name)));
+  function _exists(address _uuid, DAO.Instance memory _dao)
+    internal
+    view
+    returns (bool recordExists)
+  {
+    return getBool(keccak256(abi.encode(_dao.uuid, _uuid, 'exists')));
   }
 }

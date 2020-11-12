@@ -5,7 +5,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const BalanceChange = await deployments.get('BalanceChange');
+  const Balance = await deployments.get('Balance');
+  const BalanceMultipliers = await deployments.get('BalanceMultipliers');
   const Configurator = await deployments.get('Configurator');
   const Dao = await deployments.get('DAO');
   const Ecosystem = await deployments.get('Ecosystem');
@@ -15,6 +16,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     bre.provider.getSigner(agent),
   );
   const ElasticModule = await deployments.get('ElasticModule');
+  const ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
   const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
   const TokenHolder = await deployments.get('TokenHolder');
@@ -22,9 +24,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const ecosystemStructArray = [
     ethers.constants.AddressZero,
     // Models
-    BalanceChange.address,
+    Balance.address,
+    BalanceMultipliers.address,
     Dao.address,
     Ecosystem.address,
+    ElasticDAOFactory.address,
     ElasticModule.address,
     TokenHolder.address,
     Token.address,
@@ -41,11 +45,14 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 };
 module.exports.tags = ['initialDeployment'];
 module.exports.dependencies = [
-  'BalanceChange',
+  'Balance',
+  'BalanceMultipliers',
   'Configurator',
   'DAO',
   'Ecosystem',
+  'ElasticDAOFactory',
   'ElasticModule',
+  'InformationalVote',
   'Registrator',
   'Token',
   'TokenHolder',
