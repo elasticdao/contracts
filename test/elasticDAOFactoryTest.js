@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
-const { deployments } = require('@nomiclabs/buidler');
+const hre = require('hardhat').ethers;
+const { deployments } = require('hardhat');
 
 const HUNDRED = ethers.BigNumber.from('100000000000000000000');
 const ONE = ethers.BigNumber.from('1000000000000000000');
@@ -28,7 +28,7 @@ describe('ElasticDAO: Factory', () => {
   let summoner2;
 
   beforeEach(async () => {
-    [agent, summoner, summoner1, summoner2] = await bre.getSigners();
+    [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { deploy } = deployments;
 
     await deployments.fixture();
@@ -37,7 +37,7 @@ describe('ElasticDAO: Factory', () => {
     Ecosystem = await deployments.get('Ecosystem');
 
     await deploy('ElasticDAOFactory', {
-      from: agent._address,
+      from: agent.address,
       args: [Ecosystem.address],
     });
 
@@ -68,7 +68,7 @@ describe('ElasticDAO: Factory', () => {
     });
 
     await elasticDAOFactory.deployDAOAndToken(
-      [summoner._address, summoner1._address, summoner2._address],
+      [summoner.address, summoner1.address, summoner2.address],
       'Elastic DAO',
       3,
       'Elastic Governance Token',

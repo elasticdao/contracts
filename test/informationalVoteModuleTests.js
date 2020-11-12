@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
-const { deployments } = require('@nomiclabs/buidler');
+const hre = require('hardhat').ethers;
+const { deployments } = require('hardhat');
 
 // const ONE = ethers.BigNumber.from('1000000000000000000');
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
@@ -31,7 +31,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   let Vote;
 
   beforeEach(async () => {
-    [agent, summoner, summoner1, summoner2] = await bre.getSigners();
+    [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { deploy } = deployments;
 
     await deployments.fixture();
@@ -43,10 +43,10 @@ describe('ElasticDAO: Informational Vote Module', () => {
     Ecosystem = await deployments.get('Ecosystem');
 
     await deploy('ElasticDAO', {
-      from: agent._address,
+      from: agent.address,
       args: [
         Ecosystem.address,
-        [summoner._address, summoner1._address, summoner2._address],
+        [summoner.address, summoner1.address, summoner2.address],
         'ElasticDAO',
         3,
       ],
@@ -74,7 +74,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   it('Should deploy and initialize InformationalVoteManager', async () => {
     const { deploy } = deployments;
     await deploy('InformationalVoteManager', {
-      from: agent._address,
+      from: agent.address,
       args: [Ballot.address, Settings.address, Vote.address],
     });
     InformationalVoteManager = await deployments.get('InformationalVoteManager');
@@ -119,7 +119,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
     beforeEach(async () => {
       const { deploy } = deployments;
       await deploy('InformationalVoteManager', {
-        from: agent._address,
+        from: agent.address,
         args: [Ballot.address, Settings.address, Vote.address],
       });
       InformationalVoteManager = await deployments.get('InformationalVoteManager');

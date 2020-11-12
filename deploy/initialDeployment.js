@@ -1,5 +1,5 @@
 const { ethers } = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
+const hre = require('hardhat').ethers;
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { log } = deployments;
@@ -13,7 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const ecosystemStorage = new ethers.Contract(
     Ecosystem.address,
     Ecosystem.abi,
-    bre.provider.getSigner(agent),
+    hre.provider.getSigner(agent),
   );
   const ElasticModule = await deployments.get('ElasticModule');
   const ElasticDAOFactory = await deployments.get('ElasticDAOFactory');

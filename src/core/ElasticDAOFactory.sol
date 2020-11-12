@@ -5,11 +5,10 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 import '../models/Ecosystem.sol';
 
-import '@nomiclabs/buidler/console.sol';
-
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
+  address payable feeAddress;
 
   event DAODeployed(address indexed daoAddress);
 
@@ -20,7 +19,6 @@ contract ElasticDAOFactory {
   /**
    * @dev deploys DAO and initializes token
    * and stores the address of the deployed DAO
-   * @return bool
    */
   function deployDAOAndToken(
     address[] memory _summoners,
@@ -32,7 +30,7 @@ contract ElasticDAOFactory {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) external returns (bool) {
+  ) public payable {
     // create the DAO
     ElasticDAO elasticDAO = new ElasticDAO(
       ecosystemModelAddress,
@@ -53,7 +51,9 @@ contract ElasticDAOFactory {
     // console.log('elasticDAO intitialize check');
 
     emit DAODeployed(address(elasticDAO));
-
-    return true;
   }
+
+  receive() external payable {}
+
+  fallback() external payable {}
 }
