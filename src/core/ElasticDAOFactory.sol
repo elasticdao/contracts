@@ -11,9 +11,9 @@ import '@nomiclabs/buidler/console.sol';
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
 
-  constructor(
-    address _ecosystemModelAddress
-  ) {
+  event DAODeployed(address daoAddress);
+
+  constructor(address _ecosystemModelAddress) {
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
@@ -50,7 +50,9 @@ contract ElasticDAOFactory {
       _k,
       _maxLambdaPurchase
     );
-    console.log('elasticDAO intitialize check');
+    // console.log('elasticDAO intitialize check');
+
+    emit DAODeployed(address(elasticDAO));
 
     return true;
   }

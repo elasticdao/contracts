@@ -105,5 +105,7 @@ contract Configurator {
     _ecosystem.governanceTokenAddress = token.uuid;
     Ecosystem(_ecosystem.ecosystemModelAddress).serialize(_ecosystem);
     tokenStorage.serialize(token);
+
+    return token;
   }
 }

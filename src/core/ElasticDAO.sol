@@ -16,6 +16,8 @@ contract ElasticDAO {
   address internal ecosystemModelAddress;
   address deployer;
 
+  event ElasticGovernanceTokenDeployed(address);
+
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();
     require(dao.summoned, 'ElasticDAO: DAO must be summoned');
@@ -69,13 +71,10 @@ contract ElasticDAO {
     uint256 _k,
     uint256 _maxLambdaPurchase
   ) external onlyBeforeSummoning {
-     require(
-      msg.sender == deployer,
-      'ElasticDAO: Only deployer can initialize the Token'
-    );
+    require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
-    Configurator(ecosystem.configuratorAddress).buildToken(
+    Token.Instance memory token = Configurator(ecosystem.configuratorAddress).buildToken(
       _name,
       _symbol,
       _capitalDelta,
@@ -84,6 +83,8 @@ contract ElasticDAO {
       _maxLambdaPurchase,
       ecosystem
     );
+
+    emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
   function initializeModule(address _moduleAddress, string memory _name)

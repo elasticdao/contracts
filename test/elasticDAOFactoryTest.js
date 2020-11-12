@@ -11,8 +11,11 @@ const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 describe('ElasticDAO: Factory', () => {
   let agent;
   let Ecosystem;
+  let elasticDAO;
   let elasticDAOFactory;
   let ElasticDAOFactory;
+  let eventListener1;
+  let eventListener2;
   let summoner;
   let summoner1;
   let summoner2;
@@ -28,7 +31,7 @@ describe('ElasticDAO: Factory', () => {
 
     await deploy('ElasticDAOFactory', {
       from: agent._address,
-      args: [Ecosystem.address, TWO_HUNDREDTHS, HUNDRED, ONE],
+      args: [Ecosystem.address],
     });
 
     ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
@@ -40,15 +43,22 @@ describe('ElasticDAO: Factory', () => {
       ElasticDAOFactory.abi,
       agent,
     );
-    const elasticDAOFactoryStatus = await elasticDAOFactory.deployDAOAndToken(
+    elasticDAO = new ethers.Contract(ElasticDAOFactory.address, ElasticDAOFactory.abi, agent);
+
+    const txPromise = elasticDAOFactory.deployDAOAndToken(
       [summoner._address, summoner1._address, summoner2._address],
       'Elastic DAO',
       3,
       'Elastic Governance Token',
       'EGT',
       ONE_TENTH,
+      TWO_HUNDREDTHS,
+      HUNDRED,
+      ONE,
     );
-    console.log(elasticDAOFactoryStatus);
-    expect(elasticDAOFactoryStatus).to.equal(true);
+    // console.log(elasticDAOFactoryStatus);
+    // expect(elasticDAOFactoryStatus).to.equal(true);
+    await expect(txPromise).to.emit(elasticDAOFactory, 'DAODeployed');
+    await expect(txPromise).to.emit(elasticDAO, 'ElasticGovernanceTokenDeployed');
   });
 });
