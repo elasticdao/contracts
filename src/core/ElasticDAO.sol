@@ -16,7 +16,7 @@ contract ElasticDAO {
   address internal ecosystemModelAddress;
   address deployer;
 
-  event ElasticGovernanceTokenDeployed(address);
+  event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
 
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();

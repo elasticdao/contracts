@@ -54,7 +54,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
     ElasticDAO = await deployments.get('ElasticDAO');
     Token = await deployments.get('Token');
 
-    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, agent);
     await elasticDAO
       .initializeToken(
         'Elastic Governance Token',
@@ -67,6 +67,8 @@ describe('ElasticDAO: Informational Vote Module', () => {
       .catch((error) => {
         console.log(error);
       });
+
+    elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
   });
 
   it('Should deploy and initialize InformationalVoteManager', async () => {
