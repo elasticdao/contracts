@@ -17,7 +17,7 @@ task('seed', 'Seed account with Buidler ETH')
   .setAction(async (taskArgs) => {
     const accounts = await ethers.getSigners();
 
-    const tx = await accounts[0].sendTransaction({
+    await accounts[0].sendTransaction({
       to: taskArgs.account,
       value: ethers.utils.parseEther('1000.0'),
     });

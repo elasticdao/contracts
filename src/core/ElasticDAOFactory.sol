@@ -12,7 +12,6 @@ contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
 
   event DAODeployed(address daoAddress);
-
   constructor(address _ecosystemModelAddress) {
     ecosystemModelAddress = _ecosystemModelAddress;
   }

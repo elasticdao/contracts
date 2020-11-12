@@ -3,17 +3,17 @@ const ethers = require('ethers');
 const bre = require('@nomiclabs/buidler').ethers;
 const { deployments } = require('@nomiclabs/buidler');
 
-const ONE = ethers.BigNumber.from('1000000000000000000');
+// const ONE = ethers.BigNumber.from('1000000000000000000');
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
 // const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 // const TEN = ethers.BigNumber.from('10000000000000000000');
-const TWO = ethers.BigNumber.from('2000000000000000000');
+// const TWO = ethers.BigNumber.from('2000000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 const THIRTY_FIVE_PERCENT = ethers.BigNumber.from('350000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
-const FIVE = ethers.BigNumber.from('5000000000000000000');
-const FOUR = ethers.BigNumber.from('4000000000000000000');
+// const FIVE = ethers.BigNumber.from('5000000000000000000');
+// const FOUR = ethers.BigNumber.from('4000000000000000000');
 
 describe('ElasticDAO: Informational Vote Module', () => {
   let agent;
