@@ -5,8 +5,6 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 import '../models/Ecosystem.sol';
 
-import 'hardhat/console.sol';
-
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
@@ -34,8 +32,6 @@ contract ElasticDAOFactory {
     uint256 _maxLambdaPurchase
   ) public payable {
     // create the DAO
-    console.log(msg.value);
-
     ElasticDAO elasticDAO = new ElasticDAO(
       ecosystemModelAddress,
       _summoners,

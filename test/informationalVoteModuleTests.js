@@ -43,10 +43,10 @@ describe('ElasticDAO: Informational Vote Module', () => {
     Ecosystem = await deployments.get('Ecosystem');
 
     await deploy('ElasticDAO', {
-      from: agent._address,
+      from: agent.address,
       args: [
         Ecosystem.address,
-        [summoner._address, summoner1._address, summoner2._address],
+        [summoner.address, summoner1.address, summoner2.address],
         'ElasticDAO',
         3,
       ],
@@ -74,7 +74,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   it('Should deploy and initialize InformationalVoteManager', async () => {
     const { deploy } = deployments;
     await deploy('InformationalVoteManager', {
-      from: agent._address,
+      from: agent.address,
       args: [Ballot.address, Settings.address, Vote.address],
     });
     InformationalVoteManager = await deployments.get('InformationalVoteManager');
@@ -119,7 +119,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
     beforeEach(async () => {
       const { deploy } = deployments;
       await deploy('InformationalVoteManager', {
-        from: agent._address,
+        from: agent.address,
         args: [Ballot.address, Settings.address, Vote.address],
       });
       InformationalVoteManager = await deployments.get('InformationalVoteManager');

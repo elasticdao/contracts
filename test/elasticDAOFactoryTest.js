@@ -37,7 +37,7 @@ describe('ElasticDAO: Factory', () => {
     Ecosystem = await deployments.get('Ecosystem');
 
     await deploy('ElasticDAOFactory', {
-      from: agent._address,
+      from: agent.address,
       args: [Ecosystem.address],
     });
 
@@ -68,7 +68,7 @@ describe('ElasticDAO: Factory', () => {
     });
 
     await elasticDAOFactory.deployDAOAndToken(
-      [summoner._address, summoner1._address, summoner2._address],
+      [summoner.address, summoner1.address, summoner2.address],
       'Elastic DAO',
       3,
       'Elastic Governance Token',

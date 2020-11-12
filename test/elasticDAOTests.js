@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
-const elasticGovernanceTokenArtifact = require('../artifacts/ElasticGovernanceToken.json');
+const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
 
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
 const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
@@ -31,10 +31,10 @@ describe('ElasticDAO: Core', () => {
     Ecosystem = await deployments.get('Ecosystem');
 
     await deploy('ElasticDAO', {
-      from: agent._address,
+      from: agent.address,
       args: [
         Ecosystem.address,
-        [summoner._address, summoner1._address, summoner2._address],
+        [summoner.address, summoner1.address, summoner2.address],
         'ElasticDAO',
         3,
       ],
@@ -122,21 +122,21 @@ describe('ElasticDAO: Core', () => {
     const tokenContract = new ethers.Contract(
       ecosystem.governanceTokenAddress,
       elasticGovernanceTokenArtifact.abi,
-      bre.provider,
+      hre.provider,
     );
 
     await elasticDAO.seedSummoning({ value: ethers.constants.WeiPerEther });
 
-    const balance = await bre.provider.getBalance(ElasticDAO.address);
+    const balance = await hre.provider.getBalance(ElasticDAO.address);
     expect(balance).to.equal(ethers.constants.WeiPerEther);
     /// signers token balance is correct
-    expect(await tokenContract.balanceOf(summoner._address)).to.equal(TEN);
+    expect(await tokenContract.balanceOf(summoner.address)).to.equal(TEN);
     /// get balance at block
-    await bre.provider.send('evm_mine');
-    const blockNumber = await bre.provider.getBlockNumber();
-    await tokenContract.balanceOfAt(summoner._address, blockNumber);
+    await hre.provider.send('evm_mine');
+    const blockNumber = await hre.provider.getBlockNumber();
+    await tokenContract.balanceOfAt(summoner.address, blockNumber);
 
-    expect(await tokenContract.balanceOfAt(summoner._address, blockNumber)).to.equal(TEN);
+    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(TEN);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {
@@ -214,11 +214,11 @@ describe('ElasticDAO: Core', () => {
     const tokenContract = new ethers.Contract(
       ecosystem.governanceTokenAddress,
       elasticGovernanceTokenArtifact.abi,
-      bre.provider,
+      hre.provider,
     );
-    const summoner0balance = await tokenContract.balanceOf(summoner._address);
-    const summoner1balance = await tokenContract.balanceOf(summoner1._address);
-    const summoner2balance = await tokenContract.balanceOf(summoner2._address);
+    const summoner0balance = await tokenContract.balanceOf(summoner.address);
+    const summoner1balance = await tokenContract.balanceOf(summoner1.address);
+    const summoner2balance = await tokenContract.balanceOf(summoner2.address);
     expect(summoner0balance).to.equal(ONE_HUNDRED_TEN);
     expect(summoner1balance).to.equal(ONE_HUNDRED);
     expect(summoner2balance).to.equal(ONE_HUNDRED);
