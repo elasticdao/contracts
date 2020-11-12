@@ -14,7 +14,7 @@ contract ElasticDAOFactory {
 
   event DAODeployed(address indexed daoAddress);
 
-  constructor(address _ecosystemModelAddress) payable {
+  constructor(address _ecosystemModelAddress) {
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
@@ -57,10 +57,7 @@ contract ElasticDAOFactory {
     emit DAODeployed(address(elasticDAO));
   }
 
-  receive() external payable {
-    console.log('receive');
-  }
-  function fallback() external payable {
-    console.log('fallback');
-  }
+  receive() external payable {}
+
+  fallback() external payable {}
 }
