@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
+import '../models/Permission.sol';
 import '../models/Token.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
@@ -66,6 +67,15 @@ contract Configurator {
 
     ecosystemStorage.serialize(ecosystem);
     return ecosystem;
+  }
+
+  function buildPermissions(DAO.Instance memory _dao, Ecosystem.Instance memory _ecosystem)
+    external
+    returns (bool)
+  {
+    Permission permissionStorage = Permission(_ecosystem.permissionModelAddress);
+    permissionStorage.permit(_dao.uuid, 'setPermissions', _dao);
+    return true;
   }
 
   /**

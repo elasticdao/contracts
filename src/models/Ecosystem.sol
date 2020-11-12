@@ -19,6 +19,7 @@ contract Ecosystem is EternalModel {
     address daoModelAddress;
     address ecosystemModelAddress;
     address elasticModuleModelAddress;
+    address permissionModelAddress;
     address tokenHolderModelAddress;
     address tokenModelAddress;
     // Services
@@ -54,6 +55,9 @@ contract Ecosystem is EternalModel {
       );
       record.governanceTokenAddress = getAddress(
         keccak256(abi.encode(record.daoAddress, 'governanceTokenAddress'))
+      );
+      record.permissionModelAddress = getAddress(
+        keccak256(abi.encode(record.daoAddress, 'permissionModelAddress'))
       );
       record.registratorAddress = getAddress(
         keccak256(abi.encode(record.daoAddress, 'registratorAddress'))
@@ -103,6 +107,10 @@ contract Ecosystem is EternalModel {
     setAddress(
       keccak256(abi.encode(record.daoAddress, 'governanceTokenAddress')),
       record.governanceTokenAddress
+    );
+    setAddress(
+      keccak256(abi.encode(record.daoAddress, 'permissionModelAddress')),
+      record.permissionModelAddress
     );
     setAddress(
       keccak256(abi.encode(record.daoAddress, 'registratorAddress')),

@@ -1,0 +1,618 @@
+{
+  "contractName": "DAO",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_uuid",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "daoAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceMultipliersModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "daoModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "ecosystemModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticModuleModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "permissionModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenHolderModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "configuratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "registratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "governanceTokenAddress",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Ecosystem.Instance",
+          "name": "_ecosystem",
+          "type": "tuple"
+        }
+      ],
+      "name": "deserialize",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "summoners",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "summoned",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfSummoners",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "permissionModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct DAO.Instance",
+          "name": "record",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_uuid",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "daoAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "balanceMultipliersModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "daoModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "ecosystemModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "elasticModuleModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "permissionModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenHolderModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenModelAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "configuratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "registratorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "governanceTokenAddress",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Ecosystem.Instance",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "exists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "summoners",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "summoned",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfSummoners",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "permissionModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct DAO.Instance",
+          "name": "_dao",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSummoner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "summoners",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "summoned",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfSummoners",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "permissionModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct DAO.Instance",
+          "name": "_dao",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_summonerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isSummoner",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "uuid",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "summoners",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bool",
+              "name": "summoned",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "numberOfSummoners",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "daoAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "balanceMultipliersModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "daoModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "ecosystemModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "elasticModuleModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "permissionModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenHolderModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "tokenModelAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "configuratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "registratorAddress",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "governanceTokenAddress",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Ecosystem.Instance",
+              "name": "ecosystem",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct DAO.Instance",
+          "name": "record",
+          "type": "tuple"
+        }
+      ],
+      "name": "serialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b50610e89806100206000396000f3fe608060405234801561001057600080fd5b50600436106100575760003560e01c80631a2861fb1461005c5780631e92620314610085578063a5159098146100a5578063b2740166146100c5578063d3ee7f92146100da575b600080fd5b61006f61006a36600461096f565b6100ed565b60405161007c9190610d74565b60405180910390f35b610098610093366004610a1f565b6101bd565b60405161007c9190610ba7565b6100b86100b336600461096f565b6101fb565b60405161007c9190610d02565b6100d86100d33660046109a3565b610206565b005b6100b86100e83660046109dd565b610389565b6100f5610584565b6001600160a01b038316815260a08101829052610111836103a5565b156101b7576101458360405160200161012a9190610c2a565b604051602081830303815290604052805190602001206103c3565b606082015260405161017a9061015f908590602001610bed565b60405160208183030381529060405280519060200120610499565b60808201526040516101af90610194908590602001610c5a565b604051602081830303815290604052805190602001206104ab565b151560408201525b92915050565b60006101f48360000151836040516020016101d9929190610c8e565b604051602081830303815290604052805190602001206104c0565b9392505050565b60006101f4836103a5565b805160405161023b9161021b91602001610c2a565b6040516020818303038152906040528051906020012082606001516104db565b80516040516102709161025091602001610bed565b6040516020818303038152906040528051906020012082608001516104ff565b80516040516102a59161028591602001610c5a565b604051602081830303815290604052805190602001208260400151610511565b806080015181602001515114156103715760005b816080015181101561036f576103138260000151836020015183815181106102dd57fe5b60200260200101516040516020016102f6929190610cc8565b604051602081830303815290604052805190602001206001610511565b815160405161035d9161032a918490602001610c8e565b604051602081830303815290604052805190602001208360200151838151811061035057fe5b6020026020010151610531565b61036881600161055f565b90506102b9565b505b8051604051610386916102f691602001610bbb565b50565b60006101f4836000015183604051602001610194929190610cc8565b60006103bb826040516020016101949190610bbb565b90505b919050565b60608160001a60f81b6001600160f81b0319166103fb5760405162461bcd60e51b81526004016103f290610d42565b60405180910390fd5b60008281526001602081815260409283902080548451600294821615610100026000190190911693909304601f810183900483028401830190945283835291929083018282801561048d5780601f106104625761010080835404028352916020019161048d565b820191906000526020600020905b81548152906001019060200180831161047057829003601f168201915b50505050509050919050565b60009081526020819052604090205490565b60009081526003602052604090205460ff1690565b6000908152600260205260409020546001600160a01b031690565b600082815260016020908152604090912082516104fa928401906105ca565b505050565b60009182526020829052604090912055565b600091825260036020526040909120805460ff1916911515919091179055565b60009182526002602052604090912080546001600160a01b0319166001600160a01b03909216919091179055565b6000828201838110156101f45760405162461bcd60e51b81526004016103f290610d0d565b6040518060c0016040528060006001600160a01b031681526020016060815260200160001515815260200160608152602001600081526020016105c5610648565b905290565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061060b57805160ff1916838001178555610638565b82800160010185558215610638579182015b8281111561063857825182559160200191906001019061061d565b506106449291506106ac565b5090565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e0810182905261010081018290526101208101829052610140810182905261016081019190915290565b5b8082111561064457600081556001016106ad565b80356001600160a01b03811681146103be57600080fd5b600082601f8301126106e8578081fd5b81356001600160401b038111156106fb57fe5b602080820261070b828201610e30565b8381529350818401858301828701840188101561072757600080fd5b600092505b848310156107515761073d816106c1565b82526001929092019190830190830161072c565b505050505092915050565b803580151581146103be57600080fd5b600082601f83011261077c578081fd5b81356001600160401b0381111561078f57fe5b6107a2601f8201601f1916602001610e30565b91508082528360208285010111156107b957600080fd5b8060208401602084013760009082016020015292915050565b600061022082840312156107e4578081fd5b6107ee60c0610e30565b90506107f9826106c1565b815260208201356001600160401b038082111561081557600080fd5b610821858386016106d8565b60208401526108326040850161075c565b6040840152606084013591508082111561084b57600080fd5b506108588482850161076c565b606083015250608082013560808201526108758360a08401610880565b60a082015292915050565b6000610180808385031215610893578182fd5b61089c81610e30565b9150506108a8826106c1565b81526108b6602083016106c1565b60208201526108c7604083016106c1565b60408201526108d8606083016106c1565b60608201526108e9608083016106c1565b60808201526108fa60a083016106c1565b60a082015261090b60c083016106c1565b60c082015261091c60e083016106c1565b60e082015261010061092f8184016106c1565b908201526101206109418382016106c1565b908201526101406109538382016106c1565b908201526101606109658382016106c1565b9082015292915050565b6000806101a08385031215610982578182fd5b61098b836106c1565b915061099a8460208501610880565b90509250929050565b6000602082840312156109b4578081fd5b81356001600160401b038111156109c9578182fd5b6109d5848285016107d2565b949350505050565b600080604083850312156109ef578182fd5b82356001600160401b03811115610a04578283fd5b610a10858286016107d2565b92505061099a602084016106c1565b60008060408385031215610a31578182fd5b82356001600160401b03811115610a46578283fd5b610a52858286016107d2565b95602094909401359450505050565b6001600160a01b03169052565b15159052565b60008151808452815b81811015610a9957602081850181015186830182015201610a7d565b81811115610aaa5782602083870101525b50601f01601f19169290920160200192915050565b610aca828251610a61565b6020810151610adc6020840182610a61565b506040810151610aef6040840182610a61565b506060810151610b026060840182610a61565b506080810151610b156080840182610a61565b5060a0810151610b2860a0840182610a61565b5060c0810151610b3b60c0840182610a61565b5060e0810151610b4e60e0840182610a61565b5061010080820151610b6282850182610a61565b505061012080820151610b7782850182610a61565b505061014080820151610b8c82850182610a61565b505061016080820151610ba182850182610a61565b50505050565b6001600160a01b0391909116815260200190565b6001600160a01b039190911681526040602082018190526006908201526565786973747360d01b606082015260800190565b6001600160a01b03919091168152604060208201819052601190820152706e756d6265724f6653756d6d6f6e65727360781b606082015260800190565b6001600160a01b03919091168152604060208201819052600490820152636e616d6560e01b606082015260800190565b6001600160a01b03919091168152604060208201819052600890820152671cdd5b5b5bdb995960c21b606082015260800190565b6001600160a01b039290921682526060602083018190526009908301526873756d6d6f6e65727360b81b6080830152604082015260a00190565b6001600160a01b0392831681526060602082018190526008908201526739bab6b6b7b732b960c11b60808201529116604082015260a00190565b901515815260200190565b6020808252601b908201527a536166654d6174683a206164646974696f6e206f766572666c6f7760281b604082015260600190565b602080825260189082015277456c617374696344414f3a205a65726f204164647265737360401b604082015260600190565b602080825282516001600160a01b03908116838301528382015161022060408501528051610240850181905260009392918301919084906102608701905b80831015610dd457845184168252938501936001929092019190850190610db2565b5060408801519450610de96060880186610a6e565b6060880151878203601f190160808901529450610e068186610a74565b945050505050608084015160a084015260a0840151610e2860c0850182610abf565b509392505050565b6040518181016001600160401b0381118282101715610e4b57fe5b60405291905056fea2646970667358221220cf72fee100e8b8d29d28fd806372fb438322b4154ee75eb35a0a61efd48abdab64736f6c63430007020033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100575760003560e01c80631a2861fb1461005c5780631e92620314610085578063a5159098146100a5578063b2740166146100c5578063d3ee7f92146100da575b600080fd5b61006f61006a36600461096f565b6100ed565b60405161007c9190610d74565b60405180910390f35b610098610093366004610a1f565b6101bd565b60405161007c9190610ba7565b6100b86100b336600461096f565b6101fb565b60405161007c9190610d02565b6100d86100d33660046109a3565b610206565b005b6100b86100e83660046109dd565b610389565b6100f5610584565b6001600160a01b038316815260a08101829052610111836103a5565b156101b7576101458360405160200161012a9190610c2a565b604051602081830303815290604052805190602001206103c3565b606082015260405161017a9061015f908590602001610bed565b60405160208183030381529060405280519060200120610499565b60808201526040516101af90610194908590602001610c5a565b604051602081830303815290604052805190602001206104ab565b151560408201525b92915050565b60006101f48360000151836040516020016101d9929190610c8e565b604051602081830303815290604052805190602001206104c0565b9392505050565b60006101f4836103a5565b805160405161023b9161021b91602001610c2a565b6040516020818303038152906040528051906020012082606001516104db565b80516040516102709161025091602001610bed565b6040516020818303038152906040528051906020012082608001516104ff565b80516040516102a59161028591602001610c5a565b604051602081830303815290604052805190602001208260400151610511565b806080015181602001515114156103715760005b816080015181101561036f576103138260000151836020015183815181106102dd57fe5b60200260200101516040516020016102f6929190610cc8565b604051602081830303815290604052805190602001206001610511565b815160405161035d9161032a918490602001610c8e565b604051602081830303815290604052805190602001208360200151838151811061035057fe5b6020026020010151610531565b61036881600161055f565b90506102b9565b505b8051604051610386916102f691602001610bbb565b50565b60006101f4836000015183604051602001610194929190610cc8565b60006103bb826040516020016101949190610bbb565b90505b919050565b60608160001a60f81b6001600160f81b0319166103fb5760405162461bcd60e51b81526004016103f290610d42565b60405180910390fd5b60008281526001602081815260409283902080548451600294821615610100026000190190911693909304601f810183900483028401830190945283835291929083018282801561048d5780601f106104625761010080835404028352916020019161048d565b820191906000526020600020905b81548152906001019060200180831161047057829003601f168201915b50505050509050919050565b60009081526020819052604090205490565b60009081526003602052604090205460ff1690565b6000908152600260205260409020546001600160a01b031690565b600082815260016020908152604090912082516104fa928401906105ca565b505050565b60009182526020829052604090912055565b600091825260036020526040909120805460ff1916911515919091179055565b60009182526002602052604090912080546001600160a01b0319166001600160a01b03909216919091179055565b6000828201838110156101f45760405162461bcd60e51b81526004016103f290610d0d565b6040518060c0016040528060006001600160a01b031681526020016060815260200160001515815260200160608152602001600081526020016105c5610648565b905290565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061060b57805160ff1916838001178555610638565b82800160010185558215610638579182015b8281111561063857825182559160200191906001019061061d565b506106449291506106ac565b5090565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e0810182905261010081018290526101208101829052610140810182905261016081019190915290565b5b8082111561064457600081556001016106ad565b80356001600160a01b03811681146103be57600080fd5b600082601f8301126106e8578081fd5b81356001600160401b038111156106fb57fe5b602080820261070b828201610e30565b8381529350818401858301828701840188101561072757600080fd5b600092505b848310156107515761073d816106c1565b82526001929092019190830190830161072c565b505050505092915050565b803580151581146103be57600080fd5b600082601f83011261077c578081fd5b81356001600160401b0381111561078f57fe5b6107a2601f8201601f1916602001610e30565b91508082528360208285010111156107b957600080fd5b8060208401602084013760009082016020015292915050565b600061022082840312156107e4578081fd5b6107ee60c0610e30565b90506107f9826106c1565b815260208201356001600160401b038082111561081557600080fd5b610821858386016106d8565b60208401526108326040850161075c565b6040840152606084013591508082111561084b57600080fd5b506108588482850161076c565b606083015250608082013560808201526108758360a08401610880565b60a082015292915050565b6000610180808385031215610893578182fd5b61089c81610e30565b9150506108a8826106c1565b81526108b6602083016106c1565b60208201526108c7604083016106c1565b60408201526108d8606083016106c1565b60608201526108e9608083016106c1565b60808201526108fa60a083016106c1565b60a082015261090b60c083016106c1565b60c082015261091c60e083016106c1565b60e082015261010061092f8184016106c1565b908201526101206109418382016106c1565b908201526101406109538382016106c1565b908201526101606109658382016106c1565b9082015292915050565b6000806101a08385031215610982578182fd5b61098b836106c1565b915061099a8460208501610880565b90509250929050565b6000602082840312156109b4578081fd5b81356001600160401b038111156109c9578182fd5b6109d5848285016107d2565b949350505050565b600080604083850312156109ef578182fd5b82356001600160401b03811115610a04578283fd5b610a10858286016107d2565b92505061099a602084016106c1565b60008060408385031215610a31578182fd5b82356001600160401b03811115610a46578283fd5b610a52858286016107d2565b95602094909401359450505050565b6001600160a01b03169052565b15159052565b60008151808452815b81811015610a9957602081850181015186830182015201610a7d565b81811115610aaa5782602083870101525b50601f01601f19169290920160200192915050565b610aca828251610a61565b6020810151610adc6020840182610a61565b506040810151610aef6040840182610a61565b506060810151610b026060840182610a61565b506080810151610b156080840182610a61565b5060a0810151610b2860a0840182610a61565b5060c0810151610b3b60c0840182610a61565b5060e0810151610b4e60e0840182610a61565b5061010080820151610b6282850182610a61565b505061012080820151610b7782850182610a61565b505061014080820151610b8c82850182610a61565b505061016080820151610ba182850182610a61565b50505050565b6001600160a01b0391909116815260200190565b6001600160a01b039190911681526040602082018190526006908201526565786973747360d01b606082015260800190565b6001600160a01b03919091168152604060208201819052601190820152706e756d6265724f6653756d6d6f6e65727360781b606082015260800190565b6001600160a01b03919091168152604060208201819052600490820152636e616d6560e01b606082015260800190565b6001600160a01b03919091168152604060208201819052600890820152671cdd5b5b5bdb995960c21b606082015260800190565b6001600160a01b039290921682526060602083018190526009908301526873756d6d6f6e65727360b81b6080830152604082015260a00190565b6001600160a01b0392831681526060602082018190526008908201526739bab6b6b7b732b960c11b60808201529116604082015260a00190565b901515815260200190565b6020808252601b908201527a536166654d6174683a206164646974696f6e206f766572666c6f7760281b604082015260600190565b602080825260189082015277456c617374696344414f3a205a65726f204164647265737360401b604082015260600190565b602080825282516001600160a01b03908116838301528382015161022060408501528051610240850181905260009392918301919084906102608701905b80831015610dd457845184168252938501936001929092019190850190610db2565b5060408801519450610de96060880186610a6e565b6060880151878203601f190160808901529450610e068186610a74565b945050505050608084015160a084015260a0840151610e2860c0850182610abf565b509392505050565b6040518181016001600160401b0381118282101715610e4b57fe5b60405291905056fea2646970667358221220cf72fee100e8b8d29d28fd806372fb438322b4154ee75eb35a0a61efd48abdab64736f6c63430007020033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

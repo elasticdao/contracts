@@ -16,6 +16,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     hre.provider.getSigner(agent),
   );
   const ElasticModule = await deployments.get('ElasticModule');
+  const Permission = await deployments.get('Permission');
   const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
   const TokenHolder = await deployments.get('TokenHolder');
@@ -28,6 +29,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     Dao.address,
     Ecosystem.address,
     ElasticModule.address,
+    Permission.address,
     TokenHolder.address,
     Token.address,
     // Services
@@ -52,6 +54,7 @@ module.exports.dependencies = [
   'ElasticModule',
   'InformationalVote',
   'TransactionalVote',
+  'Permission',
   'Registrator',
   'Token',
   'TokenHolder',

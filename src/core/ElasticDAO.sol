@@ -62,7 +62,13 @@ contract ElasticDAO {
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
-    configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
+    DAO.Instance memory dao = configurator.buildDAO(
+      _summoners,
+      _name,
+      _numberOfSummoners,
+      ecosystem
+    );
+    configurator.buildPermissions(dao, ecosystem);
   }
 
   function initializeToken(
