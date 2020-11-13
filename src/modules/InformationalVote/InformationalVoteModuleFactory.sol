@@ -18,7 +18,11 @@ contract InformationalVoteModuleFactory {
     uint256[10] memory _settings
   ) public {
     // creates the manager of the informationalVote Module
-    Manager manager = new Manager(_ballotModelAddress, _settingsModelAddress, _voteModelAddress);
+    InformationalVoteManager manager = new InformationalVoteManager(
+      _ballotModelAddress,
+      _settingsModelAddress,
+      _voteModelAddress
+    );
 
     // initializes the informationalVoteModule via the manager
     manager.initialize(_votingToken, _hasPenalty, _settings);
