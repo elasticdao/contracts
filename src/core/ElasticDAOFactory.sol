@@ -48,7 +48,6 @@ contract ElasticDAOFactory {
       _k,
       _maxLambdaPurchase
     );
-    // console.log('elasticDAO intitialize check');
 
     emit DAODeployed(address(elasticDAO));
   }
