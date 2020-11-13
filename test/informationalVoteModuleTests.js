@@ -3,17 +3,16 @@ const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
 
-// const ONE = ethers.BigNumber.from('1000000000000000000');
-const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
-// const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
-const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
-// const TEN = ethers.BigNumber.from('10000000000000000000');
-// const TWO = ethers.BigNumber.from('2000000000000000000');
-const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
-const THIRTY_FIVE_PERCENT = ethers.BigNumber.from('350000000000000000');
+
+const FIFTY = ethers.BigNumber.from('50000000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
-// const FIVE = ethers.BigNumber.from('5000000000000000000');
-// const FOUR = ethers.BigNumber.from('4000000000000000000');
+const ONE = ethers.BigNumber.from('1000000000000000000');
+const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
+const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
+const SIXTY_PERCENT = ethers.BigNumber.from('600000000000000000');
+const TEN = ethers.BigNumber.from('10000000000000000000');
+const THIRTY_FIVE_PERCENT = ethers.BigNumber.from('350000000000000000');
+const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: Informational Vote Module', () => {
   let agent;
@@ -21,6 +20,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   let Ecosystem;
   let elasticDAO;
   let ElasticDAO;
+  let Factory;
   let informationalVoteManager;
   let InformationalVoteManager;
   let Settings;
@@ -32,7 +32,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
 
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-    const { deploy } = deployments;
 
     await deployments.fixture();
 
@@ -40,7 +39,10 @@ describe('ElasticDAO: Informational Vote Module', () => {
     Ballot = await deployments.get('InformationalVoteBallot');
     Settings = await deployments.get('InformationalVoteSettings');
     Vote = await deployments.get('InformationalVote');
+    Factory = await deployments.get('InformationalVoteFactory');
     Ecosystem = await deployments.get('Ecosystem');
+
+    const { deploy } = deployments;
 
     await deploy('ElasticDAO', {
       from: agent.address,
@@ -118,12 +120,12 @@ describe('ElasticDAO: Informational Vote Module', () => {
   describe('createVote(string memory _proposal, uint256 _endBlock)', () => {
     beforeEach(async () => {
       const { deploy } = deployments;
-      await deploy('InformationalVoteManager', {
+
+      InformationalVoteManager = await deploy('InformationalVoteManager', {
         from: agent.address,
         args: [Ballot.address, Settings.address, Vote.address],
       });
-      InformationalVoteManager = await deployments.get('InformationalVoteManager');
-
+      
       informationalVoteManager = new ethers.Contract(
         InformationalVoteManager.address,
         InformationalVoteManager.abi,
@@ -221,6 +223,44 @@ describe('ElasticDAO: Informational Vote Module', () => {
       const voteRecord2 = await voteStorage.deserialize(informationalVoteManager.address, 1);
       expect(voteRecord1.proposal).to.equal('First vote should be created');
       expect(voteRecord2.proposal).to.equal('Second vote should be created');
+    });
+  });
+
+  describe('Factory', async () => {
+    it('Should deploy the Manager of the voteModule using the Factory', async () => {
+      const ecosystem = await elasticDAO.getEcosystem();
+      const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
+      const managerDeployedFilterPromise = new Promise((resolve, reject) => {
+        agent.provider.on(managerDeployedFilter, (managerAddress) => resolve(managerAddress));
+        setTimeout(reject, 20000);
+      });
+      const factory = new ethers.Contract(Factory.address, Factory.abi, summoner);
+
+      await factory.deployManager(
+        Ballot.address,
+        elasticDAO.address,
+        Settings.address,
+        Vote.address,
+        ecosystem.governanceTokenAddress,
+        true,
+
+        [
+          FIFTY_PERCENT, // approval
+          ONE, // maxSharesPerTokenHolder
+          FIFTY, // minBlocksForPenalty
+          TEN, // minDurationInBlocks
+          ONE_TENTH, // minPenaltyInShares
+          ONE_TENTH, // minRewardInShares
+          FIFTY_PERCENT, // minSharesToCreate
+          ONE_TENTH, // penalty
+          SIXTY_PERCENT, // quoroum
+          ONE_TENTH, // reward
+        ],
+      );
+
+      const managerAddress = (await managerDeployedFilterPromise).address;
+
+      expect(managerAddress).to.not.equal(undefined);
     });
   });
 });

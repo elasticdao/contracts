@@ -23,12 +23,14 @@ describe('ElasticDAO: Core', () => {
 
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-    const { deploy } = deployments;
 
     await deployments.fixture();
 
     // setup needed contracts
     Ecosystem = await deployments.get('Ecosystem');
+    Token = await deployments.get('Token');
+
+    const { deploy } = deployments;
 
     await deploy('ElasticDAO', {
       from: agent.address,
@@ -41,7 +43,6 @@ describe('ElasticDAO: Core', () => {
     });
 
     ElasticDAO = await deployments.get('ElasticDAO');
-    Token = await deployments.get('Token');
   });
 
   it('Should allow a token to be initialized', async () => {

@@ -17,6 +17,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     args: [],
   });
 
+  const ivFactory = await deploy('InformationalVoteFactory', {
+    from: agent,
+    args: [],
+  });
+
   if (ivBallot.newlyDeployed) {
     log(`##### ElasticDAO: InformationalVoteBallot has been deployed: ${ivBallot.address}`);
   }
@@ -27,6 +32,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   if (ivVote.newlyDeployed) {
     log(`##### ElasticDAO: InformationalVote has been deployed: ${ivVote.address}`);
+  }
+
+  if (ivFactory.newlyDeployed) {
+    log(`##### ElasticDAO: InformationalVoteFactory has been deployed: ${ivFactory.address}`);
   }
 };
 module.exports.tags = ['InformationalVote'];
