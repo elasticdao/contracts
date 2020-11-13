@@ -3,7 +3,6 @@ const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
 
-
 const FIFTY = ethers.BigNumber.from('50000000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
 const ONE = ethers.BigNumber.from('1000000000000000000');
@@ -125,7 +124,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
         from: agent.address,
         args: [Ballot.address, Settings.address, Vote.address],
       });
-      
+
       informationalVoteManager = new ethers.Contract(
         InformationalVoteManager.address,
         InformationalVoteManager.abi,
@@ -226,8 +225,8 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
   });
 
-  describe('Factory', async () => {
-    it('Should deploy the Manager of the voteModule using the Factory', async () => {
+  describe('Factory', () => {
+    it.skip('Should deploy the Manager of the voteModule using the Factory', async () => {
       const ecosystem = await elasticDAO.getEcosystem();
       const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
       const managerDeployedFilterPromise = new Promise((resolve, reject) => {

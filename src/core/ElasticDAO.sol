@@ -90,7 +90,7 @@ contract ElasticDAO {
   function initializeModule(address _moduleAddress, string memory _name)
     external
     onlyBeforeSummoning
-    // onlySummoners - TODO: Replace this with a permission
+  // onlySummoners - TODO: Replace this with a permission
   {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Registrator registrator = Registrator(ecosystem.registratorAddress);
