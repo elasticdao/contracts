@@ -237,6 +237,10 @@ contract InformationalVoteManager {
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
   }
+  
+  function getSettings() external view returns (InformationalVoteSettings.Instance memory) {
+    return _getSettings();
+  }
 
   // Private
 

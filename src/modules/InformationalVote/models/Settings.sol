@@ -41,6 +41,7 @@ contract InformationalVoteSettings is EternalModel {
     if (_exists(_uuid)) {
       record.approval = getUint(keccak256(abi.encode('approval', _uuid)));
       record.counter = getUint(keccak256(abi.encode('counter', _uuid)));
+      record.hasPenalty = getBool(keccak256(abi.encode('hasPenalty', _uuid)));
       record.maxSharesPerTokenHolder = getUint(
         keccak256(abi.encode('maxSharesPerTokenHolder', _uuid))
       );
@@ -82,6 +83,7 @@ contract InformationalVoteSettings is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    setBool(keccak256(abi.encode('hasPenalty', record.uuid)), record.hasPenalty);
     setUint(keccak256(abi.encode('approval', record.uuid)), record.approval);
     setUint(keccak256(abi.encode('counter', record.uuid)), record.counter);
     setUint(

@@ -31,6 +31,18 @@ contract ElasticModule is EternalModel {
     return record;
   }
 
+  function deserializeByName(string memory _name, DAO.Instance memory _dao)
+    external
+    view
+    returns (Instance memory record)
+  {
+    record.uuid = getAddress(keccak256(abi.encode(_dao.uuid, _name)));
+    record.dao = _dao;
+    record.name = _name;
+
+    return record;
+  }
+
   function exists(address _uuid, DAO.Instance memory _dao)
     external
     view
@@ -44,7 +56,8 @@ contract ElasticModule is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setAddress(keccak256(abi.encode(record.dao.uuid, record.uuid, 'contractAddress')), record.uuid);
+    setAddress(keccak256(abi.encode(record.dao.uuid, record.name)), record.uuid);
+    setString(keccak256(abi.encode(record.dao.uuid, record.uuid)), record.name);
 
     setBool(keccak256(abi.encode(record.dao.uuid, record.uuid, 'exists')), true);
   }

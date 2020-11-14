@@ -9,6 +9,7 @@ import '../models/Ecosystem.sol';
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
   address payable feeAddress;
+  address[] public deployedDAOAddresses;
 
   event DAODeployed(address indexed daoAddress);
 
@@ -30,7 +31,7 @@ contract ElasticDAOFactory {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) public payable {
+  ) public payable returns (ElasticDAO Instance) {
     // create the DAO
     ElasticDAO elasticDAO = new ElasticDAO(
       ecosystemModelAddress,
@@ -48,8 +49,8 @@ contract ElasticDAOFactory {
       _k,
       _maxLambdaPurchase
     );
-    // console.log('elasticDAO intitialize check');
 
+    deployedDAOAddresses.push(address(elasticDAO));
     emit DAODeployed(address(elasticDAO));
   }
 
