@@ -9,6 +9,7 @@ import '../models/Ecosystem.sol';
 contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
   address payable feeAddress;
+  address[] public deployedDAOAddresses;
 
   event DAODeployed(address indexed daoAddress);
 
@@ -49,6 +50,7 @@ contract ElasticDAOFactory {
       _maxLambdaPurchase
     );
 
+    deployedDAOAddresses.push(address(elasticDAO));
     emit DAODeployed(address(elasticDAO));
   }
 
