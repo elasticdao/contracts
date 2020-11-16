@@ -10,6 +10,7 @@ contract ElasticDAOFactory {
   address internal ecosystemModelAddress;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
+  uint256 public deployedDAOCount = 0;
 
   event DAODeployed(address indexed daoAddress);
 
@@ -51,6 +52,7 @@ contract ElasticDAOFactory {
     );
 
     deployedDAOAddresses.push(address(elasticDAO));
+    deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
     emit DAODeployed(address(elasticDAO));
   }
 

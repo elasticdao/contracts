@@ -18,7 +18,6 @@ contract Ecosystem is EternalModel {
     address balanceMultipliersModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
-    address elasticDAOFactoryAddress;
     address elasticModuleModelAddress;
     address tokenHolderModelAddress;
     address tokenModelAddress;
@@ -50,9 +49,6 @@ contract Ecosystem is EternalModel {
         keccak256(abi.encode(record.daoAddress, 'daoModelAddress'))
       );
       record.ecosystemModelAddress = address(this);
-      record.elasticDAOFactoryAddress = getAddress(
-        keccak256(abi.encode(record.daoAddress, 'elasticDAOFactoryAddress'))
-      );
       record.elasticModuleModelAddress = getAddress(
         keccak256(abi.encode(record.daoAddress, 'elasticModuleModelAddress'))
       );
@@ -100,10 +96,6 @@ contract Ecosystem is EternalModel {
       record.configuratorAddress
     );
     setAddress(keccak256(abi.encode(record.daoAddress, 'daoModelAddress')), record.daoModelAddress);
-    setAddress(
-      keccak256(abi.encode(record.daoAddress, 'elasticDAOFactoryAddress')),
-      record.elasticDAOFactoryAddress
-    );
     setAddress(
       keccak256(abi.encode(record.daoAddress, 'elasticModuleModelAddress')),
       record.elasticModuleModelAddress
