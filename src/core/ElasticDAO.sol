@@ -107,14 +107,14 @@ contract ElasticDAO {
 
     uint256 deltaE = ElasticMath.deltaE(
       _deltaLambda,
-      token.capitalDelta,
+      token.capitalDelta, // this is the issue
       token.k,
       token.elasticity,
       token.lambda,
       token.m
     );
 
-    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
+    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount'); // by extension this is the issue
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);

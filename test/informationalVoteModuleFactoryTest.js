@@ -3,14 +3,14 @@ const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
 
+const FIFTY = ethers.BigNumber.from('50000000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
 const HUNDRED = ethers.BigNumber.from('100000000000000000000');
+const ONE = ethers.BigNumber.from('1000000000000000000');
+const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 const SIXTY_PERCENT = ethers.BigNumber.from('600000000000000000');
 const TEN = ethers.BigNumber.from('10000000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
-const ONE = ethers.BigNumber.from('1000000000000000000');
-const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
-const FIFTY = ethers.BigNumber.from('50000000000000000000');
 
 describe('ElasticDAO: InformationalVoteModuleFactory', () => {
   let agent;
