@@ -132,7 +132,7 @@ contract ElasticDAO {
     Token.Instance memory token = _getToken();
 
     uint256 deltaE = msg.value;
-    uint256 deltaLambda = ElasticMath.wdiv(ElasticMath.wdiv(deltaE, token.capitalDelta), token.k);
+    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.capitalDelta);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
@@ -186,4 +186,8 @@ contract ElasticDAO {
     return
       Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
   }
+
+  receive() external payable {}
+
+  fallback() external payable {}
 }

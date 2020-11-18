@@ -10,7 +10,7 @@ contract InformationalVoteModuleFactory {
 
   function deployManager(
     address _ballotModelAddress,
-    address _elasticDAOAddress,
+    address payable _elasticDAOAddress,
     address _settingsModelAddress,
     address _voteModelAddress,
     address _votingToken,
@@ -28,7 +28,7 @@ contract InformationalVoteModuleFactory {
     manager.initialize(_votingToken, _hasPenalty, _settings);
 
     // register the module in ElasticDAO
-    ElasticDAO elasticDAO = ElasticDAO(_elasticDAOAddress);
+    ElasticDAO elasticDAO = ElasticDAO(payable(_elasticDAOAddress));
     elasticDAO.initializeModule(address(manager), 'InformationalVoteModule');
 
     emit ManagerDeployed(address(manager));

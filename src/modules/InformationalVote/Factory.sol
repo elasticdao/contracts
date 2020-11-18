@@ -10,7 +10,7 @@ contract InformationalVoteFactory {
 
   function deployManager(
     address _ballotModelAddress,
-    address _elasticDAOAddress,
+    address payable _elasticDAOAddress,
     address _settingsModelAddress,
     address _voteModelAddress,
     address _votingToken,

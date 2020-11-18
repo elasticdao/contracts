@@ -52,7 +52,7 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     InformationalVoteModuleFactory = await deployments.get('InformationalVoteModuleFactory');
   });
 
-  it.only('Should deploy the Manager of the voteModule using the Factory', async () => {
+  it('Should deploy the Manager of the voteModule using the Factory', async () => {
     ballot = new ethers.Contract(Ballot.address, Ballot.abi, agent);
     settings = new ethers.Contract(Settings.address, Settings.abi, agent);
     vote = new ethers.Contract(Vote.address, Vote.abi, agent);
