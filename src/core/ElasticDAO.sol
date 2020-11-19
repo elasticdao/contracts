@@ -11,6 +11,7 @@ import '../models/Token.sol';
 
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
+import 'hardhat/console.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -61,12 +62,13 @@ contract ElasticDAO {
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
+    console.log('eth in contract: constructor ', address(this).balance);
   }
 
   function initializeToken(
     string memory _name,
     string memory _symbol,
-    uint256 _capitalDelta,
+    uint256 _eByl,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
@@ -77,13 +79,13 @@ contract ElasticDAO {
     Token.Instance memory token = Configurator(ecosystem.configuratorAddress).buildToken(
       _name,
       _symbol,
-      _capitalDelta,
+      _eByl,
       _elasticity,
       _k,
       _maxLambdaPurchase,
       ecosystem
     );
-
+    console.log('eth in contract: initializetoken ', address(this).balance);
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
@@ -105,19 +107,28 @@ contract ElasticDAO {
       'ElasticDAO: Cannot purchase that many shares at once'
     );
 
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
+    console.log('join function: eth in contract: ', address(this).balance);
+    console.log('join function: total supply of token: ', tokenContract.totalSupply());
+    uint256 capitalDelta = ElasticMath.capitalDelta(
+      address(this).balance - msg.value,
+      tokenContract.totalSupply()
+    );
+    console.log('join function: capitalDelta: ', capitalDelta);
     uint256 deltaE = ElasticMath.deltaE(
       _deltaLambda,
-      token.capitalDelta, // this is the issue
+      capitalDelta,
       token.k,
       token.elasticity,
       token.lambda,
       token.m
     );
+    console.log('join function: deltaE: ', deltaE);
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount'); // by extension this is the issue
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-    ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
+    tokenContract.mint(msg.sender, deltaT);
   }
 
   // Summoning
@@ -132,9 +143,9 @@ contract ElasticDAO {
     Token.Instance memory token = _getToken();
 
     uint256 deltaE = msg.value;
-    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.capitalDelta);
+    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByl);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-
+    console.log('eth in contract: seedSummoning ', address(this).balance);
     ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
   }
 
@@ -155,7 +166,7 @@ contract ElasticDAO {
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
       tokenContract.mint(daoContract.getSummoner(dao, i), deltaT);
     }
-
+    console.log('eth in contract: summon', address(this).balance);
     dao.summoned = true;
     daoContract.serialize(dao);
   }

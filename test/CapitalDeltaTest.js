@@ -11,7 +11,6 @@ const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: CapitalDelta value of a token', () => {
   let agent;
-
   let Ecosystem;
   let ElasticDAO;
   let elasticDAO;
@@ -52,7 +51,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
       .initializeToken(
         'Elastic Governance Token',
         'EGT',
-        ONE_TENTH, // capital delta
+        ONE_TENTH, // eByl value
         TWO_HUNDREDTHS, // elasticity
         ONE_HUNDRED, // k
         ethers.constants.WeiPerEther, // max lambda purchase
@@ -71,7 +70,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await elasticDAO.summon(ONE_TENTH);
   });
 
-  it('Should return a mismatch in the values of capital delta', async () => {
+  it.only('Should return a mismatch in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
@@ -93,14 +92,11 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
 
     // get the T value of the token
     const totalSupplyOfToken = await tokenInstanceContract.totalSupply();
-    console.log('ethBalanceElasticDAO:', ethBalanceElasticDAO.toString());
-    console.log('totalSupplyOfToken:', totalSupplyOfToken.toString());
 
     // calculate capital Delta
     const capitalDelta = BigNumber(ethBalanceElasticDAO.toString()).dividedBy(
       totalSupplyOfToken.toString(),
     );
-    console.log('CapitalDelta: ', capitalDelta.toString());
 
     // calculate deltaE using capital Delta to buy ONE_TENTH shares
     // deltaE = capitalDelta * k  * ( (lambdaDash*mDash*revamp) - (lambda*m) )
@@ -110,25 +106,28 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     const m = BigNumber(tokenInstance.m.toString()).dividedBy(10 ** 18);
     const lambdaDash = lambda.plus(0.1);
     const revamp = elasticity.plus(1);
-    const mDash = m.multipliedBy(revamp);
+    const mDash = m.multipliedBy(lambdaDash.dividedBy(lambda));
     const a = lambdaDash.multipliedBy(mDash).multipliedBy(revamp);
     const b = lambda.multipliedBy(m);
     const c = a.minus(b);
     const deltaE = capitalDelta.multipliedBy(k).multipliedBy(c);
+    const eByl = BigNumber(tokenInstance.eByl.toString()).dividedBy(10 ** 18);
 
-    console.log('deltaE: ', deltaE.toString());
-    console.log('elasticity: ', elasticity.toString());
-    console.log('k: ', k.toString());
-    console.log('lambda: ', lambda.toString());
-    console.log('m: ', m.toString());
-    console.log('lambdaDash: ', lambdaDash.toString());
-    console.log('revamp: ', revamp.toString());
-    console.log('mDash: ', mDash.toString());
-    console.log('a: ', a.toString());
-    console.log('b: ', b.toString());
-    console.log('c: ', c.toString());
-    console.log('ONE_TENTH: ', ONE_TENTH.toString());
-    console.log('#### console log 18');
+    console.log('test: elasticity: ', elasticity.toString());
+    console.log('test: k: ', k.toString());
+    console.log('test: lambda: ', lambda.toString());
+    console.log('test: m: ', m.toString());
+    console.log('test: lambdaDash: ', lambdaDash.toString());
+    console.log('test: revamp: ', revamp.toString());
+    console.log('test: mDash: ', mDash.toString());
+    console.log('test: a: ', a.toString());
+    console.log('test: b: ', b.toString());
+    console.log('test: c: ', c.toString());
+    console.log('test: ethBalanceElasticDAO:', ethBalanceElasticDAO.toString());
+    console.log('test: totalSupplyOfToken:', totalSupplyOfToken.toString());
+    console.log('test: CapitalDelta: ', capitalDelta.toString());
+    console.log('test: deltaE: ', deltaE.toString());
+    console.log('test: ebyl: ', eByl.toString());
 
     // send that value of deltaE to joinDAO to buy ONE_TENTH shares
     const value = deltaE.multipliedBy(10 ** 18).toFixed(0);
@@ -141,7 +140,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await expect(tx).to.be.revertedWith('ElasticDAO: Incorrect ETH amount');
   });
 
-  it.only('Should return a match in the values of capital delta', async () => {
+  it('Should return a match in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
@@ -175,7 +174,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     const m = BigNumber(tokenInstance.m.toString()).dividedBy(10 ** 18);
     const lambdaDash = lambda.plus(0.1);
     const revamp = elasticity.plus(1);
-    const mDash = m.multipliedBy(revamp);
+    const mDash = m.multipliedBy(lambdaDash.dividedBy(lambda));
     const a = lambdaDash.multipliedBy(mDash).multipliedBy(revamp);
     const b = lambda.multipliedBy(m);
     const c = a.minus(b);
