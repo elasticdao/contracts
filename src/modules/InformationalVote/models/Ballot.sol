@@ -34,11 +34,15 @@ contract InformationalVoteBallot is EternalModel {
     record.vote = _vote;
 
     if (_exists(_voter, _settings, _vote)) {
-      record.lambda = getUint(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'lambda')));
-      record.wasPenalized = getBool(
-        keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'wasPenalized'))
+      record.lambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'lambda'))
       );
-      record.yna = getUint(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'yna')));
+      record.wasPenalized = getBool(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'wasPenalized'))
+      );
+      record.yna = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'yna'))
+      );
     }
 
     return record;
@@ -58,20 +62,26 @@ contract InformationalVoteBallot is EternalModel {
    */
   function serialize(Instance memory record) external {
     setBool(
-      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'wasPenalized')),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'wasPenalized')
+      ),
       record.wasPenalized
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'lambda')),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'lambda')
+      ),
       record.lambda
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'yna')),
+      keccak256(abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'yna')),
       record.yna
     );
 
     setBool(
-      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'exists')),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'exists')
+      ),
       true
     );
   }
@@ -81,6 +91,6 @@ contract InformationalVoteBallot is EternalModel {
     InformationalVoteSettings.Instance memory _settings,
     InformationalVote.Instance memory _vote
   ) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'exists')));
+    return getBool(keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'exists')));
   }
 }

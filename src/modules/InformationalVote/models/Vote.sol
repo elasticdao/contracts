@@ -14,7 +14,7 @@ import './Settings.sol';
 contract InformationalVote is EternalModel {
   struct Instance {
     address author;
-    address votingToken;
+    address votingTokenAddress;
     bool hasPenalty;
     bool hasReachedQuorum;
     bool isActive;
@@ -48,38 +48,60 @@ contract InformationalVote is EternalModel {
 
     if (_exists(_index, _settings)) {
       record.abstainLambda = getUint(
-        keccak256(abi.encode(_settings.uuid, _index, 'abstainLambda'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'abstainLambda'))
       );
-      record.approval = getUint(keccak256(abi.encode(_settings.uuid, _index, 'approval')));
-      record.author = getAddress(keccak256(abi.encode(_settings.uuid, _index, 'author')));
-      record.endOnBlock = getUint(keccak256(abi.encode(_settings.uuid, _index, 'endOnBlock')));
-      record.hasPenalty = getBool(keccak256(abi.encode(_settings.uuid, _index, 'hasPenalty')));
+      record.approval = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'approval'))
+      );
+      record.author = getAddress(keccak256(abi.encode(_settings.managerAddress, _index, 'author')));
+      record.endOnBlock = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'endOnBlock'))
+      );
+      record.hasPenalty = getBool(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'hasPenalty'))
+      );
       record.hasReachedQuorum = getBool(
-        keccak256(abi.encode(_settings.uuid, _index, 'hasReachedQuorum'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'hasReachedQuorum'))
       );
-      record.isActive = getBool(keccak256(abi.encode(_settings.uuid, _index, 'isActive')));
-      record.isApproved = getBool(keccak256(abi.encode(_settings.uuid, _index, 'isApproved')));
+      record.isActive = getBool(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'isActive'))
+      );
+      record.isApproved = getBool(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'isApproved'))
+      );
       record.maxSharesPerTokenHolder = getUint(
-        keccak256(abi.encode(_settings.uuid, _index, 'maxSharesPerTokenHolder'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'maxSharesPerTokenHolder'))
       );
       record.minBlocksForPenalty = getUint(
-        keccak256(abi.encode(_settings.uuid, _index, 'minBlocksForPenalty'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'minBlocksForPenalty'))
       );
       record.minPenaltyInShares = getUint(
-        keccak256(abi.encode(_settings.uuid, _index, 'minPenaltyInShares'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'minPenaltyInShares'))
       );
       record.minRewardInShares = getUint(
-        keccak256(abi.encode(_settings.uuid, _index, 'minRewardInShares'))
+        keccak256(abi.encode(_settings.managerAddress, _index, 'minRewardInShares'))
       );
-      record.noLambda = getUint(keccak256(abi.encode(_settings.uuid, _index, 'noLambda')));
-      record.penalty = getUint(keccak256(abi.encode(_settings.uuid, _index, 'penalty')));
-      record.proposal = getString(keccak256(abi.encode(_settings.uuid, _index, 'proposal')));
-      record.quorum = getUint(keccak256(abi.encode(_settings.uuid, _index, 'quorum')));
-      record.quorumLambda = getUint(keccak256(abi.encode(_settings.uuid, _index, 'quorumLambda')));
-      record.reward = getUint(keccak256(abi.encode(_settings.uuid, _index, 'reward')));
-      record.startOnBlock = getUint(keccak256(abi.encode(_settings.uuid, _index, 'startOnBlock')));
-      record.votingToken = getAddress(keccak256(abi.encode(_settings.uuid, _index, 'votingToken')));
-      record.yesLambda = getUint(keccak256(abi.encode(_settings.uuid, _index, 'yesLambda')));
+      record.noLambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'noLambda'))
+      );
+      record.penalty = getUint(keccak256(abi.encode(_settings.managerAddress, _index, 'penalty')));
+      record.proposal = getString(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'proposal'))
+      );
+      record.quorum = getUint(keccak256(abi.encode(_settings.managerAddress, _index, 'quorum')));
+      record.quorumLambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'quorumLambda'))
+      );
+      record.reward = getUint(keccak256(abi.encode(_settings.managerAddress, _index, 'reward')));
+      record.startOnBlock = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'startOnBlock'))
+      );
+      record.votingTokenAddress = getAddress(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'votingTokenAddress'))
+      );
+      record.yesLambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'yesLambda'))
+      );
     }
 
     return record;
@@ -98,71 +120,94 @@ contract InformationalVote is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setAddress(keccak256(abi.encode(record.settings.uuid, record.index, 'author')), record.author);
     setAddress(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'votingToken')),
-      record.votingToken
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'author')),
+      record.author
+    );
+    setAddress(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'votingTokenAddress')),
+      record.votingTokenAddress
     );
     setBool(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'hasPenalty')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'hasPenalty')),
       record.hasPenalty
     );
     setBool(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'hasReachedQuorum')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'hasReachedQuorum')),
       record.hasReachedQuorum
     );
-    setBool(keccak256(abi.encode(record.settings.uuid, record.index, 'isActive')), record.isActive);
     setBool(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'isApproved')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'isActive')),
+      record.isActive
+    );
+    setBool(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'isApproved')),
       record.isApproved
     );
     setString(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'proposal')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'proposal')),
       record.proposal
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'abstainLambda')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'abstainLambda')),
       record.abstainLambda
     );
-    setUint(keccak256(abi.encode(record.settings.uuid, record.index, 'approval')), record.approval);
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'endOnBlock')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'approval')),
+      record.approval
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'endOnBlock')),
       record.endOnBlock
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'maxSharesPerTokenHolder')),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.index, 'maxSharesPerTokenHolder')
+      ),
       record.maxSharesPerTokenHolder
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'minBlocksForPenalty')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'minBlocksForPenalty')),
       record.minBlocksForPenalty
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'minPenaltyInShares')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'minPenaltyInShares')),
       record.minPenaltyInShares
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'minRewardInShares')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'minRewardInShares')),
       record.minRewardInShares
     );
-    setUint(keccak256(abi.encode(record.settings.uuid, record.index, 'noLambda')), record.noLambda);
-    setUint(keccak256(abi.encode(record.settings.uuid, record.index, 'penalty')), record.penalty);
-    setUint(keccak256(abi.encode(record.settings.uuid, record.index, 'quorum')), record.quorum);
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'quorumLambda')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'noLambda')),
+      record.noLambda
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'penalty')),
+      record.penalty
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'quorum')),
+      record.quorum
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'quorumLambda')),
       record.quorumLambda
     );
-    setUint(keccak256(abi.encode(record.settings.uuid, record.index, 'reward')), record.reward);
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'startOnBlock')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'reward')),
+      record.reward
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'startOnBlock')),
       record.startOnBlock
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.index, 'yesLambda')),
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'yesLambda')),
       record.yesLambda
     );
 
-    setBool(keccak256(abi.encode(record.settings.uuid, record.index, 'exists')), true);
+    setBool(keccak256(abi.encode(record.settings.managerAddress, record.index, 'exists')), true);
   }
 
   function _exists(uint256 _index, InformationalVoteSettings.Instance memory _settings)
@@ -170,6 +215,6 @@ contract InformationalVote is EternalModel {
     view
     returns (bool recordExists)
   {
-    return getBool(keccak256(abi.encode(_settings.uuid, _index, 'exists')));
+    return getBool(keccak256(abi.encode(_settings.managerAddress, _index, 'exists')));
   }
 }

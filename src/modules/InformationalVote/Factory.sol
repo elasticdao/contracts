@@ -13,7 +13,7 @@ contract InformationalVoteFactory {
     address _elasticDAOAddress,
     address _settingsModelAddress,
     address _voteModelAddress,
-    address _votingToken,
+    address _votingTokenAddress,
     bool _hasPenalty,
     uint256[10] memory _settings
   ) external {
@@ -25,7 +25,7 @@ contract InformationalVoteFactory {
     );
 
     // initializes the informationalVoteModule via the manager
-    manager.initialize(_votingToken, _hasPenalty, _settings);
+    manager.initialize(_votingTokenAddress, _hasPenalty, _settings);
 
     // register the module in ElasticDAO
     ElasticDAO elasticDAO = ElasticDAO(_elasticDAOAddress);
