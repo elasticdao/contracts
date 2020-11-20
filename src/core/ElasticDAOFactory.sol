@@ -32,7 +32,7 @@ contract ElasticDAOFactory {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) public payable returns (ElasticDAO Instance) {
+  ) public payable {
     // create the DAO
     ElasticDAO elasticDAO = new ElasticDAO(
       ecosystemModelAddress,

@@ -24,12 +24,6 @@ contract InformationalVoteBallot is EternalModel {
     InformationalVote.Instance vote;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _uuid - address of the unique manager instance
-   * @param _voteId - the counter value of this vote
-   * @return record Instance
-   */
   function deserialize(
     address _voter,
     InformationalVoteSettings.Instance memory _settings,
@@ -41,8 +35,9 @@ contract InformationalVoteBallot is EternalModel {
 
     if (_exists(_voter, _settings, _vote)) {
       record.lambda = getUint(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'lambda')));
-      record.voteId = getUint(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'voteId')));
-      record.wasPenalized = getBool(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'wasPenalized')));
+      record.wasPenalized = getBool(
+        keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'wasPenalized'))
+      );
       record.yna = getUint(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'yna')));
     }
 
@@ -52,7 +47,7 @@ contract InformationalVoteBallot is EternalModel {
   function exists(
     address _voter,
     InformationalVoteSettings.Instance memory _settings,
-    InformationalVote.Instance memory _vote,
+    InformationalVote.Instance memory _vote
   ) external view returns (bool recordExists) {
     return _exists(_voter, _settings, _vote);
   }
@@ -71,18 +66,20 @@ contract InformationalVoteBallot is EternalModel {
       record.lambda
     );
     setUint(
-      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'voteId')),
-      record.voteId
+      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'yna')),
+      record.yna
     );
-    setUint(keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'yna')), record.yna);
 
-    setBool(keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'exists')), true);
+    setBool(
+      keccak256(abi.encode(record.settings.uuid, record.vote.index, record.voter, 'exists')),
+      true
+    );
   }
 
   function _exists(
     address _voter,
     InformationalVoteSettings.Instance memory _settings,
-    InformationalVote.Instance memory _vote,
+    InformationalVote.Instance memory _vote
   ) internal view returns (bool recordExists) {
     return getBool(keccak256(abi.encode(_settings.uuid, _vote.index, _voter, 'exists')));
   }

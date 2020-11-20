@@ -30,7 +30,7 @@ contract TokenHolder is EternalModel {
     record.ecosystem = _ecosystem;
     record.token = _token;
 
-    if (_exists(_account, _token)) {
+    if (_exists(_account, _ecosystem, _token)) {
       record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
       record.lambda = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')));
     }
@@ -43,7 +43,7 @@ contract TokenHolder is EternalModel {
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
   ) external view returns (bool recordExists) {
-    return _exists(_account, _token);
+    return _exists(_account, _ecosystem, _token);
   }
 
   /**
@@ -58,11 +58,11 @@ contract TokenHolder is EternalModel {
     setBool(keccak256(abi.encode(record.token.uuid, record.account, 'exists')), true);
   }
 
-  function _exists(address _account, Token.Instance memory _token)
-    internal
-    view
-    returns (bool recordExists)
-  {
+  function _exists(
+    address _account,
+    Ecosystem.Instance memory,
+    Token.Instance memory _token
+  ) internal view returns (bool recordExists) {
     return getBool(keccak256(abi.encode(_token.uuid, _account, 'exists')));
   }
 }

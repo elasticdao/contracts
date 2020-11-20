@@ -238,30 +238,30 @@ contract InformationalVoteManager {
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
   }
-  
+
   function getSettings() external view returns (InformationalVoteSettings.Instance memory) {
     return _getSettings();
   }
 
   // Private
 
-  function _getBallot(uint256 _index, address _voter)
-    internal
-    view
-    returns (InformationalVoteBallot.Instance memory)
-  {
-    return InformationalVoteBallot(ballotModelAddress).deserialize(address(this), _index, _voter);
-  }
-
   function _getSettings() internal view returns (InformationalVoteSettings.Instance memory) {
     return InformationalVoteSettings(settingsModelAddress).deserialize(address(this));
   }
 
-  function _getVote(uint256 _index, InformationalVoteSettings memory _settings) internal view returns (InformationalVote.Instance memory) {
+  function _getVote(uint256 _index, InformationalVoteSettings.Instance memory _settings)
+    internal
+    view
+    returns (InformationalVote.Instance memory)
+  {
     return InformationalVote(voteModelAddress).deserialize(_index, _settings);
   }
 
-  function _voteExists(uint256 _index, InformationalVoteSettings memory _settings) internal view returns (bool) {
+  function _voteExists(uint256 _index, InformationalVoteSettings.Instance memory _settings)
+    internal
+    view
+    returns (bool)
+  {
     return InformationalVote(voteModelAddress).exists(_index, _settings);
   }
 
