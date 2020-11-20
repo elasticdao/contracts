@@ -70,7 +70,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await elasticDAO.summon(ONE_TENTH);
   });
 
-  it.only('Should return a mismatch in the values of capital delta', async () => {
+  it('Should return a mismatch in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
@@ -140,7 +140,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await expect(tx).to.be.revertedWith('ElasticDAO: Incorrect ETH amount');
   });
 
-  it('Should return a match in the values of capital delta', async () => {
+  it.only('Should return a match in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
@@ -153,15 +153,15 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     );
 
     // get the eth balance of elasticDAO
-    const ethBalanceElasticDAO = await hre.provider.getBalance(elasticDAO.address);
+    const ethBalanceElasticDAOBeforeJoin = await hre.provider.getBalance(elasticDAO.address);
 
     // get the T value of the token
     const totalSupplyOfToken = await tokenInstanceContract.totalSupply();
-    console.log('ethBalanceElasticDAO:', ethBalanceElasticDAO.toString());
+    console.log('ethBalanceElasticDAO:', ethBalanceElasticDAOBeforeJoin.toString());
     console.log('totalSupplyOfToken:', totalSupplyOfToken.toString());
 
     // calculate capital Delta
-    const capitalDelta = BigNumber(ethBalanceElasticDAO.toString()).dividedBy(
+    const capitalDelta = BigNumber(ethBalanceElasticDAOBeforeJoin.toString()).dividedBy(
       totalSupplyOfToken.toString(),
     );
     console.log('CapitalDelta: ', capitalDelta.toString());
@@ -180,27 +180,62 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     const c = a.minus(b);
     const deltaE = capitalDelta.multipliedBy(k).multipliedBy(c);
 
-    console.log('deltaE: ', deltaE.toString());
-    console.log('elasticity: ', elasticity.toString());
-    console.log('k: ', k.toString());
-    console.log('lambda: ', lambda.toString());
-    console.log('m: ', m.toString());
-    console.log('lambdaDash: ', lambdaDash.toString());
-    console.log('revamp: ', revamp.toString());
-    console.log('mDash: ', mDash.toString());
-    console.log('a: ', a.toString());
-    console.log('b: ', b.toString());
-    console.log('c: ', c.toString());
-    console.log('ONE_TENTH: ', ONE_TENTH.toString());
+    console.log('test: deltaE: ', deltaE.toString());
+    console.log('test: elasticity: ', elasticity.toString());
+    console.log('test: k: ', k.toString());
+    console.log('test: lambda: ', lambda.toString());
+    console.log('test: m: ', m.toString());
+    console.log('test: lambdaDash: ', lambdaDash.toString());
+    console.log('test: revamp: ', revamp.toString());
+    console.log('test: mDash: ', mDash.toString());
+    console.log('test: a: ', a.toString());
+    console.log('test: b: ', b.toString());
+    console.log('test: c: ', c.toString());
+    console.log('test: ONE_TENTH: ', ONE_TENTH.toString());
 
     // send that value of deltaE to joinDAO to buy ONE_TENTH shares
     const value = deltaE.multipliedBy(10 ** 18).toFixed(0);
     console.log('Value: ', value);
-    const tx = elasticDAO.join(ONE_TENTH, {
+    await elasticDAO.join(ONE_TENTH, {
       value,
     });
 
-    // transaction reverts with 'ElasticDAO: Incorrect ETH amount'
-    await expect(tx).to.be.revertedWith('ElasticDAO: Incorrect ETH amount');
+    // post join check the following values:
+    // check the m value- after join,previous mDash should be current m
+
+    const tokenInstanceAfterJoin = await tokenModel.deserialize(
+      ecosystem.governanceTokenAddress,
+      ecosystem,
+    );
+    console.log(
+      'mAfterJoin',
+      BigNumber(tokenInstanceAfterJoin.m.toString())
+        .dividedBy(10 ** 18)
+        .toString(),
+    );
+    console.log('mDash: ', mDash.toString());
+
+    console.log(
+      'lambdaAfterJoin',
+      BigNumber(tokenInstanceAfterJoin.lambda.toString())
+        .dividedBy(10 ** 18)
+        .toString(),
+    );
+    console.log('lambdaDash: ', lambdaDash.toString());
+
+    // const m = BigNumber(tokenInstance.m.toString()).dividedBy(10 ** 18);
+    const mAfterJoin = BigNumber(tokenInstanceAfterJoin.m.toString()).dividedBy(10 ** 18);
+    await expect(mAfterJoin).to.equal(mDash);
+
+    console.log('check');
+
+    // check the lambda value- after join,previous lambdaDash should be current lambda
+    const lambdaAfterJoin = BigNumber(tokenInstanceAfterJoin.lambda.toString()).dividedBy(10 ** 18);
+    await expect(lambdaAfterJoin).to.equal(lambdaDash);
+
+    // check the the total eth - which should be initial eth, plus delta e
+    const ethBalanceElasticDAOAfterJoin = await hre.provider.getBalance(elasticDAO.address);
+    const expectedEthInElasticDAOAfterJoin = deltaE.plus(ethBalanceElasticDAOBeforeJoin);
+    await expect(ethBalanceElasticDAOAfterJoin).to.equal(expectedEthInElasticDAOAfterJoin);
   });
 });

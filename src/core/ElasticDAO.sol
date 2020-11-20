@@ -62,7 +62,6 @@ contract ElasticDAO {
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
-    console.log('eth in contract: constructor ', address(this).balance);
   }
 
   function initializeToken(
@@ -85,7 +84,6 @@ contract ElasticDAO {
       _maxLambdaPurchase,
       ecosystem
     );
-    console.log('eth in contract: initializetoken ', address(this).balance);
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
@@ -111,6 +109,10 @@ contract ElasticDAO {
     console.log('join function: eth in contract: ', address(this).balance);
     console.log('join function: total supply of token: ', tokenContract.totalSupply());
     uint256 capitalDelta = ElasticMath.capitalDelta(
+      // at this stage address(this).balance has the eth present in it(before function join),
+      // along with msg.value
+      // hence msg.value is subtracted from capitalDelta because capitalDelta is calculated
+      // with the eth present in the contract prior to recieving msg.value
       address(this).balance - msg.value,
       tokenContract.totalSupply()
     );
@@ -125,10 +127,20 @@ contract ElasticDAO {
     );
     console.log('join function: deltaE: ', deltaE);
 
-    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount'); // by extension this is the issue
+    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
-    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-    tokenContract.mint(msg.sender, deltaT);
+    // mdash
+    uint256 lambdaDash = SafeMath.add(_deltaLambda, token.lambda);
+    uint256 mDash = ElasticMath.mDash(lambdaDash, token.lambda, token.m);
+
+    // serialize the token
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Token tokenStorage = Token(ecosystem.tokenModelAddress);
+    token.m = mDash;
+    tokenStorage.serialize(token);
+
+    // tokencontract mint shares
+    tokenContract.mintShares(msg.sender, _deltaLambda);
   }
 
   // Summoning
