@@ -71,13 +71,19 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
 
     const daoDeployedFilterPromise = new Promise((resolve, reject) => {
       agent.provider.on(daoDeployedFilter, (daoAddress) => resolve(daoAddress));
-      setTimeout(reject, 10000);
+      setTimeout(() => reject(new Error('reject')), 9000000);
+    });
+    daoDeployedFilterPromise.catch((error) => {
+      console.log(error);
     });
 
     const elasticGovernanceTokenDeployedFilterPromise = new Promise((resolve, reject) => {
       const handler = (tokenAddress) => resolve(tokenAddress);
       agent.provider.on(elasticGovernanceTokenDeployedFilter, handler);
-      setTimeout(reject, 10000);
+      setTimeout(() => reject(new Error('reject')), 9000000);
+    });
+    elasticGovernanceTokenDeployedFilterPromise.catch((error) => {
+      console.log(error);
     });
 
     await elasticDAOFactory.deployDAOAndToken(
@@ -103,7 +109,11 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
     const managerDeployedFilterPromise = new Promise((resolve, reject) => {
       agent.provider.on(managerDeployedFilter, (managerAddress) => resolve(managerAddress));
-      setTimeout(reject, 10000);
+      setTimeout(() => reject(new Error('reject')), 9000000);
+    });
+
+    managerDeployedFilterPromise.catch((error) => {
+      console.log(error);
     });
 
     await informationalVoteModuleFactory.deployManager(
@@ -131,5 +141,5 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     const managerAddress = (await managerDeployedFilterPromise).address;
 
     expect(managerAddress).to.not.equal(undefined);
-  });
+  }).timeout(9000000);
 });

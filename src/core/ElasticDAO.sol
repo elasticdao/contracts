@@ -106,8 +106,6 @@ contract ElasticDAO {
     );
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    console.log('join function: eth in contract: ', address(this).balance);
-    console.log('join function: total supply of token: ', tokenContract.totalSupply());
     uint256 capitalDelta = ElasticMath.capitalDelta(
       // at this stage address(this).balance has the eth present in it(before function join),
       // along with msg.value
@@ -116,7 +114,6 @@ contract ElasticDAO {
       address(this).balance - msg.value,
       tokenContract.totalSupply()
     );
-    console.log('join function: capitalDelta: ', capitalDelta);
     uint256 deltaE = ElasticMath.deltaE(
       _deltaLambda,
       capitalDelta,
@@ -125,7 +122,6 @@ contract ElasticDAO {
       token.lambda,
       token.m
     );
-    console.log('join function: deltaE: ', deltaE);
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
@@ -157,8 +153,7 @@ contract ElasticDAO {
     uint256 deltaE = msg.value;
     uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByl);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-    console.log('eth in contract: seedSummoning ', address(this).balance);
-    ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
+    ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
   }
 
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
@@ -173,12 +168,9 @@ contract ElasticDAO {
     );
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
-    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      tokenContract.mint(daoContract.getSummoner(dao, i), deltaT);
+      tokenContract.mintShares(daoContract.getSummoner(dao, i), _deltaLambda);
     }
-    console.log('eth in contract: summon', address(this).balance);
     dao.summoned = true;
     daoContract.serialize(dao);
   }

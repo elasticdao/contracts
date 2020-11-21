@@ -58,13 +58,19 @@ describe('ElasticDAO: Factory', () => {
 
     const daoDeployedFilterPromise = new Promise((resolve, reject) => {
       agent.provider.on(daoDeployedFilter, (daoAddress) => resolve(daoAddress));
-      setTimeout(reject, 10000);
+      setTimeout(() => reject(new Error('reject')), 60000);
+    });
+    daoDeployedFilterPromise.catch((error) => {
+      console.log(error);
     });
 
     const elasticGovernanceTokenDeployedFilterPromise = new Promise((resolve, reject) => {
       const handler = (tokenAddress) => resolve(tokenAddress);
       agent.provider.on(elasticGovernanceTokenDeployedFilter, handler);
-      setTimeout(reject, 10000);
+      setTimeout(() => reject(new Error('reject')), 60000);
+    });
+    elasticGovernanceTokenDeployedFilterPromise.catch((error) => {
+      console.log(error);
     });
 
     await elasticDAOFactory.deployDAOAndToken(
@@ -84,23 +90,5 @@ describe('ElasticDAO: Factory', () => {
 
     expect(daoAddress).to.not.equal(undefined);
     expect(tokenAddress).to.not.equal(undefined);
-
-    // console.log('here', daoAddress, tokenAddress);
-    // const tokenContract = new ethers.Contract(tokenAddress, erc20, agent);
-
-    // console.log(1);
-    // expect(await tokenContract.functions.decimals()).to.equal(18);
-    // console.log(2);
-    // expect(await tokenContract.functions.name()).to.equal('ElasticGovernanceToken');
-    // console.log(3);
-    // expect(await tokenContract.functions.symbol()).to.equal('EGT');
-
-    // console.log(4);
-    // const daoContract = new ethers.Contract(daoAddress, daoAbi, agent);
-    // console.log(5);
-    // const daoData = await daoContract.functions.getDAO();
-    // console.log(6);
-    // expect(daoData.name).to.equal('Elastic DAO');
-    // console.log(7);
-  });
+  }).timeout(60000);
 });
