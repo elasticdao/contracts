@@ -13,6 +13,8 @@ contract ElasticDAOFactory {
   uint256 public deployedDAOCount = 0;
 
   event DAODeployed(address indexed daoAddress);
+  event FeeAddressUpdated(address indexed feeReceiver);
+  event FeesCollected(address treasuryAddress, uint256 amount);
 
   constructor(address _ecosystemModelAddress) {
     ecosystemModelAddress = _ecosystemModelAddress;
@@ -47,6 +49,22 @@ contract ElasticDAOFactory {
     deployedDAOAddresses.push(address(elasticDAO));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
     emit DAODeployed(address(elasticDAO));
+  }
+
+  function updateFeeAddress(address _feeReceiver) external {
+    // TODO: NEEDS MODIFIER!!! THIS SHOULD ONLY BE UPDATEABLE BY A TRANSACTIONAL VOTE
+
+    feeAddress = payable(_feeReceiver);
+    emit FeeAddressUpdated(_feeReceiver);
+  }
+
+  function collectFees() external {
+    // TODO: NEEDS MODIFIER!!! THIS SHOULD ONLY BE UPDATEABLE BY A TRANSACTIONAL VOTE
+
+    uint256 amount = address(this).balance;
+
+    feeAddress.transfer(amount);
+    emit FeesCollected(address(feeAddress), amount);
   }
 
   receive() external payable {}

@@ -2,40 +2,46 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const ivBallot = await deploy('InformationalVoteBallot', {
+  const informationalVoteBallot = await deploy('InformationalVoteBallot', {
     from: agent,
     args: [],
   });
 
-  const ivSettings = await deploy('InformationalVoteSettings', {
+  const informationalVoteSettings = await deploy('InformationalVoteSettings', {
     from: agent,
     args: [],
   });
 
-  const ivVote = await deploy('InformationalVote', {
+  const informationalVoteVote = await deploy('InformationalVote', {
     from: agent,
     args: [],
   });
 
-  const ivFactory = await deploy('InformationalVoteFactory', {
+  const informationalVoteFactory = await deploy('InformationalVoteFactory', {
     from: agent,
     args: [],
   });
 
-  if (ivBallot.newlyDeployed) {
-    log(`##### ElasticDAO: InformationalVoteBallot has been deployed: ${ivBallot.address}`);
+  if (informationalVoteBallot.newlyDeployed) {
+    log(
+      `##### ElasticDAO: InformationalVoteBallot has been deployed: ${informationalVoteBallot.address}`,
+    );
   }
 
-  if (ivSettings.newlyDeployed) {
-    log(`##### ElasticDAO: InformationalVoteSettings has been deployed: ${ivSettings.address}`);
+  if (informationalVoteSettings.newlyDeployed) {
+    log(
+      `##### ElasticDAO: InformationalVoteSettings has been deployed: ${informationalVoteSettings.address}`,
+    );
   }
 
-  if (ivVote.newlyDeployed) {
-    log(`##### ElasticDAO: InformationalVote has been deployed: ${ivVote.address}`);
+  if (informationalVoteVote.newlyDeployed) {
+    log(`##### ElasticDAO: InformationalVote has been deployed: ${informationalVoteVote.address}`);
   }
 
-  if (ivFactory.newlyDeployed) {
-    log(`##### ElasticDAO: InformationalVoteFactory has been deployed: ${ivFactory.address}`);
+  if (informationalVoteFactory.newlyDeployed) {
+    log(
+      `##### ElasticDAO: InformationalVoteFactory has been deployed: ${informationalVoteFactory.address}`,
+    );
   }
 };
 module.exports.tags = ['InformationalVote'];
