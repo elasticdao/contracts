@@ -8,7 +8,6 @@ import './models/Vote.sol';
 
 import '../../interfaces/IElasticToken.sol';
 import '../../libraries/ElasticMath.sol';
-import '../../libraries/SecuredTokenTransfer.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for interacting with informational votes
@@ -77,7 +76,7 @@ contract TransactionalVoteManager {
     settings.penalty = _settings[7];
     settings.quorum = _settings[8];
     settings.reward = _settings[9];
-    domainSeparator = keccak256(abi.encode(DOMAIN_DEPARATOR_TYPEHASH, this));
+    domainSeparator = keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, this));
 
     // IElasticToken(_votingToken).subscribeToShareUpdates(address(this));
     settingsContract.serialize(settings);
@@ -275,6 +274,9 @@ contract TransactionalVoteManager {
    * @return success bool
    */
   // TODO: SHOULD BE LOCKED DOWN TO ONLY VOTE MODULES
+
+  // Private
+
   function _executeTransaction(
     address _to,
     uint256 _value,
@@ -284,8 +286,8 @@ contract TransactionalVoteManager {
     uint256 _baseGas,
     uint256 _gasPrice,
     address _gasToken,
-    address _refundReceiver
-  ) internal view returns (bool success) {
+    address payable _refundReceiver
+  ) internal returns (bool success) {
     bytes32 txHash;
     // use scope to limit variable lifetime and prevent `stack to deep` errors
     {
@@ -310,7 +312,7 @@ contract TransactionalVoteManager {
     // We require some gas to emit the events (at least 2500) after the execution and some to perform code until the execution (500)
     // We also include the 1/64 in the check that is not send along with a call to counteract potential shortings because of EIP-150
     require(
-      gasleft() >= ((_safeTxGas * 64) / 63).max(_safeTxGas + 2500) + 500,
+      gasleft() >= SafeMath.max((_safeTxGas * 64) / 63, (_safeTxGas + 2500) + 500),
       'ElasticDAO: Not enough gas to execute safe transaction'
     );
 
@@ -319,14 +321,14 @@ contract TransactionalVoteManager {
       uint256 gasUsed = gasleft();
       // If the gasPrice is 0 we assume that nearly all available gas can be used (it is always more than safeTxGas)
       // We only substract 2500 (compared to the 3000 before) to ensure that the amount passed is still higher than safeTxGas
-      success = execute(
+      success = _execute(
         _to,
         _value,
         _data,
         _operation,
-        gasPrice == 0 ? (gasleft() - 2500) : _safeTxGas
+        _gasPrice == 0 ? (gasleft() - 2500) : _safeTxGas
       );
-      gasUsed = gasUsed.sub(gasleft());
+      gasUsed = SafeMath.sub(gasUsed, gasleft());
 
       // We transfer the calculated tx costs to the tx.origin to avoid sending it to intermediate contracts that have made calls
       uint256 payment = 0;
@@ -349,17 +351,20 @@ contract TransactionalVoteManager {
     address _gasToken,
     address payable _refundReceiver
   ) private returns (uint256 payment) {
-    address payable receiver = _refundReceiver == address(0) ? _gasPrice : tx.gasprice;
+    address payable receiver = _refundReceiver == address(0) ? tx.origin : _refundReceiver;
 
     if (_gasToken == address(0)) {
       // For ETH we will only adjust the gas price to not be higher than the actual used gas price
-      payment = _gasUsed.add(_baseGas).mul(_gasPrice < tx.gasprice ? _gasPrice : tx.gasprice);
+      payment = SafeMath.mul(
+        SafeMath.add(_gasUsed, _baseGas),
+        _gasPrice < tx.gasprice ? _gasPrice : tx.gasprice
+      );
 
-      require(receiver.send(payment, 'Elastic DAO: Could not pay gas costs with token'));
+      require(receiver.send(payment), 'Elastic DAO: Could not pay gas costs with token');
     } else {
-      payment = _gasUsed.add(_baseGas).mul(_gasPrice);
+      payment = SafeMath.mul(SafeMath.add(_gasUsed, _baseGas), _gasPrice);
 
-      require(transferToken(_gasToken, receiver, payment));
+      require(_transferToken(_gasToken, receiver, payment));
     }
   }
 
@@ -393,7 +398,69 @@ contract TransactionalVoteManager {
     return abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparator, safeTxHash);
   }
 
-  // Private
+  function _execute(
+    address _to,
+    uint256 _value,
+    bytes memory _data,
+    Operation _operation,
+    uint256 _txGas
+  ) internal returns (bool success) {
+    if (_operation == Operation.Call) success = _executeCall(_to, _value, _data, _txGas);
+    else if (_operation == Operation.DelegateCall)
+      success = _executeDelegateCall(_to, _data, _txGas);
+    else success = false;
+  }
+
+  function _executeCall(
+    address to,
+    uint256 value,
+    bytes memory data,
+    uint256 txGas
+  ) internal returns (bool success) {
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      success := call(txGas, to, value, add(data, 0x20), mload(data), 0, 0)
+    }
+  }
+
+  function _executeDelegateCall(
+    address to,
+    bytes memory data,
+    uint256 txGas
+  ) internal returns (bool success) {
+    // solium-disable-next-line security/no-inline-assembly
+    assembly {
+      success := delegatecall(txGas, to, add(data, 0x20), mload(data), 0, 0)
+    }
+  }
+
+  /// @dev Transfers a token and returns if it was a success
+  /// @param token Token that should be transferred
+  /// @param receiver Receiver to whom the token should be transferred
+  /// @param amount The amount of tokens that should be transferred
+  function _transferToken(
+    address token,
+    address receiver,
+    uint256 amount
+  ) internal returns (bool transferred) {
+    bytes memory data = abi.encodeWithSignature('transfer(address,uint256)', receiver, amount);
+    assembly {
+      let success := call(sub(gas(), 10000), token, 0, add(data, 0x20), mload(data), 0, 0)
+      let ptr := mload(0x40)
+      mstore(0x40, add(ptr, returndatasize()))
+      returndatacopy(ptr, 0, returndatasize())
+      switch returndatasize()
+        case 0 {
+          transferred := success
+        }
+        case 0x20 {
+          transferred := iszero(or(iszero(success), iszero(mload(ptr))))
+        }
+        default {
+          transferred := 0
+        }
+    }
+  }
 
   function _getBallot(uint256 _index, address _voter)
     internal
