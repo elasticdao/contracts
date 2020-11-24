@@ -8,20 +8,9 @@ const ONE = ethers.BigNumber.from('1000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
-// const daoAbi = [
-//   "function getDAO() public view returns (DAO.Instance memory)",
-// ];
-
-// const erc20 = [
-//   "function decimals() view returns (uint256)",
-//   "function name() view returns (string)",
-//   "function symbol() view returns (string)",
-// ];
-
 describe('ElasticDAO: Factory', () => {
   let agent;
   let Ecosystem;
-  let elasticDAOFactory;
   let ElasticDAOFactory;
   let summoner;
   let summoner1;
@@ -44,8 +33,8 @@ describe('ElasticDAO: Factory', () => {
     ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
   });
 
-  it('Should allow a DAO to be deployed using the factory', async () => {
-    elasticDAOFactory = new ethers.Contract(
+  it.skip('Should allow a DAO to be deployed using the factory', async () => {
+    const elasticDAOFactory = new ethers.Contract(
       ElasticDAOFactory.address,
       ElasticDAOFactory.abi,
       agent,

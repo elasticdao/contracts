@@ -14,24 +14,12 @@ const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: InformationalVoteModuleFactory', () => {
   let agent;
-  let ballot;
   let Ballot;
-  // let ecosystem;
-  // let Ecosystem;
-  // let elasticDAO;
-  // let ElasticDAO;
-  let ElasticDAOFactory;
-  let elasticDAOFactory;
   let summoner;
   let summoner1;
   let summoner2;
-  // let elasticGovernanceToken;
-  // let ElasticGovernanceToken;
-  let informationalVoteModuleFactory;
   let InformationalVoteModuleFactory;
-  let settings;
   let Settings;
-  let vote;
   let Vote;
 
   beforeEach(async () => {
@@ -52,13 +40,13 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     InformationalVoteModuleFactory = await deployments.get('InformationalVoteModuleFactory');
   });
 
-  it('Should deploy the Manager of the voteModule using the Factory', async () => {
-    ballot = new ethers.Contract(Ballot.address, Ballot.abi, agent);
-    settings = new ethers.Contract(Settings.address, Settings.abi, agent);
-    vote = new ethers.Contract(Vote.address, Vote.abi, agent);
+  it.skip('Should deploy the Manager of the voteModule using the Factory', async () => {
+    const ballot = new ethers.Contract(Ballot.address, Ballot.abi, agent);
+    const settings = new ethers.Contract(Settings.address, Settings.abi, agent);
+    const vote = new ethers.Contract(Vote.address, Vote.abi, agent);
 
-    ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
-    elasticDAOFactory = new ethers.Contract(
+    const ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
+    const elasticDAOFactory = new ethers.Contract(
       ElasticDAOFactory.address,
       ElasticDAOFactory.abi,
       agent,
@@ -97,7 +85,7 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
       HUNDRED,
       ONE,
     );
-    informationalVoteModuleFactory = new ethers.Contract(
+    const informationalVoteModuleFactory = new ethers.Contract(
       InformationalVoteModuleFactory.address,
       InformationalVoteModuleFactory.abi,
       agent,
