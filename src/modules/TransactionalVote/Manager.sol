@@ -257,10 +257,6 @@ contract TransactionalVoteManager {
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
   }
 
-  function getSettings() external view returns (TransactionalVoteSettings.Instance memory) {
-    return _getSettings();
-  }
-
   /**
    * @dev executes arbitrary transaction when safe abi function signature is passed into data. Based on Gnosis Safe.
    * @param _to - Destination address of Safe transaction.
@@ -273,10 +269,36 @@ contract TransactionalVoteManager {
    * @param _refundReceiver - Address of receiver of gas payment (or 0 if tx.origin).
    * @return success bool
    */
-  // TODO: SHOULD BE LOCKED DOWN TO ONLY VOTE MODULES
+  function execute(
+    address _to,
+    uint256 _value,
+    bytes calldata _data,
+    Operation _operation,
+    uint256 _safeTxGas,
+    uint256 _baseGas,
+    uint256 _gasPrice,
+    address _gasToken,
+    address payable _refundReceiver
+  ) external returns (bool success) {
+    return
+      _executeTransaction(
+        _to,
+        _value,
+        _data,
+        _operation,
+        _safeTxGas,
+        _baseGas,
+        _gasPrice,
+        _gasToken,
+        _refundReceiver
+      );
+  }
+
+  function getSettings() external view returns (TransactionalVoteSettings.Instance memory) {
+    return _getSettings();
+  }
 
   // Private
-
   function _executeTransaction(
     address _to,
     uint256 _value,
@@ -289,6 +311,7 @@ contract TransactionalVoteManager {
     address payable _refundReceiver
   ) internal returns (bool success) {
     bytes32 txHash;
+
     // use scope to limit variable lifetime and prevent `stack to deep` errors
     {
       bytes memory txHashData = _encodeTransactionData(
