@@ -167,7 +167,9 @@ contract TransactionalVoteManager {
       'ElasticDAO: Transaction must either transfer value or call another contract function'
     );
     if (keccak256(abi.encodePacked(_data)) == keccak256(abi.encodePacked(zero))) {
-      revert('ElasticDAO: Transaction must either transfer value or call another contract function');
+      revert(
+        'ElasticDAO: Transaction must either transfer value or call another contract function'
+      );
     }
 
     TransactionalVote voteContract = TransactionalVote(voteModelAddress);
@@ -283,18 +285,30 @@ contract TransactionalVoteManager {
   ) external returns (bool success) {
     TransactionalVote.Instance memory vote = _getVote(_index);
 
-    return
-      _executeTransaction(
-        vote.to,
-        vote.value,
-        vote.data,
-        vote.operation,
-        vote.safeTxGas,
-        vote.baseGas,
-        _gasPrice,
-        _gasToken,
-        vaultAddress
-      );
+    require(!vote.isExecuted, 'ElasticDAO: Vote has already been executed');
+    require(vote.isApproved, 'ElasticDAO: Can not call unless vote is successful');
+
+    vote.isExecuted = true;
+    TransactionalVote voteContract = TransactionalVote(voteModelAddress);
+    voteContract.serialize(vote);
+
+    success = _executeTransaction(
+      vote.to,
+      vote.value,
+      vote.data,
+      vote.operation,
+      vote.safeTxGas,
+      vote.baseGas,
+      _gasPrice,
+      _gasToken,
+      vaultAddress
+    );
+
+    if (!success) {
+      revert('ElasticDAO: Transaction Failed');
+    }
+
+    return true;
   }
 
   function getSettings() external view returns (TransactionalVoteSettings.Instance memory) {
@@ -347,7 +361,7 @@ contract TransactionalVoteManager {
       uint256 gasUsed = gasleft();
       // If the gasPrice is 0 we assume that nearly all available gas can be used (it is always more than safeTxGas)
       // We only substract 2500 (compared to the 3000 before) to ensure that the amount passed is still higher than safeTxGas
-      success = _execute(
+      success = _handleCall(
         _to,
         _value,
         _data,
@@ -424,7 +438,7 @@ contract TransactionalVoteManager {
     return abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparator, safeTxHash);
   }
 
-  function _execute(
+  function _handleCall(
     address _to,
     uint256 _value,
     bytes memory _data,
