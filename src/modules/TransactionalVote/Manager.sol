@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 import './models/Ballot.sol';
 import './models/Settings.sol';
 import './models/Vote.sol';
+import './Operation.sol';
 
 import '../../interfaces/IElasticToken.sol';
 import '../../libraries/ElasticMath.sol';
@@ -28,10 +29,9 @@ contract TransactionalVoteManager {
   event ExecutionFailure(bytes32 txHash, uint256 payment);
   event ExecutionSuccess(bytes32 txHash, uint256 payment);
 
-  enum Operation { Call, DelegateCall }
-
   address public ballotModelAddress;
   address public settingsModelAddress;
+  address payable public vaultAddress;
   address public voteModelAddress;
   bool public initialized;
   uint256 public nonce;
@@ -40,11 +40,13 @@ contract TransactionalVoteManager {
   constructor(
     address _ballotModelAddress,
     address _settingsModelAddress,
+    address payable _vaultAddress,
     address _voteModelAddress
   ) {
     ballotModelAddress = _ballotModelAddress;
     initialized = false;
     settingsModelAddress = _settingsModelAddress;
+    vaultAddress = _vaultAddress;
     voteModelAddress = _voteModelAddress;
   }
 
@@ -139,18 +141,15 @@ contract TransactionalVoteManager {
     }
   }
 
-  /**
-   * @dev Creates the vote
-   * @param _proposal - the vote proposal
-   * @param _endOnBlock - the block on which the vote ends
-   *
-   * The vote manager should be initialized prior to creating the vote
-   * The vote creator must have the minimum number of votes required to create a vote
-   * The vote duration cannot be lesser than the minimum duration of a vote
-   *
-   * @return uint256 - the TransactionalVote ID
-   */
-  function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
+  function createVote(
+    address _to,
+    uint256 _value,
+    bytes memory _data,
+    Operation _operation,
+    uint256 _safeTxGas,
+    uint256 _baseGas,
+    uint256 _endOnBlock
+  ) external returns (uint256) {
     require(initialized, 'ElasticDAO: TransactionalVote Manager not initialized');
     TransactionalVoteSettings.Instance memory settings = _getSettings();
     IElasticToken tokenContract = IElasticToken(settings.votingToken);
@@ -162,27 +161,40 @@ contract TransactionalVoteManager {
       SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
       'ElasticDAO: TransactionalVote period too short'
     );
+    bytes memory zero;
+    require(
+      _value > 0,
+      'ElasticDAO: Transaction must either transfer value or call another contract function'
+    );
+    if (keccak256(abi.encodePacked(_data)) == keccak256(abi.encodePacked(zero))) {
+      revert('ElasticDAO: Transaction must either transfer value or call another contract function');
+    }
 
     TransactionalVote voteContract = TransactionalVote(voteModelAddress);
     TransactionalVote.Instance memory vote;
     vote.uuid = address(this);
-    vote.author = msg.sender;
-    vote.hasPenalty = settings.hasPenalty;
-    vote.hasReachedQuorum = false;
-    vote.isActive = true;
-    vote.isApproved = false;
-    vote.proposal = _proposal;
     vote.abstainLambda = 0;
     vote.approval = 0;
+    vote.author = msg.sender;
+    vote.baseGas = _baseGas;
+    vote.data = _data;
     vote.endOnBlock = _endOnBlock;
+    vote.hasPenalty = settings.hasPenalty;
+    vote.hasReachedQuorum = false;
     vote.index = settings.counter;
+    vote.isActive = true;
+    vote.isApproved = false;
     vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
     vote.minBlocksForPenalty = settings.minBlocksForPenalty;
     vote.noLambda = 0;
+    vote.operation = _operation;
     vote.penalty = settings.penalty;
     vote.quorum = settings.quorum;
     vote.reward = settings.reward;
+    vote.safeTxGas = _safeTxGas;
     vote.startOnBlock = block.number;
+    vote.to = _to;
+    vote.value = _value;
     vote.votingToken = settings.votingToken;
     vote.yesLambda = 0;
     voteContract.serialize(vote);
@@ -259,38 +271,29 @@ contract TransactionalVoteManager {
 
   /**
    * @dev executes arbitrary transaction when safe abi function signature is passed into data. Based on Gnosis Safe.
-   * @param _to - Destination address of Safe transaction.
-   * @param _value - Ether value of Safe transaction.
-   * @param _data - Data payload of Safe transaction.
-   * @param _safeTxGas - Gas that should be used for the Safe transaction.
-   * @param _baseGas - Gas costs for that are indipendent of the transaction execution(e.g. base transaction fee, signature check, payment of the refund)
    * @param _gasPrice - Gas price that should be used for the payment calculation.
    * @param _gasToken - Token address (or 0 if ETH) that is used for the payment.
-   * @param _refundReceiver - Address of receiver of gas payment (or 0 if tx.origin).
+   * @param _index - the vote index id.
    * @return success bool
    */
   function execute(
-    address _to,
-    uint256 _value,
-    bytes calldata _data,
-    Operation _operation,
-    uint256 _safeTxGas,
-    uint256 _baseGas,
-    uint256 _gasPrice,
     address _gasToken,
-    address payable _refundReceiver
+    uint256 _gasPrice,
+    uint256 _index
   ) external returns (bool success) {
+    TransactionalVote.Instance memory vote = _getVote(_index);
+
     return
       _executeTransaction(
-        _to,
-        _value,
-        _data,
-        _operation,
-        _safeTxGas,
-        _baseGas,
+        vote.to,
+        vote.value,
+        vote.data,
+        vote.operation,
+        vote.safeTxGas,
+        vote.baseGas,
         _gasPrice,
         _gasToken,
-        _refundReceiver
+        vaultAddress
       );
   }
 
@@ -302,7 +305,7 @@ contract TransactionalVoteManager {
   function _executeTransaction(
     address _to,
     uint256 _value,
-    bytes calldata _data,
+    bytes memory _data,
     Operation _operation,
     uint256 _safeTxGas,
     uint256 _baseGas,
@@ -394,7 +397,7 @@ contract TransactionalVoteManager {
   function _encodeTransactionData(
     address _to,
     uint256 _value,
-    bytes calldata _data,
+    bytes memory _data,
     Operation _operation,
     uint256 _safeTxGas,
     uint256 _baseGas,

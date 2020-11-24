@@ -2,6 +2,8 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import '../Operation.sol';
+
 import '../../../models/EternalModel.sol';
 import '../../../libraries/SafeMath.sol';
 
@@ -11,17 +13,22 @@ import '../../../libraries/SafeMath.sol';
 // Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
 contract TransactionalVote is EternalModel {
+  mapping(bytes32 => Operation) operations;
+
   struct Instance {
     address uuid;
     address author;
+    address to;
     address votingToken;
     bool hasPenalty;
     bool hasReachedQuorum;
     bool isActive;
     bool isApproved;
+    bytes data;
     string proposal;
     uint256 abstainLambda;
     uint256 approval;
+    uint256 baseGas;
     uint256 endOnBlock;
     uint256 index;
     uint256 maxSharesPerTokenHolder;
@@ -33,8 +40,11 @@ contract TransactionalVote is EternalModel {
     uint256 quorum;
     uint256 quorumLambda;
     uint256 reward;
+    uint256 safeTxGas;
     uint256 startOnBlock;
+    uint256 value;
     uint256 yesLambda;
+    Operation operation;
   }
 
   /**

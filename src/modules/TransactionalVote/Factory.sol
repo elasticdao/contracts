@@ -12,6 +12,7 @@ contract TransactionalVoteFactory {
     address _ballotModelAddress,
     address payable _elasticDAOAddress,
     address _settingsModelAddress,
+    address payable _vaultAddress,
     address _voteModelAddress,
     address _votingToken,
     bool _hasPenalty,
@@ -21,6 +22,7 @@ contract TransactionalVoteFactory {
     TransactionalVoteManager manager = new TransactionalVoteManager(
       _ballotModelAddress,
       _settingsModelAddress,
+      _vaultAddress,
       _voteModelAddress
     );
 
