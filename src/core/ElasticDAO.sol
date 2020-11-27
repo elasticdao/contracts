@@ -11,6 +11,7 @@ import '../models/Token.sol';
 
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
+import 'hardhat/console.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -66,7 +67,7 @@ contract ElasticDAO {
   function initializeToken(
     string memory _name,
     string memory _symbol,
-    uint256 _capitalDelta,
+    uint256 _eByl,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
@@ -77,13 +78,12 @@ contract ElasticDAO {
     Token.Instance memory token = Configurator(ecosystem.configuratorAddress).buildToken(
       _name,
       _symbol,
-      _capitalDelta,
+      _eByl,
       _elasticity,
       _k,
       _maxLambdaPurchase,
       ecosystem
     );
-
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
@@ -105,9 +105,18 @@ contract ElasticDAO {
       'ElasticDAO: Cannot purchase that many shares at once'
     );
 
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
+    uint256 capitalDelta = ElasticMath.capitalDelta(
+      // at this stage address(this).balance has the eth present in it(before function join),
+      // along with msg.value
+      // hence msg.value is subtracted from capitalDelta because capitalDelta is calculated
+      // with the eth present in the contract prior to recieving msg.value
+      address(this).balance - msg.value,
+      tokenContract.totalSupply()
+    );
     uint256 deltaE = ElasticMath.deltaE(
       _deltaLambda,
-      token.capitalDelta,
+      capitalDelta,
       token.k,
       token.elasticity,
       token.lambda,
@@ -116,8 +125,18 @@ contract ElasticDAO {
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
-    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-    ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
+    // mdash
+    uint256 lambdaDash = SafeMath.add(_deltaLambda, token.lambda);
+    uint256 mDash = ElasticMath.mDash(lambdaDash, token.lambda, token.m);
+
+    // serialize the token
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    Token tokenStorage = Token(ecosystem.tokenModelAddress);
+    token.m = mDash;
+    tokenStorage.serialize(token);
+
+    // tokencontract mint shares
+    tokenContract.mintShares(msg.sender, _deltaLambda);
   }
 
   // Summoning
@@ -132,10 +151,9 @@ contract ElasticDAO {
     Token.Instance memory token = _getToken();
 
     uint256 deltaE = msg.value;
-    uint256 deltaLambda = ElasticMath.wdiv(ElasticMath.wdiv(deltaE, token.capitalDelta), token.k);
+    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByl);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
-
-    ElasticGovernanceToken(token.uuid).mint(msg.sender, deltaT);
+    ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
   }
 
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
@@ -150,12 +168,9 @@ contract ElasticDAO {
     );
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
-    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
-
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
-      tokenContract.mint(daoContract.getSummoner(dao, i), deltaT);
+      tokenContract.mintShares(daoContract.getSummoner(dao, i), _deltaLambda);
     }
-
     dao.summoned = true;
     daoContract.serialize(dao);
   }
@@ -186,4 +201,8 @@ contract ElasticDAO {
     return
       Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
   }
+
+  receive() external payable {}
+
+  fallback() external payable {}
 }

@@ -5,9 +5,10 @@ const { deployments } = require('hardhat');
 const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
 
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
-const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
+const ONE_THOUSAND_ONE_HUNDRED = ethers.BigNumber.from('1100000000000000000000');
 const TEN = ethers.BigNumber.from('10000000000000000000');
+const THOUSAND = ethers.BigNumber.from('1000000000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: Core', () => {
@@ -131,13 +132,15 @@ describe('ElasticDAO: Core', () => {
     const balance = await hre.provider.getBalance(ElasticDAO.address);
     expect(balance).to.equal(ethers.constants.WeiPerEther);
     /// signers token balance is correct
-    expect(await tokenContract.balanceOf(summoner.address)).to.equal(TEN);
+
+    expect(await tokenContract.balanceOfInShares(summoner.address)).to.equal(TEN);
+    expect(await tokenContract.balanceOf(summoner.address)).to.equal(THOUSAND);
     /// get balance at block
     await hre.provider.send('evm_mine');
     const blockNumber = await hre.provider.getBlockNumber();
     await tokenContract.balanceOfAt(summoner.address, blockNumber);
 
-    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(TEN);
+    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(THOUSAND);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {
@@ -220,7 +223,8 @@ describe('ElasticDAO: Core', () => {
     const summoner0balance = await tokenContract.balanceOf(summoner.address);
     const summoner1balance = await tokenContract.balanceOf(summoner1.address);
     const summoner2balance = await tokenContract.balanceOf(summoner2.address);
-    expect(summoner0balance).to.equal(ONE_HUNDRED_TEN);
+
+    expect(summoner0balance).to.equal(ONE_THOUSAND_ONE_HUNDRED);
     expect(summoner1balance).to.equal(ONE_HUNDRED);
     expect(summoner2balance).to.equal(ONE_HUNDRED);
   });

@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import '../../core/ElasticDAO.sol';
 import './Manager.sol';
 
-contract InformationalVoteFactory {
+contract InformationalVoteModuleFactory {
   event ManagerDeployed(address indexed managerAddress);
 
   function deployManager(
@@ -16,7 +16,7 @@ contract InformationalVoteFactory {
     address _votingToken,
     bool _hasPenalty,
     uint256[10] memory _settings
-  ) external {
+  ) public {
     // creates the manager of the informationalVote Module
     InformationalVoteManager manager = new InformationalVoteManager(
       _ballotModelAddress,
@@ -28,7 +28,7 @@ contract InformationalVoteFactory {
     manager.initialize(_votingToken, _hasPenalty, _settings);
 
     // register the module in ElasticDAO
-    ElasticDAO elasticDAO = ElasticDAO(_elasticDAOAddress);
+    ElasticDAO elasticDAO = ElasticDAO(payable(_elasticDAOAddress));
     elasticDAO.initializeModule(address(manager), 'InformationalVoteModule');
 
     emit ManagerDeployed(address(manager));

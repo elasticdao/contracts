@@ -8,10 +8,18 @@ import './SafeMath.sol';
  */
 
 library ElasticMath {
+  function capitalDelta(uint256 totalEthValue, uint256 totalSupplyOfTokens)
+    internal
+    pure
+    returns (uint256)
+  {
+    return (wdiv(totalEthValue, totalSupplyOfTokens));
+  }
+
   /**
    * @dev calculates the value of deltaE
    * @param deltaLambda = lambdaDash - lambda
-   * @param capitalDelta is the Eth/Egt ratio
+   * @param capitalDeltaValue is the Eth/Egt ratio
    * @param k is a constant, initially set by the DAO
    * @param elasticity is the value of elasticity, initially set by the DAO
    * @param lambda = Current outstanding shares
@@ -23,7 +31,7 @@ library ElasticMath {
    */
   function deltaE(
     uint256 deltaLambda,
-    uint256 capitalDelta,
+    uint256 capitalDeltaValue,
     uint256 k,
     uint256 elasticity,
     uint256 lambda,
@@ -31,7 +39,7 @@ library ElasticMath {
   ) internal pure returns (uint256 deltaEValue) {
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
     deltaEValue = wmul(
-      wmul(capitalDelta, k),
+      wmul(capitalDeltaValue, k),
       SafeMath.sub(
         wmul(lambdaDash, wmul(mDash(lambdaDash, lambda, m), revamp(elasticity))),
         wmul(lambda, m)

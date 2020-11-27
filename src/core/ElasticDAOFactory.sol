@@ -27,11 +27,11 @@ contract ElasticDAOFactory {
     uint256 _numberOfSummoners,
     string memory _nameOfToken,
     string memory _symbol,
-    uint256 _capitalDelta,
+    uint256 _eByl,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) public payable returns (ElasticDAO Instance) {
+  ) public payable {
     // create the DAO
     ElasticDAO elasticDAO = new ElasticDAO(
       ecosystemModelAddress,
@@ -41,14 +41,7 @@ contract ElasticDAOFactory {
     );
 
     // initialize the token
-    elasticDAO.initializeToken(
-      _nameOfToken,
-      _symbol,
-      _capitalDelta,
-      _elasticity,
-      _k,
-      _maxLambdaPurchase
-    );
+    elasticDAO.initializeToken(_nameOfToken, _symbol, _eByl, _elasticity, _k, _maxLambdaPurchase);
 
     deployedDAOAddresses.push(address(elasticDAO));
     emit DAODeployed(address(elasticDAO));

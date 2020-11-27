@@ -72,7 +72,7 @@ contract Configurator {
    * @dev creates a governance token and it's storage
    * @param _name - the name of the token
    * @param _name - the symbol of the token
-   * @param _capitalDelta is the Eth/Egt ratio
+   * @param _eByl is the initial Eth/Egt ratio before the DAO has been summoned
    * @param _elasticity is the value of elasticity, initially set by the DAO
    * @param _k is a constant, initially set by the DAO
    * @param _maxLambdaPurchase - the maximum amount of lambda(shares) that can be
@@ -84,15 +84,15 @@ contract Configurator {
   function buildToken(
     string memory _name,
     string memory _symbol,
-    uint256 _capitalDelta,
+    uint256 _eByl,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase,
     Ecosystem.Instance memory _ecosystem
   ) external returns (Token.Instance memory token) {
     Token tokenStorage = Token(_ecosystem.tokenModelAddress);
+    token.eByl = _eByl;
     token.ecosystem = _ecosystem;
-    token.capitalDelta = _capitalDelta;
     token.elasticity = _elasticity;
     token.k = _k;
     token.lambda = 0;
