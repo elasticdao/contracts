@@ -6,6 +6,7 @@ const { deployments } = require('hardhat');
 const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
 
 const ONE = ethers.BigNumber.from('1000000000000000000');
+const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
@@ -70,7 +71,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await elasticDAO.summon(ONE_TENTH);
   });
 
-  it('Should return a mismatch in the values of capital delta', async () => {
+  it.skip('Should return a mismatch in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
