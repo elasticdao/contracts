@@ -5,7 +5,6 @@ const { deployments } = require('hardhat');
 const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
 
 const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
-const ONE_HUNDRED_TEN = ethers.BigNumber.from('110000000000000000000');
 const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
 const ONE_THOUSAND_ONE_HUNDRED = ethers.BigNumber.from('1100000000000000000000');
 const TEN = ethers.BigNumber.from('10000000000000000000');
