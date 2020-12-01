@@ -11,7 +11,7 @@
     "console": "npx hardhat console",
     "coverage": "npx hardhat coverage --network coverage --solcoverjs ./.solcover.js",
     "deploy": "npx hardhat deploy",
-    "ethereum": "npx hardhat node",
+    "ethereum": "yarn lint && npx hardhat node",
     "lint": "yarn run prettier && yarn run lint:es6 && yarn run lint:solidity && yarn run lint:tests",
     "lint:es6": "npx eslint ./*.js deploy/*.js deploy/**/*.js",
     "lint:solidity": "npx solhint src/**/*.sol",
@@ -19,7 +19,7 @@
     "prerelease": "yarn lint",
     "prettier": "yarn run prettier:es6 && yarn run prettier:solidity && yarn run prettier:tests",
     "prettier:es6": "prettier --write ./*.js --write deploy/*.js --write deploy/**/*.js",
-    "prettier:solidity": "prettier --write src/**/*.sol",
+    "prettier:solidity": "prettier --write src/**/*.sol --write src/**/**/*.sol --write src/**/**/**/*.sol",
     "prettier:tests": "prettier --write test/**/*.js test/*.js",
     "test": "npx hardhat test"
   },

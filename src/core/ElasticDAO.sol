@@ -15,7 +15,8 @@ import 'hardhat/console.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
-  address deployer;
+  address internal deployer;
+  address[] public summoners;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
 
@@ -58,6 +59,7 @@ contract ElasticDAO {
     ecosystemModelAddress = _ecosystemModelAddress;
     deployer = msg.sender;
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
+    summoners = _summoners;
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);

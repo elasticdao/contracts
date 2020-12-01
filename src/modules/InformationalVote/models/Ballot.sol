@@ -4,6 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import '../../../models/EternalModel.sol';
 import '../../../libraries/SafeMath.sol';
+import './Settings.sol';
+import './Vote.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing information vote data
@@ -14,45 +16,44 @@ contract InformationalVoteBallot is EternalModel {
   constructor() EternalModel() {}
 
   struct Instance {
-    address uuid;
     address voter;
     bool wasPenalized;
     uint256 lambda;
-    uint256 voteId;
     uint256 yna;
+    InformationalVoteSettings.Instance settings;
+    InformationalVote.Instance vote;
   }
 
-  /**
-   * @dev deserializes Instance struct
-   * @param _uuid - address of the unique manager instance
-   * @param _voteId - the counter value of this vote
-   * @return record Instance
-   */
   function deserialize(
-    address _uuid,
-    uint256 _voteId,
-    address _voter
+    address _voter,
+    InformationalVoteSettings.Instance memory _settings,
+    InformationalVote.Instance memory _vote
   ) external view returns (Instance memory record) {
-    record.uuid = _uuid;
-    record.voteId = _voteId;
     record.voter = _voter;
+    record.settings = _settings;
+    record.vote = _vote;
 
-    if (_exists(_uuid, _voteId, _voter)) {
-      record.lambda = getUint(keccak256(abi.encode('lambda', _uuid, _voteId, _voter)));
-      record.voteId = getUint(keccak256(abi.encode('voteId', _uuid, _voteId, _voter)));
-      record.wasPenalized = getBool(keccak256(abi.encode('wasPenalized', _uuid, _voteId, _voter)));
-      record.yna = getUint(keccak256(abi.encode('yna', _uuid, _voteId, _voter)));
+    if (_exists(_voter, _settings, _vote)) {
+      record.lambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'lambda'))
+      );
+      record.wasPenalized = getBool(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'wasPenalized'))
+      );
+      record.yna = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'yna'))
+      );
     }
 
     return record;
   }
 
   function exists(
-    address _uuid,
-    uint256 _voteId,
-    address _voter
+    address _voter,
+    InformationalVoteSettings.Instance memory _settings,
+    InformationalVote.Instance memory _vote
   ) external view returns (bool recordExists) {
-    return _exists(_uuid, _voteId, _voter);
+    return _exists(_voter, _settings, _vote);
   }
 
   /**
@@ -61,27 +62,35 @@ contract InformationalVoteBallot is EternalModel {
    */
   function serialize(Instance memory record) external {
     setBool(
-      keccak256(abi.encode('wasPenalized', record.uuid, record.voteId, record.voter)),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'wasPenalized')
+      ),
       record.wasPenalized
     );
     setUint(
-      keccak256(abi.encode('lambda', record.uuid, record.voteId, record.voter)),
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'lambda')
+      ),
       record.lambda
     );
     setUint(
-      keccak256(abi.encode('voteId', record.uuid, record.voteId, record.voter)),
-      record.voteId
+      keccak256(abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'yna')),
+      record.yna
     );
-    setUint(keccak256(abi.encode('yna', record.uuid, record.voteId, record.voter)), record.yna);
 
-    setBool(keccak256(abi.encode('exists', record.uuid, record.voteId, record.voter)), true);
+    setBool(
+      keccak256(
+        abi.encode(record.settings.managerAddress, record.vote.index, record.voter, 'exists')
+      ),
+      true
+    );
   }
 
   function _exists(
-    address _uuid,
-    uint256 _voteId,
-    address _voter
+    address _voter,
+    InformationalVoteSettings.Instance memory _settings,
+    InformationalVote.Instance memory _vote
   ) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _uuid, _voteId, _voter)));
+    return getBool(keccak256(abi.encode(_settings.managerAddress, _vote.index, _voter, 'exists')));
   }
 }
