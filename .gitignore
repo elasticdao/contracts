@@ -2,7 +2,7 @@
 node_modules
 .env
 yarn-error.log
-artifacts
+artifacts/**/*.json
 
 #Buidler files
 cache

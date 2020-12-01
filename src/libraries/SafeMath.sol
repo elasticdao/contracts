@@ -181,4 +181,11 @@ library SafeMath {
       return z;
     }
   }
+
+  /**
+   * @dev Returns the largest of two numbers.
+   */
+  function max(uint256 a, uint256 b) internal pure returns (uint256) {
+    return a >= b ? a : b;
+  }
 }

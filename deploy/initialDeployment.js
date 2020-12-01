@@ -51,6 +51,7 @@ module.exports.dependencies = [
   'ElasticDAOFactory',
   'ElasticModule',
   'InformationalVote',
+  'TransactionalVote',
   'Registrator',
   'Token',
   'TokenHolder',
