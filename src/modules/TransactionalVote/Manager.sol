@@ -64,7 +64,7 @@ contract TransactionalVoteManager {
     require(initialized == false, 'ElasticDAO: Transactional Vote Manager already initialized.');
     TransactionalVoteSettings settingsContract = TransactionalVoteSettings(settingsModelAddress);
     TransactionalVoteSettings.Instance memory settings;
-    settings.uuid = address(this);
+    settings.managerAddress = address(this);
     settings.votingTokenAddress = _votingTokenAddress;
     settings.hasPenalty = _hasPenalty;
     settings.approval = _settings[0];
@@ -110,8 +110,9 @@ contract TransactionalVoteManager {
    *
    */
   function applyPenalty(uint256 _index, address[] memory _addressesToPenalize) external {
-    require(_voteExists(_index), 'ElasticDAO: Invalid vote id.');
-    TransactionalVote.Instance memory vote = _getVote(_index);
+    TransactionalVoteSettings.Instance memory settings = _getSettings();
+    require(_voteExists(_index, settings), 'ElasticDAO: Invalid vote id.');
+    TransactionalVote.Instance memory vote = _getVote(_index, settings);
     require(vote.isApproved == false, 'ElasticDAO: Cannot penalize a vote that passed.');
     require(vote.isActive == false, 'ElasticDAO: Cannot penalize an active vote.');
     require(
@@ -123,10 +124,10 @@ contract TransactionalVoteManager {
     IElasticToken tokenContract = IElasticToken(vote.votingTokenAddress);
 
     for (uint256 i = 0; i < _addressesToPenalize.length; i = SafeMath.add(i, 1)) {
-      if (ballotContract.exists(address(this), _index, _addressesToPenalize[i]) == false) {
+      if (ballotContract.exists(_addressesToPenalize[i], settings, vote) == false) {
         TransactionalVoteBallot.Instance memory ballot;
-        ballot.uuid = address(this);
-        ballot.voteId = vote.index;
+        ballot.settings = settings;
+        ballot.vote = vote;
         ballot.voter = _addressesToPenalize[i];
         ballot.wasPenalized = true;
         uint256 deltaLambda = ElasticMath.wmul(
@@ -173,7 +174,7 @@ contract TransactionalVoteManager {
 
     TransactionalVote voteContract = TransactionalVote(voteModelAddress);
     TransactionalVote.Instance memory vote;
-    vote.uuid = address(this);
+    vote.settings = settings;
     vote.abstainLambda = 0;
     vote.approval = 0;
     vote.author = msg.sender;
@@ -217,8 +218,9 @@ contract TransactionalVoteManager {
    * voter can only vote with the maximum number of shares per token holder,
    */
   function castBallot(uint256 _index, uint256 _yna) external {
-    require(_voteExists(_index), 'ElasticDAO: Invalid vote id.');
-    TransactionalVote.Instance memory vote = _getVote(_index);
+    TransactionalVoteSettings.Instance memory settings = _getSettings();
+    require(_voteExists(_index, settings), 'ElasticDAO: Invalid vote id.');
+    TransactionalVote.Instance memory vote = _getVote(_index, settings);
     require(vote.isApproved == false, 'ElasticDAO: TransactionalVote has already been approved.');
     require(vote.isActive, 'ElasticDAO: TransactionalVote is not active or has ended.');
     require(_voteNotExpired(vote), 'ElasticDAO: TransactionalVote is not active or has ended.');
@@ -258,8 +260,8 @@ contract TransactionalVoteManager {
     }
 
     TransactionalVoteBallot.Instance memory ballot;
-    ballot.uuid = address(this);
-    ballot.voteId = vote.index;
+    ballot.settings = settings;
+    ballot.vote = vote;
     ballot.voter = msg.sender;
     ballot.lambda = votingLambda;
     ballot.yna = _yna;
@@ -282,7 +284,8 @@ contract TransactionalVoteManager {
     uint256 _gasPrice,
     uint256 _index
   ) external returns (bool success) {
-    TransactionalVote.Instance memory vote = _getVote(_index);
+    TransactionalVoteSettings.Instance memory settings = _getSettings();
+    TransactionalVote.Instance memory vote = _getVote(_index, settings);
 
     require(!vote.isExecuted, 'ElasticDAO: Vote has already been executed');
     require(vote.isApproved, 'ElasticDAO: Can not call unless vote is successful');
@@ -501,24 +504,24 @@ contract TransactionalVoteManager {
     }
   }
 
-  function _getBallot(uint256 _index, address _voter)
-    internal
-    view
-    returns (TransactionalVoteBallot.Instance memory)
-  {
-    return TransactionalVoteBallot(ballotModelAddress).deserialize(address(this), _index, _voter);
-  }
-
   function _getSettings() internal view returns (TransactionalVoteSettings.Instance memory) {
     return TransactionalVoteSettings(settingsModelAddress).deserialize(address(this));
   }
 
-  function _getVote(uint256 _index) internal view returns (TransactionalVote.Instance memory) {
-    return TransactionalVote(voteModelAddress).deserialize(address(this), _index);
+  function _getVote(uint256 _index, TransactionalVoteSettings.Instance memory _settings)
+    internal
+    view
+    returns (TransactionalVote.Instance memory)
+  {
+    return TransactionalVote(voteModelAddress).deserialize(_index, _settings);
   }
 
-  function _voteExists(uint256 _index) internal view returns (bool) {
-    return TransactionalVote(voteModelAddress).exists(address(this), _index);
+  function _voteExists(uint256 _index, TransactionalVoteSettings.Instance memory _settings)
+    internal
+    view
+    returns (bool)
+  {
+    return TransactionalVote(voteModelAddress).exists(_index, _settings);
   }
 
   function _voteNotExpired(TransactionalVote.Instance memory vote) internal returns (bool) {

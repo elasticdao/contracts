@@ -81,7 +81,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
     InformationalVoteManager = await deployments.get('InformationalVoteManager');
 
     const ecosystem = await elasticDAO.getEcosystem();
-    console.log(ecosystem);
     const informationalVoteManagerContract = new ethers.Contract(
       InformationalVoteManager.address,
       InformationalVoteManager.abi,
@@ -101,7 +100,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
     ]);
     const settingsContract = new ethers.Contract(Settings.address, Settings.abi, summoner);
     const settings = await settingsContract.deserialize(InformationalVoteManager.address);
-    console.log(settings);
 
     await expect(settings.votingTokenAddress).to.be.equal(ecosystem.governanceTokenAddress);
     await expect(settings.hasPenalty).to.be.equal(false);
@@ -204,6 +202,9 @@ describe('ElasticDAO: Informational Vote Module', () => {
         ONE_TENTH, // reward
       ]);
 
+      const settingsContract = new ethers.Contract(Settings.address, Settings.abi, summoner);
+      const settings = await settingsContract.deserialize(InformationalVoteManager.address);
+
       elasticDAO.initializeModule(informationalVoteManager.address, 'informationalVoteManager');
 
       const tokenStorage = new ethers.Contract(Token.address, Token.abi, summoner);
@@ -217,11 +218,11 @@ describe('ElasticDAO: Informational Vote Module', () => {
 
       const voteStorage = new ethers.Contract(Vote.address, Vote.abi, summoner);
 
-      expect(await voteStorage.exists(informationalVoteManager.address, 0)).to.equal(true);
-      expect(await voteStorage.exists(informationalVoteManager.address, 1)).to.equal(true);
+      expect(await voteStorage.exists(0, settings)).to.equal(true);
+      expect(await voteStorage.exists(1, settings)).to.equal(true);
 
-      const voteRecord1 = await voteStorage.deserialize(informationalVoteManager.address, 0);
-      const voteRecord2 = await voteStorage.deserialize(informationalVoteManager.address, 1);
+      const voteRecord1 = await voteStorage.deserialize(0, settings);
+      const voteRecord2 = await voteStorage.deserialize(1, settings);
       expect(voteRecord1.proposal).to.equal('First vote should be created');
       expect(voteRecord2.proposal).to.equal('Second vote should be created');
     });
