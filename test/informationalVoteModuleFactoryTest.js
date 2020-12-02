@@ -29,7 +29,6 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
 
     // setup the needed contracts
     Ballot = await deployments.get('InformationalVoteBallot');
-    // Ecosystem = await deployments.get('Ecosystem');
     Settings = await deployments.get('InformationalVoteSettings');
     Vote = await deployments.get('InformationalVote');
     await deploy('InformationalVoteModuleFactory', {
@@ -40,7 +39,7 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     InformationalVoteModuleFactory = await deployments.get('InformationalVoteModuleFactory');
   });
 
-  it.skip('Should deploy the Manager of the voteModule using the Factory', async () => {
+  it('Should deploy the Manager of the voteModule using the Factory', async () => {
     const ballot = new ethers.Contract(Ballot.address, Ballot.abi, agent);
     const settings = new ethers.Contract(Settings.address, Settings.abi, agent);
     const vote = new ethers.Contract(Vote.address, Vote.abi, agent);
@@ -91,7 +90,9 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
       agent,
     );
 
+    console.log('1');
     const daoAddress = (await daoDeployedFilterPromise).address;
+    console.log('2');
     const tokenAddress = (await elasticGovernanceTokenDeployedFilterPromise).address;
 
     const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
@@ -129,5 +130,5 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     const managerAddress = (await managerDeployedFilterPromise).address;
 
     expect(managerAddress).to.not.equal(undefined);
-  }).timeout(9000000);
+  });
 });

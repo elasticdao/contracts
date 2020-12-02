@@ -71,7 +71,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
     await elasticDAO.summon(ONE_TENTH);
   });
 
-  it.skip('Should return a mismatch in the values of capital delta', async () => {
+  it('Should return a mismatch in the values of capital delta', async () => {
     const ecosystem = await elasticDAO.getEcosystem();
     // summoner is sending, but here any random address would do too
 
@@ -115,7 +115,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
 
     // send that value of deltaE to joinDAO to buy ONE_TENTH shares
     const value = deltaE.multipliedBy(10 ** 18).toFixed(0);
-    const tx = elasticDAO.join(ONE_TENTH, {
+    const tx = elasticDAO.join(TWO_HUNDREDTHS, {
       value,
     });
 

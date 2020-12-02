@@ -229,7 +229,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   });
 
   describe('Factory', () => {
-    it.skip('Should deploy the Manager of the voteModule using the Factory', async () => {
+    it('Should deploy the Manager of the voteModule using the Factory', async () => {
       const ecosystem = await elasticDAO.getEcosystem();
       const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
       const managerDeployedFilterPromise = new Promise((resolve, reject) => {

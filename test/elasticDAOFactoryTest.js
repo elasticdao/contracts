@@ -16,7 +16,7 @@ describe('ElasticDAO: Factory', () => {
   let summoner1;
   let summoner2;
 
-  beforeEach(async () => {
+  it('Should allow a DAO to be deployed using the factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { deploy } = deployments;
 
@@ -31,9 +31,6 @@ describe('ElasticDAO: Factory', () => {
     });
 
     ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
-  });
-
-  it.skip('Should allow a DAO to be deployed using the factory', async () => {
     const elasticDAOFactory = new ethers.Contract(
       ElasticDAOFactory.address,
       ElasticDAOFactory.abi,
@@ -79,5 +76,5 @@ describe('ElasticDAO: Factory', () => {
 
     expect(daoAddress).to.not.equal(undefined);
     expect(tokenAddress).to.not.equal(undefined);
-  }).timeout(60000);
+  });
 });
