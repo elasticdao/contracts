@@ -92,7 +92,9 @@ contract TransactionalVote is EternalModel {
       record.startOnBlock = getUint(keccak256(abi.encode('startOnBlock', _uuid, _index)));
       record.to = getAddress(keccak256(abi.encode('to', _uuid, _index)));
       record.value = getUint(keccak256(abi.encode('value', _uuid, _index)));
-      record.votingTokenAddress = getAddress(keccak256(abi.encode('votingTokenAddress', _uuid, _index)));
+      record.votingTokenAddress = getAddress(
+        keccak256(abi.encode('votingTokenAddress', _uuid, _index))
+      );
       record.yesLambda = getUint(keccak256(abi.encode('yesLambda', _uuid, _index)));
     }
 
@@ -110,7 +112,10 @@ contract TransactionalVote is EternalModel {
   function serialize(Instance memory record) external {
     setAddress(keccak256(abi.encode('author', record.uuid, record.index)), record.author);
     setAddress(keccak256(abi.encode('to', record.uuid, record.index)), record.to);
-    setAddress(keccak256(abi.encode('votingTokenAddress', record.uuid, record.index)), record.votingTokenAddress);
+    setAddress(
+      keccak256(abi.encode('votingTokenAddress', record.uuid, record.index)),
+      record.votingTokenAddress
+    );
     setBool(keccak256(abi.encode('hasPenalty', record.uuid, record.index)), record.hasPenalty);
     setBool(
       keccak256(abi.encode('hasReachedQuorum', record.uuid, record.index)),
