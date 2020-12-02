@@ -141,70 +141,6 @@ contract TransactionalVoteManager {
     }
   }
 
-  function createVote(
-    address _to,
-    uint256 _value,
-    bytes memory _data,
-    Operation _operation,
-    uint256 _safeTxGas,
-    uint256 _baseGas,
-    uint256 _endOnBlock
-  ) external returns (uint256) {
-    require(initialized, 'ElasticDAO: TransactionalVote Manager not initialized');
-    TransactionalVoteSettings.Instance memory settings = _getSettings();
-    IElasticToken tokenContract = IElasticToken(settings.votingTokenAddress);
-    require(
-      tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
-      'ElasticDAO: Not enough shares to create vote'
-    );
-    require(
-      SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
-      'ElasticDAO: TransactionalVote period too short'
-    );
-    bytes memory zero;
-    require(
-      _value > 0,
-      'ElasticDAO: Transaction must either transfer value or call another contract function'
-    );
-    if (keccak256(abi.encodePacked(_data)) == keccak256(abi.encodePacked(zero))) {
-      revert(
-        'ElasticDAO: Transaction must either transfer value or call another contract function'
-      );
-    }
-
-    TransactionalVote voteContract = TransactionalVote(voteModelAddress);
-    TransactionalVote.Instance memory vote;
-    vote.settings = settings;
-    vote.abstainLambda = 0;
-    vote.approval = 0;
-    vote.author = msg.sender;
-    vote.baseGas = _baseGas;
-    vote.data = _data;
-    vote.endOnBlock = _endOnBlock;
-    vote.hasPenalty = settings.hasPenalty;
-    vote.hasReachedQuorum = false;
-    vote.index = settings.counter;
-    vote.isActive = true;
-    vote.isApproved = false;
-    vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
-    vote.minBlocksForPenalty = settings.minBlocksForPenalty;
-    vote.noLambda = 0;
-    vote.operation = _operation;
-    vote.penalty = settings.penalty;
-    vote.quorum = settings.quorum;
-    vote.reward = settings.reward;
-    vote.safeTxGas = _safeTxGas;
-    vote.startOnBlock = block.number;
-    vote.to = _to;
-    vote.value = _value;
-    vote.votingTokenAddress = settings.votingTokenAddress;
-    vote.yesLambda = 0;
-    voteContract.serialize(vote);
-    TransactionalVoteSettings(settingsModelAddress).incrementCounter(address(this));
-
-    emit CreateVote(vote.index);
-  }
-
   /**
    * @dev casts the vote ballot
    * @param _index - the ID of the vote
@@ -270,6 +206,70 @@ contract TransactionalVoteManager {
     TransactionalVote(voteModelAddress).serialize(vote);
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+  }
+
+  function createVote(
+    address _to,
+    uint256 _value,
+    bytes memory _data,
+    Operation _operation,
+    uint256 _safeTxGas,
+    uint256 _baseGas,
+    uint256 _endOnBlock
+  ) external returns (uint256) {
+    require(initialized, 'ElasticDAO: TransactionalVote Manager not initialized');
+    TransactionalVoteSettings.Instance memory settings = _getSettings();
+    IElasticToken tokenContract = IElasticToken(settings.votingTokenAddress);
+    require(
+      tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
+      'ElasticDAO: Not enough shares to create vote'
+    );
+    require(
+      SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
+      'ElasticDAO: TransactionalVote period too short'
+    );
+    bytes memory zero;
+    require(
+      _value > 0,
+      'ElasticDAO: Transaction must either transfer value or call another contract function'
+    );
+    if (keccak256(abi.encodePacked(_data)) == keccak256(abi.encodePacked(zero))) {
+      revert(
+        'ElasticDAO: Transaction must either transfer value or call another contract function'
+      );
+    }
+
+    TransactionalVote voteContract = TransactionalVote(voteModelAddress);
+    TransactionalVote.Instance memory vote;
+    vote.settings = settings;
+    vote.abstainLambda = 0;
+    vote.approval = 0;
+    vote.author = msg.sender;
+    vote.baseGas = _baseGas;
+    vote.data = _data;
+    vote.endOnBlock = _endOnBlock;
+    vote.hasPenalty = settings.hasPenalty;
+    vote.hasReachedQuorum = false;
+    vote.index = settings.counter;
+    vote.isActive = true;
+    vote.isApproved = false;
+    vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
+    vote.minBlocksForPenalty = settings.minBlocksForPenalty;
+    vote.noLambda = 0;
+    vote.operation = _operation;
+    vote.penalty = settings.penalty;
+    vote.quorum = settings.quorum;
+    vote.reward = settings.reward;
+    vote.safeTxGas = _safeTxGas;
+    vote.startOnBlock = block.number;
+    vote.to = _to;
+    vote.value = _value;
+    vote.votingTokenAddress = settings.votingTokenAddress;
+    vote.yesLambda = 0;
+    voteContract.serialize(vote);
+    TransactionalVoteSettings(settingsModelAddress).incrementCounter(address(this));
+
+    emit CreateVote(vote.index);
   }
 
   /**
