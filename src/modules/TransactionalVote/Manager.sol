@@ -52,12 +52,12 @@ contract TransactionalVoteManager {
 
   /**
    * @dev Initializes the TransactionalVote Manager
-   * @param _votingToken - the address of the voting Token
+   * @param _votingTokenAddress - the address of the voting Token
    * @param _hasPenalty - whether the vote has a penalty or not
    * @param _settings - an array of all the vote related settings
    */
   function initialize(
-    address _votingToken,
+    address _votingTokenAddress,
     bool _hasPenalty,
     uint256[10] memory _settings
   ) external {
@@ -65,7 +65,7 @@ contract TransactionalVoteManager {
     TransactionalVoteSettings settingsContract = TransactionalVoteSettings(settingsModelAddress);
     TransactionalVoteSettings.Instance memory settings;
     settings.uuid = address(this);
-    settings.votingToken = _votingToken;
+    settings.votingTokenAddress = _votingTokenAddress;
     settings.hasPenalty = _hasPenalty;
     settings.approval = _settings[0];
     settings.counter = 0;
@@ -80,7 +80,6 @@ contract TransactionalVoteManager {
     settings.reward = _settings[9];
     domainSeparator = keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, this));
 
-    // IElasticToken(_votingToken).subscribeToShareUpdates(address(this));
     settingsContract.serialize(settings);
     initialized = true;
   }
@@ -121,7 +120,7 @@ contract TransactionalVoteManager {
     );
     require(vote.hasPenalty, 'ElasticDAO: This vote has no penalty.');
     TransactionalVoteBallot ballotContract = TransactionalVoteBallot(ballotModelAddress);
-    IElasticToken tokenContract = IElasticToken(vote.votingToken);
+    IElasticToken tokenContract = IElasticToken(vote.votingTokenAddress);
 
     for (uint256 i = 0; i < _addressesToPenalize.length; i = SafeMath.add(i, 1)) {
       if (ballotContract.exists(address(this), _index, _addressesToPenalize[i]) == false) {
@@ -152,7 +151,7 @@ contract TransactionalVoteManager {
   ) external returns (uint256) {
     require(initialized, 'ElasticDAO: TransactionalVote Manager not initialized');
     TransactionalVoteSettings.Instance memory settings = _getSettings();
-    IElasticToken tokenContract = IElasticToken(settings.votingToken);
+    IElasticToken tokenContract = IElasticToken(settings.votingTokenAddress);
     require(
       tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
       'ElasticDAO: Not enough shares to create vote'
@@ -197,7 +196,7 @@ contract TransactionalVoteManager {
     vote.startOnBlock = block.number;
     vote.to = _to;
     vote.value = _value;
-    vote.votingToken = settings.votingToken;
+    vote.votingTokenAddress = settings.votingTokenAddress;
     vote.yesLambda = 0;
     voteContract.serialize(vote);
     TransactionalVoteSettings(settingsModelAddress).incrementCounter(address(this));
@@ -224,7 +223,7 @@ contract TransactionalVoteManager {
     require(vote.isActive, 'ElasticDAO: TransactionalVote is not active or has ended.');
     require(_voteNotExpired(vote), 'ElasticDAO: TransactionalVote is not active or has ended.');
     require(_yna < 3, 'ElasticDAO: Invalid _yna value. Use 0 for yes, 1 for no, 2 for abstain.');
-    IElasticToken tokenContract = IElasticToken(vote.votingToken);
+    IElasticToken tokenContract = IElasticToken(vote.votingTokenAddress);
 
     uint256 votingLambda = tokenContract.balanceOfInShares(msg.sender);
     uint256 lambdaAtStartingBlock = tokenContract.balanceOfInSharesAt(

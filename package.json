@@ -20,8 +20,8 @@
     "prettier": "yarn run prettier:es6 && yarn run prettier:solidity && yarn run prettier:tests",
     "prettier:es6": "prettier --write ./*.js --write deploy/*.js --write deploy/**/*.js",
     "prettier:solidity": "prettier --write src/**/*.sol --write src/**/**/*.sol --write src/**/**/**/*.sol",
-    "prettier:tests": "prettier --write test/**/*.js test/*.js",
-    "test": "npx hardhat test"
+    "prettier:tests": "yarn compile && prettier --write test/**/*.js test/*.js",
+    "test": "yarn run prettier:tests && yarn run lint:tests && npx hardhat test"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

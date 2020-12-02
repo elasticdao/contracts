@@ -81,6 +81,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
     InformationalVoteManager = await deployments.get('InformationalVoteManager');
 
     const ecosystem = await elasticDAO.getEcosystem();
+    console.log(ecosystem);
     const informationalVoteManagerContract = new ethers.Contract(
       InformationalVoteManager.address,
       InformationalVoteManager.abi,
@@ -100,8 +101,9 @@ describe('ElasticDAO: Informational Vote Module', () => {
     ]);
     const settingsContract = new ethers.Contract(Settings.address, Settings.abi, summoner);
     const settings = await settingsContract.deserialize(InformationalVoteManager.address);
+    console.log(settings);
 
-    await expect(settings.votingToken).to.be.equal(ecosystem.governanceTokenAddress);
+    await expect(settings.votingTokenAddress).to.be.equal(ecosystem.governanceTokenAddress);
     await expect(settings.hasPenalty).to.be.equal(false);
 
     await expect(settings.approval).to.be.equal(THIRTY_FIVE_PERCENT);

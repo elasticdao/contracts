@@ -15,7 +15,7 @@ import 'hardhat/console.sol';
 contract TransactionalVoteSettings is EternalModel {
   struct Instance {
     address uuid;
-    address votingToken;
+    address votingTokenAddress;
     bool hasPenalty;
     uint256 approval;
     uint256 counter;
@@ -53,7 +53,7 @@ contract TransactionalVoteSettings is EternalModel {
       record.penalty = getUint(keccak256(abi.encode('penalty', _uuid)));
       record.quorum = getUint(keccak256(abi.encode('quorum', _uuid)));
       record.reward = getUint(keccak256(abi.encode('reward', _uuid)));
-      record.votingToken = getAddress(keccak256(abi.encode('votingToken', _uuid)));
+      record.votingTokenAddress = getAddress(keccak256(abi.encode('votingTokenAddress', _uuid)));
     }
 
     return record;
@@ -98,7 +98,7 @@ contract TransactionalVoteSettings is EternalModel {
     setUint(keccak256(abi.encode('penalty', record.uuid)), record.penalty);
     setUint(keccak256(abi.encode('quorum', record.uuid)), record.quorum);
     setUint(keccak256(abi.encode('reward', record.uuid)), record.reward);
-    setAddress(keccak256(abi.encode('votingToken', record.uuid)), record.votingToken);
+    setAddress(keccak256(abi.encode('votingTokenAddress', record.uuid)), record.votingTokenAddress);
 
     setBool(keccak256(abi.encode('exists', record.uuid)), true);
   }
