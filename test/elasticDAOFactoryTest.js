@@ -1,7 +1,9 @@
 const { expect } = require('chai');
+const { SDK } = require('@elastic-dao/sdk');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
+const { env } = require('./env');
 
 const HUNDRED = ethers.BigNumber.from('100000000000000000000');
 const ONE = ethers.BigNumber.from('1000000000000000000');
@@ -16,9 +18,17 @@ describe('ElasticDAO: Factory', () => {
   let summoner1;
   let summoner2;
 
-  it('Should allow a DAO to be deployed using the factory', async () => {
+  it.only('Should allow a DAO to be deployed using the factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { deploy } = deployments;
+    const provider = await hre.provider;
+    const sdk = new SDK({
+      account: agent.address,
+      contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
+      env,
+      provider,
+      signer: agent,
+    });
 
     await deployments.fixture();
 
