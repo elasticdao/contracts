@@ -95,7 +95,8 @@ describe('ElasticDAO: findByBlockNumber ', () => {
 
   it.only('intial data set, initial test', async () => {
     jsonRpcProvider = new ethers.providers.JsonRpcProvider();
-    const blockNumber = await jsonRpcProvider.eth_blockNumber();
+    const blockNumber = await jsonRpcProvider.blockNumber;
+    // const blockNumber = await ethers.eth.blockNumber;
     console.log(blockNumber);
     // create an initial data set - >  two records
     // create test using initial data set
