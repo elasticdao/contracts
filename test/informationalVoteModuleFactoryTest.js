@@ -1,7 +1,9 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
+const { SDK } = require('@elastic-dao/sdk');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
+const { env } = require('./env');
 
 const FIFTY = ethers.BigNumber.from('50000000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
@@ -14,66 +16,25 @@ const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: InformationalVoteModuleFactory', () => {
   let agent;
-  let Ballot;
   let summoner;
   let summoner1;
   let summoner2;
-  let InformationalVoteModuleFactory;
-  let Settings;
-  let Vote;
 
-  beforeEach(async () => {
+  it.only('Should deploy the Manager of the voteModule using the Factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-    const { deploy } = deployments;
+
     await deployments.fixture();
 
-    // setup the needed contracts
-    Ballot = await deployments.get('InformationalVoteBallot');
-    Settings = await deployments.get('InformationalVoteSettings');
-    Vote = await deployments.get('InformationalVote');
-    await deploy('InformationalVoteModuleFactory', {
-      from: agent.address,
-      args: [],
+    const provider = await hre.provider;
+    const sdk = new SDK({
+      account: agent.address,
+      contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
+      env,
+      provider,
+      signer: agent,
     });
 
-    InformationalVoteModuleFactory = await deployments.get('InformationalVoteModuleFactory');
-  });
-
-  it('Should deploy the Manager of the voteModule using the Factory', async () => {
-    const ballot = new ethers.Contract(Ballot.address, Ballot.abi, agent);
-    const settings = new ethers.Contract(Settings.address, Settings.abi, agent);
-    const vote = new ethers.Contract(Vote.address, Vote.abi, agent);
-
-    const ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
-    const elasticDAOFactory = new ethers.Contract(
-      ElasticDAOFactory.address,
-      ElasticDAOFactory.abi,
-      agent,
-    );
-
-    const daoDeployedFilter = { topics: [ethers.utils.id('DAODeployed(address)')] };
-    const elasticGovernanceTokenDeployedFilter = {
-      topics: [ethers.utils.id('ElasticGovernanceTokenDeployed(address)')],
-    };
-
-    const daoDeployedFilterPromise = new Promise((resolve, reject) => {
-      agent.provider.on(daoDeployedFilter, (daoAddress) => resolve(daoAddress));
-      setTimeout(() => reject(new Error('reject')), 9000000);
-    });
-    daoDeployedFilterPromise.catch((error) => {
-      console.log(error);
-    });
-
-    const elasticGovernanceTokenDeployedFilterPromise = new Promise((resolve, reject) => {
-      const handler = (tokenAddress) => resolve(tokenAddress);
-      agent.provider.on(elasticGovernanceTokenDeployedFilter, handler);
-      setTimeout(() => reject(new Error('reject')), 9000000);
-    });
-    elasticGovernanceTokenDeployedFilterPromise.catch((error) => {
-      console.log(error);
-    });
-
-    await elasticDAOFactory.deployDAOAndToken(
+    const dao = await sdk.elasticDAOFactory.deployDAOAndToken(
       [summoner.address, summoner1.address, summoner2.address],
       'Elastic DAO',
       3,
@@ -84,33 +45,35 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
       HUNDRED,
       ONE,
     );
-    const informationalVoteModuleFactory = new ethers.Contract(
-      InformationalVoteModuleFactory.address,
-      InformationalVoteModuleFactory.abi,
-      agent,
+
+    console.log('STUFF');
+    console.log(
+      env.elasticDAO.modules.informationalVote.ballotModelAddress,
+      dao.address,
+      env.elasticDAO.modules.informationalVote.settingsModelAddress,
+      env.elasticDAO.modules.informationalVote.voteModelAddress,
+      dao.ecosystem.governanceTokenAddress,
     );
 
-    console.log('1');
-    const daoAddress = (await daoDeployedFilterPromise).address;
-    console.log('2');
-    const tokenAddress = (await elasticGovernanceTokenDeployedFilterPromise).address;
+    console.log([
+      FIFTY_PERCENT, // approval
+      ONE, // maxSharesPerTokenHolder
+      FIFTY, // minBlocksForPenalty
+      TEN, // minDurationInBlocks
+      ONE_TENTH, // minPenaltyInShares
+      ONE_TENTH, // minRewardInShares
+      FIFTY_PERCENT, // minSharesToCreate
+      ONE_TENTH, // penalty
+      SIXTY_PERCENT, // quoroum
+      ONE_TENTH, // reward
+    ]);
 
-    const managerDeployedFilter = { topics: [ethers.utils.id('ManagerDeployed(address)')] };
-    const managerDeployedFilterPromise = new Promise((resolve, reject) => {
-      agent.provider.on(managerDeployedFilter, (managerAddress) => resolve(managerAddress));
-      setTimeout(() => reject(new Error('reject')), 9000000);
-    });
-
-    managerDeployedFilterPromise.catch((error) => {
-      console.log(error);
-    });
-
-    await informationalVoteModuleFactory.deployManager(
-      ballot.address,
-      daoAddress,
-      settings.address,
-      vote.address,
-      tokenAddress,
+    const ivManager = await sdk.modules.informationalVote.informationalVoteFactory.deployManager(
+      env.elasticDAO.modules.informationalVote.ballotModelAddress,
+      dao.address,
+      env.elasticDAO.modules.informationalVote.settingsModelAddress,
+      env.elasticDAO.modules.informationalVote.voteModelAddress,
+      dao.ecosystem.governanceTokenAddress,
       true,
 
       [
@@ -127,8 +90,6 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
       ],
     );
 
-    const managerAddress = (await managerDeployedFilterPromise).address;
-
-    expect(managerAddress).to.not.equal(undefined);
+    expect(ivManager.address).to.not.equal(undefined);
   });
 });

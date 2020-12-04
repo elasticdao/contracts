@@ -12,15 +12,12 @@ const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: Factory', () => {
   let agent;
-  let Ecosystem;
-  let ElasticDAOFactory;
   let summoner;
   let summoner1;
   let summoner2;
 
-  it.only('Should allow a DAO to be deployed using the factory', async () => {
+  it('Should allow a DAO to be deployed using the factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-    const { deploy } = deployments;
     const provider = await hre.provider;
     const sdk = new SDK({
       account: agent.address,
@@ -32,44 +29,7 @@ describe('ElasticDAO: Factory', () => {
 
     await deployments.fixture();
 
-    // setup needed contract
-    Ecosystem = await deployments.get('Ecosystem');
-
-    await deploy('ElasticDAOFactory', {
-      from: agent.address,
-      args: [Ecosystem.address],
-    });
-
-    ElasticDAOFactory = await deployments.get('ElasticDAOFactory');
-    const elasticDAOFactory = new ethers.Contract(
-      ElasticDAOFactory.address,
-      ElasticDAOFactory.abi,
-      agent,
-    );
-
-    const daoDeployedFilter = { topics: [ethers.utils.id('DAODeployed(address)')] };
-    const elasticGovernanceTokenDeployedFilter = {
-      topics: [ethers.utils.id('ElasticGovernanceTokenDeployed(address)')],
-    };
-
-    const daoDeployedFilterPromise = new Promise((resolve, reject) => {
-      agent.provider.on(daoDeployedFilter, (daoAddress) => resolve(daoAddress));
-      setTimeout(() => reject(new Error('reject')), 60000);
-    });
-    daoDeployedFilterPromise.catch((error) => {
-      console.log(error);
-    });
-
-    const elasticGovernanceTokenDeployedFilterPromise = new Promise((resolve, reject) => {
-      const handler = (tokenAddress) => resolve(tokenAddress);
-      agent.provider.on(elasticGovernanceTokenDeployedFilter, handler);
-      setTimeout(() => reject(new Error('reject')), 60000);
-    });
-    elasticGovernanceTokenDeployedFilterPromise.catch((error) => {
-      console.log(error);
-    });
-
-    await elasticDAOFactory.deployDAOAndToken(
+    const dao = await sdk.elasticDAOFactory.deployDAOAndToken(
       [summoner.address, summoner1.address, summoner2.address],
       'Elastic DAO',
       3,
@@ -81,10 +41,7 @@ describe('ElasticDAO: Factory', () => {
       ONE,
     );
 
-    const daoAddress = (await daoDeployedFilterPromise).address;
-    const tokenAddress = (await elasticGovernanceTokenDeployedFilterPromise).address;
-
-    expect(daoAddress).to.not.equal(undefined);
-    expect(tokenAddress).to.not.equal(undefined);
+    expect(dao.uuid).to.not.equal(undefined);
+    expect(dao.ecosystem.governanceTokenAddress).to.not.equal(undefined);
   });
 });
