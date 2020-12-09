@@ -1,9 +1,11 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
-const { SDK } = require('@elastic-dao/sdk');
+const SDK = require('@elastic-dao/sdk');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
 const { env } = require('./env');
+
+console.log('SDK', SDK);
 
 const FIFTY = ethers.BigNumber.from('50000000000000000000');
 const FIFTY_PERCENT = ethers.BigNumber.from('500000000000000000');
@@ -26,7 +28,7 @@ describe('ElasticDAO: InformationalVoteModuleFactory', () => {
     await deployments.fixture();
 
     const provider = await hre.provider;
-    const sdk = new SDK({
+    const sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
       env,
