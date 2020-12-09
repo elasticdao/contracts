@@ -121,58 +121,6 @@ contract InformationalVoteManager {
   }
 
   /**
-   * @dev Creates the vote
-   * @param _proposal - the vote proposal
-   * @param _endOnBlock - the block on which the vote ends
-   *
-   * The vote manager should be initialized prior to creating the vote
-   * The vote creator must have the minimum number of votes required to create a vote
-   * The vote duration cannot be lesser than the minimum duration of a vote
-   *
-   * @return uint256 - the InformationalVote ID
-   */
-  function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
-    require(initialized, 'ElasticDAO: InformationalVote Manager not initialized');
-    InformationalVoteSettings.Instance memory settings = _getSettings();
-    IElasticToken tokenContract = IElasticToken(settings.votingTokenAddress);
-    require(
-      tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
-      'ElasticDAO: Not enough shares to create vote'
-    );
-    require(
-      SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
-      'ElasticDAO: InformationalVote period too short'
-    );
-
-    InformationalVote voteContract = InformationalVote(voteModelAddress);
-    InformationalVote.Instance memory vote;
-    vote.settings = settings;
-    vote.author = msg.sender;
-    vote.hasPenalty = settings.hasPenalty;
-    vote.hasReachedQuorum = false;
-    vote.isActive = true;
-    vote.isApproved = false;
-    vote.proposal = _proposal;
-    vote.abstainLambda = 0;
-    vote.approval = 0;
-    vote.endOnBlock = _endOnBlock;
-    vote.index = settings.counter;
-    vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
-    vote.minBlocksForPenalty = settings.minBlocksForPenalty;
-    vote.noLambda = 0;
-    vote.penalty = settings.penalty;
-    vote.quorum = settings.quorum;
-    vote.reward = settings.reward;
-    vote.startOnBlock = block.number;
-    vote.votingTokenAddress = settings.votingTokenAddress;
-    vote.yesLambda = 0;
-    voteContract.serialize(vote);
-    InformationalVoteSettings(settingsModelAddress).incrementCounter(address(this));
-
-    emit CreateVote(vote.index);
-  }
-
-  /**
    * @dev casts the vote ballot
    * @param _index - the ID of the vote
    * @param _yna - YesNoAbstain value - 0 for Yes, 1 for No, 2 for abstain
@@ -237,6 +185,58 @@ contract InformationalVoteManager {
     InformationalVote(voteModelAddress).serialize(vote);
 
     tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+  }
+
+  /**
+   * @dev Creates the vote
+   * @param _proposal - the vote proposal
+   * @param _endOnBlock - the block on which the vote ends
+   *
+   * The vote manager should be initialized prior to creating the vote
+   * The vote creator must have the minimum number of votes required to create a vote
+   * The vote duration cannot be lesser than the minimum duration of a vote
+   *
+   * @return uint256 - the InformationalVote ID
+   */
+  function createVote(string memory _proposal, uint256 _endOnBlock) external returns (uint256) {
+    require(initialized, 'ElasticDAO: InformationalVote Manager not initialized');
+    InformationalVoteSettings.Instance memory settings = _getSettings();
+    IElasticToken tokenContract = IElasticToken(settings.votingTokenAddress);
+    require(
+      tokenContract.balanceOfInShares(msg.sender) >= settings.minSharesToCreate,
+      'ElasticDAO: Not enough shares to create vote'
+    );
+    require(
+      SafeMath.sub(_endOnBlock, block.number) >= settings.minDurationInBlocks,
+      'ElasticDAO: InformationalVote period too short'
+    );
+
+    InformationalVote voteContract = InformationalVote(voteModelAddress);
+    InformationalVote.Instance memory vote;
+    vote.settings = settings;
+    vote.author = msg.sender;
+    vote.hasPenalty = settings.hasPenalty;
+    vote.hasReachedQuorum = false;
+    vote.isActive = true;
+    vote.isApproved = false;
+    vote.proposal = _proposal;
+    vote.abstainLambda = 0;
+    vote.approval = 0;
+    vote.endOnBlock = _endOnBlock;
+    vote.index = settings.counter;
+    vote.maxSharesPerTokenHolder = settings.maxSharesPerTokenHolder;
+    vote.minBlocksForPenalty = settings.minBlocksForPenalty;
+    vote.noLambda = 0;
+    vote.penalty = settings.penalty;
+    vote.quorum = settings.quorum;
+    vote.reward = settings.reward;
+    vote.startOnBlock = block.number;
+    vote.votingTokenAddress = settings.votingTokenAddress;
+    vote.yesLambda = 0;
+    voteContract.serialize(vote);
+    InformationalVoteSettings(settingsModelAddress).incrementCounter(address(this));
+
+    emit CreateVote(vote.index);
   }
 
   function getSettings() external view returns (InformationalVoteSettings.Instance memory) {

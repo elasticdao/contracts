@@ -16,7 +16,7 @@ describe('ElasticDAO: Ecosystem Model', () => {
   let TokenHolder;
   let Token;
 
-  before(async () => {
+  beforeEach(async () => {
     [agent] = await hre.getSigners();
 
     await deployments.fixture();

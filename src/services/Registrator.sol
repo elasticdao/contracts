@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import '../models/Ecosystem.sol';
 import '../models/ElasticModule.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for registering ElasticDAO modules
@@ -16,7 +17,10 @@ contract Registrator {
   ) external {
     ElasticModule elasticModuleStorage = ElasticModule(_ecosystem.elasticModuleModelAddress);
     ElasticModule.Instance memory elasticModule;
+    console.log('#1');
+    console.log(_ecosystem.daoModelAddress);
     elasticModule.dao = DAO(_ecosystem.daoModelAddress).deserialize(msg.sender, _ecosystem);
+    console.log('#2');
     elasticModule.name = _name;
     elasticModule.uuid = _moduleAddress; // TODO: Check against TBD whitelist
     elasticModuleStorage.serialize(elasticModule);

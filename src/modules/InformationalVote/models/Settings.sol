@@ -39,32 +39,32 @@ contract InformationalVoteSettings is EternalModel {
     record.managerAddress = _managerAddress;
 
     if (_exists(_managerAddress)) {
-      record.approval = getUint(keccak256(abi.encode('approval', _managerAddress)));
-      record.counter = getUint(keccak256(abi.encode('counter', _managerAddress)));
-      record.hasPenalty = getBool(keccak256(abi.encode('hasPenalty', _managerAddress)));
+      record.approval = getUint(keccak256(abi.encode(_managerAddress, 'approval')));
+      record.counter = getUint(keccak256(abi.encode(_managerAddress, 'counter')));
+      record.hasPenalty = getBool(keccak256(abi.encode(_managerAddress, 'hasPenalty')));
       record.maxSharesPerTokenHolder = getUint(
-        keccak256(abi.encode('maxSharesPerTokenHolder', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'maxSharesPerTokenHolder'))
       );
       record.minBlocksForPenalty = getUint(
-        keccak256(abi.encode('minBlocksForPenalty', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'minBlocksForPenalty'))
       );
       record.minDurationInBlocks = getUint(
-        keccak256(abi.encode('minDurationInBlocks', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'minDurationInBlocks'))
       );
       record.minSharesToCreate = getUint(
-        keccak256(abi.encode('minSharesToCreate', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'minSharesToCreate'))
       );
       record.minPenaltyInShares = getUint(
-        keccak256(abi.encode('minPenaltyInShares', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'minPenaltyInShares'))
       );
       record.minRewardInShares = getUint(
-        keccak256(abi.encode('minRewardInShares', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'minRewardInShares'))
       );
-      record.penalty = getUint(keccak256(abi.encode('penalty', _managerAddress)));
-      record.quorum = getUint(keccak256(abi.encode('quorum', _managerAddress)));
-      record.reward = getUint(keccak256(abi.encode('reward', _managerAddress)));
+      record.penalty = getUint(keccak256(abi.encode(_managerAddress, 'penalty')));
+      record.quorum = getUint(keccak256(abi.encode(_managerAddress, 'quorum')));
+      record.reward = getUint(keccak256(abi.encode(_managerAddress, 'reward')));
       record.votingTokenAddress = getAddress(
-        keccak256(abi.encode('votingTokenAddress', _managerAddress))
+        keccak256(abi.encode(_managerAddress, 'votingTokenAddress'))
       );
     }
 
@@ -81,8 +81,8 @@ contract InformationalVoteSettings is EternalModel {
    */
   function incrementCounter(address _managerAddress) external {
     setUint(
-      keccak256(abi.encode('counter', _managerAddress)),
-      SafeMath.add(getUint(keccak256(abi.encode('counter', _managerAddress))), 1)
+      keccak256(abi.encode(_managerAddress, 'counter')),
+      SafeMath.add(getUint(keccak256(abi.encode(_managerAddress, 'counter'))), 1)
     );
   }
 
@@ -91,45 +91,45 @@ contract InformationalVoteSettings is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
-    setBool(keccak256(abi.encode('hasPenalty', record.managerAddress)), record.hasPenalty);
-    setUint(keccak256(abi.encode('approval', record.managerAddress)), record.approval);
-    setUint(keccak256(abi.encode('counter', record.managerAddress)), record.counter);
+    setBool(keccak256(abi.encode(record.managerAddress, 'hasPenalty')), record.hasPenalty);
+    setUint(keccak256(abi.encode(record.managerAddress, 'approval')), record.approval);
+    setUint(keccak256(abi.encode(record.managerAddress, 'counter')), record.counter);
     setUint(
-      keccak256(abi.encode('maxSharesPerTokenHolder', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'maxSharesPerTokenHolder')),
       record.maxSharesPerTokenHolder
     );
     setUint(
-      keccak256(abi.encode('minBlocksForPenalty', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'minBlocksForPenalty')),
       record.minBlocksForPenalty
     );
     setUint(
-      keccak256(abi.encode('minDurationInBlocks', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'minDurationInBlocks')),
       record.minDurationInBlocks
     );
     setUint(
-      keccak256(abi.encode('minPenaltyInShares', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'minPenaltyInShares')),
       record.minPenaltyInShares
     );
     setUint(
-      keccak256(abi.encode('minRewardInShares', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'minRewardInShares')),
       record.minRewardInShares
     );
     setUint(
-      keccak256(abi.encode('minSharesToCreate', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'minSharesToCreate')),
       record.minSharesToCreate
     );
-    setUint(keccak256(abi.encode('penalty', record.managerAddress)), record.penalty);
-    setUint(keccak256(abi.encode('quorum', record.managerAddress)), record.quorum);
-    setUint(keccak256(abi.encode('reward', record.managerAddress)), record.reward);
+    setUint(keccak256(abi.encode(record.managerAddress, 'penalty')), record.penalty);
+    setUint(keccak256(abi.encode(record.managerAddress, 'quorum')), record.quorum);
+    setUint(keccak256(abi.encode(record.managerAddress, 'reward')), record.reward);
     setAddress(
-      keccak256(abi.encode('votingTokenAddress', record.managerAddress)),
+      keccak256(abi.encode(record.managerAddress, 'votingTokenAddress')),
       record.votingTokenAddress
     );
 
-    setBool(keccak256(abi.encode('exists', record.managerAddress)), true);
+    setBool(keccak256(abi.encode(record.managerAddress, 'exists')), true);
   }
 
   function _exists(address _managerAddress) internal view returns (bool recordExists) {
-    return getBool(keccak256(abi.encode('exists', _managerAddress)));
+    return getBool(keccak256(abi.encode(_managerAddress, 'exists')));
   }
 }

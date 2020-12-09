@@ -60,7 +60,6 @@ contract ElasticDAOFactory {
 
   function collectFees() external {
     // TODO: NEEDS MODIFIER!!! THIS SHOULD ONLY BE UPDATEABLE BY A TRANSACTIONAL VOTE
-
     uint256 amount = address(this).balance;
 
     feeAddress.transfer(amount);
