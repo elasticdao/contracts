@@ -3,13 +3,14 @@ const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const { deployments } = require('hardhat');
 const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
-
-const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
-const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
-const ONE_THOUSAND_ONE_HUNDRED = ethers.BigNumber.from('1100000000000000000000');
-const TEN = ethers.BigNumber.from('10000000000000000000');
-const THOUSAND = ethers.BigNumber.from('1000000000000000000000');
-const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
+const {
+  ONE_HUNDRED,
+  ONE_TENTH,
+  ONE_THOUSAND_ONE_HUNDRED,
+  TEN,
+  ONE_THOUSAND,
+  TWO_HUNDREDTHS,
+} = require('./constants');
 
 describe('ElasticDAO: Core', () => {
   let agent;
@@ -134,13 +135,13 @@ describe('ElasticDAO: Core', () => {
     /// signers token balance is correct
 
     expect(await tokenContract.balanceOfInShares(summoner.address)).to.equal(TEN);
-    expect(await tokenContract.balanceOf(summoner.address)).to.equal(THOUSAND);
+    expect(await tokenContract.balanceOf(summoner.address)).to.equal(ONE_THOUSAND);
     /// get balance at block
     await hre.provider.send('evm_mine');
     const blockNumber = await hre.provider.getBlockNumber();
     await tokenContract.balanceOfAt(summoner.address, blockNumber);
 
-    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(THOUSAND);
+    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(ONE_THOUSAND);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {

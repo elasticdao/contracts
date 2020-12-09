@@ -1,14 +1,10 @@
-const BigNumber = require('bignumber.js');
+const { deployments } = require('hardhat');
 const { expect } = require('chai');
+const BigNumber = require('bignumber.js');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
-const { deployments } = require('hardhat');
+const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
 const elasticGovernanceTokenArtifact = require('../artifacts/src/tokens/ElasticGovernanceToken.sol/ElasticGovernanceToken.json');
-
-const ONE = ethers.BigNumber.from('1000000000000000000');
-const ONE_HUNDRED = ethers.BigNumber.from('100000000000000000000');
-const ONE_TENTH = ethers.BigNumber.from('100000000000000000');
-const TWO_HUNDREDTHS = ethers.BigNumber.from('20000000000000000');
 
 describe('ElasticDAO: CapitalDelta value of a token', () => {
   let agent;

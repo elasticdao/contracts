@@ -36,4 +36,4 @@ const env = {
   },
 };
 
-module.exports.env = env;
+module.exports = env;
