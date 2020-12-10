@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import '../../core/ElasticDAO.sol';
 import './Manager.sol';
-import 'hardhat/console.sol';
 
 contract InformationalVoteFactory {
   event ManagerDeployed(address indexed managerAddress);
