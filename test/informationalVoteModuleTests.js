@@ -230,7 +230,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   });
 
   describe('Factory', () => {
-    it.only('Should deploy the Manager of the voteModule using the Factory', async () => {
+    it('Should deploy the Manager of the voteModule using the Factory', async () => {
       [agent, summoner, summoner1, summoner2] = await hre.getSigners();
 
       const { provider } = hre;
