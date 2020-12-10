@@ -30,10 +30,7 @@ contract InformationalVoteFactory {
 
     // register the module in ElasticDAO
     ElasticDAO elasticDAO = ElasticDAO(_elasticDAOAddress);
-    console.log('You there margaret?');
-    console.log(address(manager));
     elasticDAO.initializeModule(address(manager), 'InformationalVoteModule');
-    console.log('#########################');
     emit ManagerDeployed(address(manager));
   }
 }

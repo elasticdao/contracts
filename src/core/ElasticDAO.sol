@@ -93,10 +93,7 @@ contract ElasticDAO {
     external
   // onlySummoners - TODO: Replace this with a permission
   {
-    console.log('### INIT MODULE ###');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    console.log('### REGISTERATOR ADDRESS ###');
-    console.log(ecosystem.registratorAddress);
     Registrator registrator = Registrator(ecosystem.registratorAddress);
     registrator.registerModule(_moduleAddress, _name, ecosystem);
   }

@@ -229,13 +229,12 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
   });
 
-  describe.skip('Factory', () => {
-    it('Should deploy the Manager of the voteModule using the Factory', async () => {
+  describe('Factory', () => {
+    it.only('Should deploy the Manager of the voteModule using the Factory', async () => {
       [agent, summoner, summoner1, summoner2] = await hre.getSigners();
 
       const { provider } = hre;
 
-      console.log('env is', env);
       const sdk = SDK({
         account: agent.address,
         contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
@@ -256,31 +255,9 @@ describe('ElasticDAO: Informational Vote Module', () => {
         ONE,
       );
 
-      console.log('STUFF');
-      console.log(
-        env.elasticDAO.modules.informationalVote.ballotModelAddress,
-        dao.address,
-        env.elasticDAO.modules.informationalVote.settingsModelAddress,
-        env.elasticDAO.modules.informationalVote.voteModelAddress,
-        dao.ecosystem.governanceTokenAddress,
-      );
-
-      console.log([
-        FIFTY_PERCENT, // approval
-        ONE, // maxSharesPerTokenHolder
-        FIFTY, // minBlocksForPenalty
-        TEN, // minDurationInBlocks
-        ONE_TENTH, // minPenaltyInShares
-        ONE_TENTH, // minRewardInShares
-        FIFTY_PERCENT, // minSharesToCreate
-        ONE_TENTH, // penalty
-        SIXTY_PERCENT, // quoroum
-        ONE_TENTH, // reward
-      ]);
-
       const ivManager = await sdk.modules.informationalVote.informationalVoteFactory.deployManager(
         env.elasticDAO.modules.informationalVote.ballotModelAddress,
-        dao.address,
+        dao.uuid,
         env.elasticDAO.modules.informationalVote.settingsModelAddress,
         env.elasticDAO.modules.informationalVote.voteModelAddress,
         dao.ecosystem.governanceTokenAddress,
@@ -299,9 +276,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
           ONE_TENTH, // reward
         ],
       );
-
-      console.log('ivMANAGER', ivManager);
-      console.log('ivMANAGER.address', ivManager.address);
 
       expect(ivManager.address).to.not.equal(undefined);
     });
