@@ -18,13 +18,16 @@ const {
 
 describe('ElasticDAO: Informational Vote Module', () => {
   let agent;
-  let Ballot;
   let Ecosystem;
+  let Ballot;
+  let ecosystem;
   let elasticDAO;
   let ElasticDAO;
   let informationalVoteManager;
   let InformationalVoteManager;
+  let provider;
   let Settings;
+  let sdk;
   let summoner;
   let summoner1;
   let summoner2;
@@ -33,11 +36,18 @@ describe('ElasticDAO: Informational Vote Module', () => {
 
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
+    provider = hre.provider;
+    sdk = SDK({
+      account: agent.address,
+      contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
+      env,
+      provider,
+      signer: agent,
+    });
 
     await deployments.fixture();
 
     // setup needed contracts
-    Ballot = await deployments.get('InformationalVoteBallot');
     Settings = await deployments.get('InformationalVoteSettings');
     Vote = await deployments.get('InformationalVote');
     Ecosystem = await deployments.get('Ecosystem');
@@ -71,23 +81,21 @@ describe('ElasticDAO: Informational Vote Module', () => {
       });
 
     elasticDAO = new ethers.Contract(ElasticDAO.address, ElasticDAO.abi, summoner);
-  });
-
-  it('Should deploy and initialize InformationalVoteManager', async () => {
-    const { deploy } = deployments;
-    await deploy('InformationalVoteManager', {
+    ecosystem = await elasticDAO.getEcosystem();
+    Ballot = await deployments.get('InformationalVoteBallot');
+    InformationalVoteManager = await deploy('InformationalVoteManager', {
       from: agent.address,
       args: [Ballot.address, Settings.address, Vote.address],
     });
-    InformationalVoteManager = await deployments.get('InformationalVoteManager');
-
-    const ecosystem = await elasticDAO.getEcosystem();
-    const informationalVoteManagerContract = new ethers.Contract(
+    informationalVoteManager = new ethers.Contract(
       InformationalVoteManager.address,
       InformationalVoteManager.abi,
       summoner,
     );
-    await informationalVoteManagerContract.initialize(ecosystem.governanceTokenAddress, false, [
+  });
+
+  it('Should deploy and initialize InformationalVoteManager', async () => {
+    await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, false, [
       THIRTY_FIVE_PERCENT, // approval
       ethers.constants.WeiPerEther, // maxSharesPerTokenHolder
       1000, // minBlocksForPenalty
@@ -118,21 +126,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
   });
 
   describe('createVote(string memory _proposal, uint256 _endBlock)', () => {
-    beforeEach(async () => {
-      const { deploy } = deployments;
-
-      InformationalVoteManager = await deploy('InformationalVoteManager', {
-        from: agent.address,
-        args: [Ballot.address, Settings.address, Vote.address],
-      });
-
-      informationalVoteManager = new ethers.Contract(
-        InformationalVoteManager.address,
-        InformationalVoteManager.abi,
-        summoner,
-      );
-    });
-
     it('Should not create a vote if VoteManager is not initialized', async () => {
       await expect(
         informationalVoteManager.createVote('This proposal should fail', 1),
@@ -140,8 +133,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
 
     it('Should not create a vote if not enough shares to create a vote', async () => {
-      const ecosystem = await elasticDAO.getEcosystem();
-
       await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
         THIRTY_FIVE_PERCENT, // approval
         ethers.constants.WeiPerEther, // maxSharesPerTokenHolder
@@ -161,8 +152,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
 
     it('Should not create a vote if the duration is too short', async () => {
-      const ecosystem = await elasticDAO.getEcosystem();
-
       await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
         THIRTY_FIVE_PERCENT, // approval
         ethers.constants.WeiPerEther, // maxSharesPerTokenHolder
@@ -188,8 +177,6 @@ describe('ElasticDAO: Informational Vote Module', () => {
     });
 
     it('Should create a vote', async () => {
-      const ecosystem = await elasticDAO.getEcosystem();
-
       await informationalVoteManager.initialize(ecosystem.governanceTokenAddress, true, [
         THIRTY_FIVE_PERCENT, // approval
         ethers.constants.WeiPerEther, // maxSharesPerTokenHolder
@@ -231,36 +218,12 @@ describe('ElasticDAO: Informational Vote Module', () => {
 
   describe('Factory', () => {
     it('Should deploy the Manager of the voteModule using the Factory', async () => {
-      [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-
-      const { provider } = hre;
-
-      const sdk = SDK({
-        account: agent.address,
-        contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-        env,
-        provider,
-        signer: agent,
-      });
-
-      const dao = await sdk.elasticDAOFactory.deployDAOAndToken(
-        [summoner.address, summoner1.address, summoner2.address],
-        'Elastic DAO',
-        3,
-        'Elastic Governance Token',
-        'EGT',
-        ONE_TENTH,
-        TWO_HUNDREDTHS,
-        ONE_HUNDRED,
-        ONE,
-      );
-
       const ivManager = await sdk.modules.informationalVote.informationalVoteFactory.deployManager(
         env.elasticDAO.modules.informationalVote.ballotModelAddress,
-        dao.uuid,
+        elasticDAO.address,
         env.elasticDAO.modules.informationalVote.settingsModelAddress,
         env.elasticDAO.modules.informationalVote.voteModelAddress,
-        dao.ecosystem.governanceTokenAddress,
+        ecosystem.governanceTokenAddress,
         true,
 
         [
