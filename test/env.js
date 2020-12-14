@@ -62,6 +62,9 @@ module.exports = async () => {
         },
       },
     },
+    fees: {
+      deploy: 0.25,
+    },
   };
 
   return env;

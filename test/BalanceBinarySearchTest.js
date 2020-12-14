@@ -8,8 +8,6 @@ const { provider } = hre;
 const SDK = require('@elastic-dao/sdk');
 const generateEnv = require('./env');
 
-const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
-
 describe('ElasticDAO: findByBlockNumber ', () => {
   let agent;
   let dao;
@@ -38,10 +36,10 @@ describe('ElasticDAO: findByBlockNumber ', () => {
       3,
       'Elastic Governance Token',
       'EGT',
-      ONE_TENTH,
-      TWO_HUNDREDTHS,
-      ONE_HUNDRED,
-      ONE,
+      0.1,
+      0.02,
+      100,
+      1,
     );
   });
 
@@ -49,20 +47,20 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     const ecosystemRecord = dao.ecosystem;
     const tokenRecord = await dao.token();
     const daoUuid = dao.uuid;
-    console.log('1');
+    console.log('5', ecosystemRecord, daoUuid, tokenRecord);
     const tokenHolderRecord = await sdk.models.TokenHolder.deserialize(
       daoUuid,
       ecosystemRecord,
       tokenRecord,
     );
-    console.log('2');
+    console.log('6');
     const firstBalanceRecord = await sdk.models.Balance.deserialize(
       1,
       ecosystemRecord,
       tokenRecord,
       tokenHolderRecord,
     );
-    console.log('3');
+    console.log('7');
     console.log('fBR: ', firstBalanceRecord.toString());
     // await dao.elasticDAO.seedSummoning({
     //   value: 1,

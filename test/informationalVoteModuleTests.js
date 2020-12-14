@@ -22,6 +22,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   let Ballot;
   let ecosystem;
   let elasticDAO;
+  let env;
   let ElasticDAO;
   let informationalVoteManager;
   let InformationalVoteManager;
@@ -37,7 +38,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     provider = hre.provider;
-    const env = await generateEnv();
+    env = await generateEnv();
     sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),

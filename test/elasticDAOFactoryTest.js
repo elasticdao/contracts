@@ -8,6 +8,7 @@ const generateEnv = require('./env');
 
 describe('ElasticDAO: Factory', () => {
   let agent;
+  let env;
   let summoner;
   let summoner1;
   let summoner2;
@@ -15,7 +16,7 @@ describe('ElasticDAO: Factory', () => {
   it('Should allow a DAO to be deployed using the factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { provider } = hre;
-    const env = await generateEnv();
+    env = await generateEnv();
     const sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
