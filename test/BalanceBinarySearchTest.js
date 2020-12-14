@@ -44,16 +44,29 @@ describe('ElasticDAO: findByBlockNumber ', () => {
   });
 
   it.only('intial data set, initial test', async () => {
-    const firstBlockNumber = await sdk.models.Balance.blockNumber;
-    console.log('InitialBlockNumber: ', firstBlockNumber);
+    const ecosystemRecord = dao.ecosystem;
+    const tokenRecord = await dao.token();
+    const daoUuid = dao.uuid;
+    console.log('1');
+    const tokenHolderRecord = await sdk.models.TokenHolder.deserialize(
+      daoUuid,
+      ecosystemRecord,
+      tokenRecord,
+    );
+    console.log('2');
+    const firstBalanceRecord = await sdk.models.Balance.deserialize(
+      1,
+      ecosystemRecord,
+      tokenRecord,
+      tokenHolderRecord,
+    );
+    console.log('3');
+    console.log('fBR: ', firstBalanceRecord.toString());
+    // await dao.elasticDAO.seedSummoning({
+    //   value: 1,
+    // });
 
-    await dao.elasticDAO.seedSummoning({
-      value: 1,
-    });
-
-    await sdk.ElasticDAO.summon(ONE_TENTH);
-    const secondBlockNumber = await sdk.models.blockNumber;
-    console.log('SecondBlockNumber: ', secondBlockNumber);
+    // await sdk.ElasticDAO.summon(ONE_TENTH);
 
     // create an initial data set - >  two records
     // create test using initial data set

@@ -6,6 +6,7 @@ import './Ecosystem.sol';
 import './EternalModel.sol';
 import './Token.sol';
 import '../libraries/SafeMath.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
@@ -26,10 +27,10 @@ contract TokenHolder is EternalModel {
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
   ) external view returns (Instance memory record) {
+    console.log('deserialize');
     record.account = _account;
     record.ecosystem = _ecosystem;
     record.token = _token;
-
     if (_exists(_account, _ecosystem, _token)) {
       record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
       record.lambda = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')));
