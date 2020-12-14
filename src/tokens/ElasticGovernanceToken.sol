@@ -13,8 +13,6 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @dev Implementation of the IERC20 interface
  */

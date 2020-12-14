@@ -8,8 +8,6 @@ import '../libraries/SafeMath.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
 
-import 'hardhat/console.sol';
-
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
