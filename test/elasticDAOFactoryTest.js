@@ -4,7 +4,7 @@ const hre = require('hardhat').ethers;
 const SDK = require('@elastic-dao/sdk');
 
 const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
-const env = require('./env');
+const generateEnv = require('./env');
 
 describe('ElasticDAO: Factory', () => {
   let agent;
@@ -15,7 +15,7 @@ describe('ElasticDAO: Factory', () => {
   it('Should allow a DAO to be deployed using the factory', async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { provider } = hre;
-
+    const env = await generateEnv();
     const sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),

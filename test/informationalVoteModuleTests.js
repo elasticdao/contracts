@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const SDK = require('@elastic-dao/sdk');
-const env = require('./env');
+const generateEnv = require('./env');
 const {
   FIFTY,
   FIFTY_PERCENT,
@@ -37,6 +37,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     provider = hre.provider;
+    const env = await generateEnv();
     sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),

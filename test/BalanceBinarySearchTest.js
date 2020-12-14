@@ -6,7 +6,8 @@ const hre = require('hardhat').ethers;
 const { provider } = hre;
 
 const SDK = require('@elastic-dao/sdk');
-const env = require('./env');
+const generateEnv = require('./env');
+
 const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
 
 describe('ElasticDAO: findByBlockNumber ', () => {
@@ -19,6 +20,7 @@ describe('ElasticDAO: findByBlockNumber ', () => {
 
   // tokenRecord, tokenholderRecord, balance contract, elasticDAO, ecosystem
   beforeEach(async () => {
+    const env = await generateEnv();
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
 
     // agent is the deployer
