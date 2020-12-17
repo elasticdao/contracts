@@ -198,7 +198,9 @@ contract InformationalVoteManager {
     InformationalVoteBallot(ballotModelAddress).serialize(ballot);
     InformationalVote(voteModelAddress).serialize(vote);
 
-    tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+    if (existingBallot.lambda == 0) {
+      tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+    }
   }
 
   /**
