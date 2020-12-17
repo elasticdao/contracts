@@ -9,6 +9,8 @@ import './models/Vote.sol';
 import '../../interfaces/IElasticToken.sol';
 import '../../libraries/ElasticMath.sol';
 
+import 'hardhat/console.sol';
+
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for interacting with informational votes
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -136,7 +138,6 @@ contract InformationalVoteManager {
     InformationalVoteSettings.Instance memory settings = _getSettings();
     require(_voteExists(_index, settings), 'ElasticDAO: Invalid vote id.');
     InformationalVote.Instance memory vote = _getVote(_index, settings);
-    require(vote.isApproved == false, 'ElasticDAO: InformationalVote has already been approved.');
     require(vote.isActive, 'ElasticDAO: InformationalVote is not active or has ended.');
     require(_voteNotExpired(vote), 'ElasticDAO: InformationalVote is not active or has ended.');
     require(_yna < 3, 'ElasticDAO: Invalid _yna value. Use 0 for yes, 1 for no, 2 for abstain.');
@@ -154,6 +155,21 @@ contract InformationalVoteManager {
       votingLambda = vote.maxSharesPerTokenHolder;
     }
 
+    InformationalVoteBallot.Instance memory existingBallot = InformationalVoteBallot(
+      ballotModelAddress
+    )
+      .deserialize(msg.sender, settings, vote);
+
+    if (existingBallot.lambda > 0) {
+      if (existingBallot.yna == 0) {
+        vote.yesLambda = SafeMath.sub(vote.yesLambda, existingBallot.lambda);
+      } else if (existingBallot.yna == 1) {
+        vote.noLambda = SafeMath.sub(vote.noLambda, existingBallot.lambda);
+      } else {
+        vote.abstainLambda = SafeMath.sub(vote.abstainLambda, existingBallot.lambda);
+      }
+    }
+
     if (_yna == 0) {
       vote.yesLambda = SafeMath.add(vote.yesLambda, votingLambda);
     } else if (_yna == 1) {
@@ -163,15 +179,13 @@ contract InformationalVoteManager {
     }
 
     uint256 lambda = SafeMath.add(SafeMath.add(vote.yesLambda, vote.noLambda), vote.abstainLambda);
-    uint256 tokenLambda = tokenContract.totalSupplyInShares();
-    uint256 quorumLambda = ElasticMath.wmul(tokenLambda, vote.quorum);
-    if (lambda >= quorumLambda) {
+    vote.isApproved = false;
+    if (lambda >= vote.quorumLambda) {
       vote.hasReachedQuorum = true;
-    }
 
-    uint256 approvalLambda = ElasticMath.wmul(tokenLambda, vote.approval);
-    if (lambda >= approvalLambda) {
-      vote.isApproved = true;
+      if (vote.yesLambda >= vote.approvalLambda) {
+        vote.isApproved = true;
+      }
     }
 
     InformationalVoteBallot.Instance memory ballot;
@@ -229,6 +243,20 @@ contract InformationalVoteManager {
     vote.noLambda = 0;
     vote.penalty = settings.penalty;
     vote.quorum = settings.quorum;
+
+    uint256 maxVotingShares = ElasticMath.wmul(
+      tokenContract.numberOfTokenHolders(),
+      settings.maxSharesPerTokenHolder
+    );
+    uint256 totalSupplyInShares = tokenContract.totalSupplyInShares();
+    if (totalSupplyInShares < maxVotingShares) {
+      vote.quorumLambda = ElasticMath.wmul(totalSupplyInShares, settings.quorum);
+      vote.approvalLambda = ElasticMath.wmul(totalSupplyInShares, settings.approval);
+    } else {
+      vote.quorumLambda = ElasticMath.wmul(maxVotingShares, settings.quorum);
+      vote.approvalLambda = ElasticMath.wmul(maxVotingShares, settings.approval);
+    }
+
     vote.reward = settings.reward;
     vote.startOnBlock = block.number;
     vote.votingTokenAddress = settings.votingTokenAddress;

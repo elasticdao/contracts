@@ -217,7 +217,7 @@ contract ElasticGovernanceToken is IElasticToken {
     return _getToken().name;
   }
 
-  function numberOfTokenHolders() external view returns (uint256) {
+  function numberOfTokenHolders() external override view returns (uint256) {
     return _getToken().numberOfTokenHolders;
   }
 

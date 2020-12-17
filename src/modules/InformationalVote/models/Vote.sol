@@ -22,6 +22,7 @@ contract InformationalVote is EternalModel {
     string proposal;
     uint256 abstainLambda;
     uint256 approval;
+    uint256 approvalLambda;
     uint256 endOnBlock;
     uint256 index;
     uint256 maxSharesPerTokenHolder;
@@ -52,6 +53,9 @@ contract InformationalVote is EternalModel {
       );
       record.approval = getUint(
         keccak256(abi.encode(_settings.managerAddress, _index, 'approval'))
+      );
+      record.approvalLambda = getUint(
+        keccak256(abi.encode(_settings.managerAddress, _index, 'approvalLambda'))
       );
       record.author = getAddress(keccak256(abi.encode(_settings.managerAddress, _index, 'author')));
       record.endOnBlock = getUint(
@@ -155,6 +159,10 @@ contract InformationalVote is EternalModel {
     setUint(
       keccak256(abi.encode(record.settings.managerAddress, record.index, 'approval')),
       record.approval
+    );
+    setUint(
+      keccak256(abi.encode(record.settings.managerAddress, record.index, 'approvalLambda')),
+      record.approvalLambda
     );
     setUint(
       keccak256(abi.encode(record.settings.managerAddress, record.index, 'endOnBlock')),
