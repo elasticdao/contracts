@@ -157,7 +157,6 @@ contract TransactionalVoteManager {
     TransactionalVoteSettings.Instance memory settings = _getSettings();
     require(_voteExists(_index, settings), 'ElasticDAO: Invalid vote id.');
     TransactionalVote.Instance memory vote = _getVote(_index, settings);
-    require(vote.isApproved == false, 'ElasticDAO: TransactionalVote has already been approved.');
     require(vote.isActive, 'ElasticDAO: TransactionalVote is not active or has ended.');
     require(_voteNotExpired(vote), 'ElasticDAO: TransactionalVote is not active or has ended.');
     require(_yna < 3, 'ElasticDAO: Invalid _yna value. Use 0 for yes, 1 for no, 2 for abstain.');
@@ -175,6 +174,21 @@ contract TransactionalVoteManager {
       votingLambda = vote.maxSharesPerTokenHolder;
     }
 
+    TransactionalVoteBallot.Instance memory existingBallot = TransactionalVoteBallot(
+      ballotModelAddress
+    )
+      .deserialize(msg.sender, settings, vote);
+
+    if (existingBallot.lambda > 0) {
+      if (existingBallot.yna == 0) {
+        vote.yesLambda = SafeMath.sub(vote.yesLambda, existingBallot.lambda);
+      } else if (existingBallot.yna == 1) {
+        vote.noLambda = SafeMath.sub(vote.noLambda, existingBallot.lambda);
+      } else {
+        vote.abstainLambda = SafeMath.sub(vote.abstainLambda, existingBallot.lambda);
+      }
+    }
+
     if (_yna == 0) {
       vote.yesLambda = SafeMath.add(vote.yesLambda, votingLambda);
     } else if (_yna == 1) {
@@ -184,28 +198,28 @@ contract TransactionalVoteManager {
     }
 
     uint256 lambda = SafeMath.add(SafeMath.add(vote.yesLambda, vote.noLambda), vote.abstainLambda);
-    uint256 tokenLambda = tokenContract.totalSupplyInShares();
-    uint256 quorumLambda = ElasticMath.wmul(tokenLambda, vote.quorum);
-    if (lambda >= quorumLambda) {
+    vote.isApproved = false;
+    if (lambda >= vote.quorumLambda) {
       vote.hasReachedQuorum = true;
-    }
 
-    uint256 approvalLambda = ElasticMath.wmul(tokenLambda, vote.approval);
-    if (lambda >= approvalLambda) {
-      vote.isApproved = true;
+      if (lambda >= vote.approvalLambda) {
+        vote.isApproved = true;
+      }
     }
 
     TransactionalVoteBallot.Instance memory ballot;
+    ballot.lambda = votingLambda;
     ballot.settings = settings;
     ballot.vote = vote;
     ballot.voter = msg.sender;
-    ballot.lambda = votingLambda;
     ballot.yna = _yna;
 
     TransactionalVoteBallot(ballotModelAddress).serialize(ballot);
     TransactionalVote(voteModelAddress).serialize(vote);
 
-    tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+    if (existingBallot.lambda == 0) {
+      tokenContract.mintShares(msg.sender, ElasticMath.wmul(votingLambda, vote.reward));
+    }
   }
 
   function createVote(
@@ -259,6 +273,20 @@ contract TransactionalVoteManager {
     vote.operation = _operation;
     vote.penalty = settings.penalty;
     vote.quorum = settings.quorum;
+
+    uint256 maxVotingShares = ElasticMath.wmul(
+      tokenContract.numberOfTokenHolders(),
+      settings.maxSharesPerTokenHolder
+    );
+    uint256 totalSupplyInShares = tokenContract.totalSupplyInShares();
+    if (totalSupplyInShares < maxVotingShares) {
+      vote.quorumLambda = ElasticMath.wmul(totalSupplyInShares, settings.quorum);
+      vote.approvalLambda = ElasticMath.wmul(totalSupplyInShares, settings.approval);
+    } else {
+      vote.quorumLambda = ElasticMath.wmul(maxVotingShares, settings.quorum);
+      vote.approvalLambda = ElasticMath.wmul(maxVotingShares, settings.approval);
+    }
+
     vote.reward = settings.reward;
     vote.safeTxGas = _safeTxGas;
     vote.startOnBlock = block.number;
