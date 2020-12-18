@@ -29,6 +29,7 @@ contract TransactionalVote is EternalModel {
     string proposal;
     uint256 abstainLambda;
     uint256 approval;
+    uint256 approvalLambda;
     uint256 baseGas;
     uint256 endOnBlock;
     uint256 index;
@@ -63,6 +64,9 @@ contract TransactionalVote is EternalModel {
       );
       record.approval = getUint(
         keccak256(abi.encode(_index, _settings.managerAddress, 'approval'))
+      );
+      record.approvalLambda = getUint(
+        keccak256(abi.encode(_index, _settings.managerAddress, 'approvalLambda'))
       );
       record.author = getAddress(keccak256(abi.encode(_index, _settings.managerAddress, 'author')));
       record.baseGas = getUint(keccak256(abi.encode(_index, _settings.managerAddress, 'baseGas')));
@@ -188,6 +192,10 @@ contract TransactionalVote is EternalModel {
     setUint(
       keccak256(abi.encode(record.index, record.settings.managerAddress, 'approval')),
       record.approval
+    );
+    setUint(
+      keccak256(abi.encode(record.index, record.settings.managerAddress, 'approvalLambda')),
+      record.approvalLambda
     );
     setUint(
       keccak256(abi.encode(record.index, record.settings.managerAddress, 'baseGas')),

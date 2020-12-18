@@ -9,8 +9,6 @@ import './models/Vote.sol';
 import '../../interfaces/IElasticToken.sol';
 import '../../libraries/ElasticMath.sol';
 
-import 'hardhat/console.sol';
-
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for interacting with informational votes
 /// @dev ElasticDAO network contracts can read/write from this contract
@@ -189,10 +187,10 @@ contract InformationalVoteManager {
     }
 
     InformationalVoteBallot.Instance memory ballot;
-    ballot.voter = msg.sender;
+    ballot.lambda = votingLambda;
     ballot.settings = settings;
     ballot.vote = vote;
-    ballot.lambda = votingLambda;
+    ballot.voter = msg.sender;
     ballot.yna = _yna;
 
     InformationalVoteBallot(ballotModelAddress).serialize(ballot);
