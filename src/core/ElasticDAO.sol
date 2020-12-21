@@ -152,7 +152,6 @@ contract ElasticDAO {
 
     uint256 deltaE = msg.value;
     uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByL);
-    uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
     ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
   }
 
