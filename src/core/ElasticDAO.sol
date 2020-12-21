@@ -68,7 +68,7 @@ contract ElasticDAO {
   function initializeToken(
     string memory _name,
     string memory _symbol,
-    uint256 _eByl,
+    uint256 _eByL,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
@@ -79,7 +79,7 @@ contract ElasticDAO {
     Token.Instance memory token = Configurator(ecosystem.configuratorAddress).buildToken(
       _name,
       _symbol,
-      _eByl,
+      _eByL,
       _elasticity,
       _k,
       _maxLambdaPurchase,
@@ -151,7 +151,7 @@ contract ElasticDAO {
     Token.Instance memory token = _getToken();
 
     uint256 deltaE = msg.value;
-    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByl);
+    uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByL);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
     ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
   }

@@ -19,7 +19,7 @@ contract Token is EternalModel {
     string name;
     string symbol;
     uint256 counter; // passed as ID to balance multipliers
-    uint256 eByl;
+    uint256 eByL;
     uint256 elasticity;
     uint256 k;
     uint256 lambda;
@@ -44,7 +44,7 @@ contract Token is EternalModel {
 
     if (_exists(_uuid)) {
       record.counter = getUint(keccak256(abi.encode(_uuid, 'counter')));
-      record.eByl = getUint(keccak256(abi.encode(_uuid, 'eByl')));
+      record.eByL = getUint(keccak256(abi.encode(_uuid, 'eByL')));
       record.elasticity = getUint(keccak256(abi.encode(_uuid, 'elasticity')));
       record.k = getUint(keccak256(abi.encode(_uuid, 'k')));
       record.lambda = getUint(keccak256(abi.encode(_uuid, 'lambda')));
@@ -74,7 +74,7 @@ contract Token is EternalModel {
   function serialize(Instance memory record) external {
     setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
     setString(keccak256(abi.encode(record.uuid, 'symbol')), record.symbol);
-    setUint(keccak256(abi.encode(record.uuid, 'eByl')), record.eByl);
+    setUint(keccak256(abi.encode(record.uuid, 'eByL')), record.eByL);
     setUint(keccak256(abi.encode(record.uuid, 'elasticity')), record.elasticity);
     setUint(keccak256(abi.encode(record.uuid, 'k')), record.k);
     setUint(keccak256(abi.encode(record.uuid, 'lambda')), record.lambda);
