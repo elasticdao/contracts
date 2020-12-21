@@ -25,7 +25,7 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env,
+      env: await env(),
       provider,
       signer: agent,
     });
@@ -41,27 +41,46 @@ describe('ElasticDAO: findByBlockNumber ', () => {
       ONE_HUNDRED,
       ONE,
     );
+    sdk.account = summoner.address;
+    sdk.contract = ({ abi, address }) => new ethers.Contract(address, abi, summoner);
+    sdk.signer = summoner;
   });
 
   it.only('intial data set, initial test', async () => {
-    const firstBlockNumber = await sdk.models.Balance.blockNumber;
+    const firstBlockNumber = await provider.getBlockNumber();
     console.log('InitialBlockNumber: ', firstBlockNumber);
 
     await dao.elasticDAO.seedSummoning({
       value: 1,
     });
+    await dao.elasticDAO.summon(ONE_TENTH);
 
-    await sdk.ElasticDAO.summon(ONE_TENTH);
-    const secondBlockNumber = await sdk.models.blockNumber;
+    const secondBlockNumber = await provider.getBlockNumber();
     console.log('SecondBlockNumber: ', secondBlockNumber);
+
+    const { ecosystem } = dao;
+    console.log(ecosystem);
+    const tokenRecord = await sdk.models.Token.deserialize(
+      ecosystem.governanceTokenAddress,
+      ecosystem,
+    );
+    console.log(tokenRecord.toObject());
+
+    const tokenHolderRecord = await sdk.models.TokenHolder.deserialize(
+      summoner.address,
+      ecosystem,
+      tokenRecord,
+    );
+    console.log(tokenHolderRecord.toObject());
 
     // create an initial data set - >  two records
     // create test using initial data set
-    // const initialBalanceRecord = await balanceModel.deserialize(
-    //   2,
-    //   ecosystem,
-    //   tokenRecord,
-    //   tokenHolderRecord,
-    // );
+    const initialBalanceRecord = await sdk.models.Balance.deserialize(
+      20,
+      ecosystem,
+      tokenRecord,
+      tokenHolderRecord,
+    );
+    console.log(initialBalanceRecord);
   });
 });
