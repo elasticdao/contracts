@@ -8,6 +8,7 @@ import '../libraries/SafeMath.sol';
 import './BalanceMultipliers.sol';
 import './Token.sol';
 import './TokenHolder.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token balance change data
@@ -17,7 +18,7 @@ import './TokenHolder.sol';
 contract Balance is EternalModel {
   struct Instance {
     uint256 blockNumber;
-    uint256 index; // tokenHolder.counter
+    uint256 index;
     uint256 k;
     uint256 m;
     uint256 lambda;

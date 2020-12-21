@@ -27,7 +27,6 @@ contract TokenHolder is EternalModel {
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
   ) external view returns (Instance memory record) {
-    console.log('deserialize');
     record.account = _account;
     record.ecosystem = _ecosystem;
     record.token = _token;

@@ -1,4 +1,4 @@
-// const { expect } = require('chai');
+const { expect } = require('chai');
 // const BigNumber = require('bignumber.js');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
@@ -7,7 +7,6 @@ const { provider } = hre;
 
 const SDK = require('@elastic-dao/sdk');
 const env = require('./env');
-const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
 
 describe('ElasticDAO: findByBlockNumber ', () => {
   let agent;
@@ -36,10 +35,10 @@ describe('ElasticDAO: findByBlockNumber ', () => {
       3,
       'Elastic Governance Token',
       'EGT',
-      ONE_TENTH,
-      TWO_HUNDREDTHS,
-      ONE_HUNDRED,
-      ONE,
+      0.1,
+      0.02,
+      100,
+      1,
     );
     sdk.account = summoner.address;
     sdk.contract = ({ abi, address }) => new ethers.Contract(address, abi, summoner);
@@ -47,40 +46,75 @@ describe('ElasticDAO: findByBlockNumber ', () => {
   });
 
   it.only('intial data set, initial test', async () => {
-    const firstBlockNumber = await provider.getBlockNumber();
-    console.log('InitialBlockNumber: ', firstBlockNumber);
+    // blocknumber 20
+    console.log('test: InitialBlockNumber: ', await provider.getBlockNumber());
 
+    // blocknumber 21
     await dao.elasticDAO.seedSummoning({
       value: 1,
     });
-    await dao.elasticDAO.summon(ONE_TENTH);
+    // blocknumber 22
+    await dao.elasticDAO.summon(0.1);
 
-    const secondBlockNumber = await provider.getBlockNumber();
-    console.log('SecondBlockNumber: ', secondBlockNumber);
+    console.log('test: postSummoningBlockNumber: ', await provider.getBlockNumber());
 
     const { ecosystem } = dao;
-    console.log(ecosystem);
     const tokenRecord = await sdk.models.Token.deserialize(
       ecosystem.governanceTokenAddress,
       ecosystem,
     );
-    console.log(tokenRecord.toObject());
 
     const tokenHolderRecord = await sdk.models.TokenHolder.deserialize(
       summoner.address,
       ecosystem,
       tokenRecord,
     );
-    console.log(tokenHolderRecord.toObject());
+    const tokenHolderCounter = tokenHolderRecord.counter;
+    console.log('test: tokenHolderCounter: ', tokenHolderCounter);
 
     // create an initial data set - >  two records
+
+    /* blockNumber:  21    22
+       lambda:       10    10.1
+       index:         0     1
+       numberOfRecords = 2
+    */
+
     // create test using initial data set
-    const initialBalanceRecord = await sdk.models.Balance.deserialize(
+    const atDeployBalanceRecord = await sdk.models.Balance.deserialize(
       20,
       ecosystem,
       tokenRecord,
       tokenHolderRecord,
     );
-    console.log(initialBalanceRecord);
+    // record - lambda = 0
+    expect(atDeployBalanceRecord.lambda.toNumber()).to.equal(0);
+
+    const atSeedBalanceRecord = await sdk.models.Balance.deserialize(
+      21,
+      ecosystem,
+      tokenRecord,
+      tokenHolderRecord,
+    );
+    // record - lambda = 10
+    expect(atSeedBalanceRecord.lambda.toNumber()).to.equal(10);
+
+    const atSummonBalanceRecord = await sdk.models.Balance.deserialize(
+      22,
+      ecosystem,
+      tokenRecord,
+      tokenHolderRecord,
+    );
+    // record - lambda = 10.1
+    expect(atSummonBalanceRecord.lambda.toNumber()).to.equal(10.1);
+
+    const postSummonBalanceRecord = await sdk.models.Balance.deserialize(
+      30,
+      ecosystem,
+      tokenRecord,
+      tokenHolderRecord,
+    );
+    // record - lambda = 10.1
+    expect(postSummonBalanceRecord.lambda.toNumber()).to.equal(10.1);
   });
 });
