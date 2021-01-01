@@ -18,6 +18,8 @@ contract ElasticDAO {
   address[] public summoners;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
+  event MemberJoined(address indexed daoAddress, address indexed memberAddress);
+  event DAOSummoned(address indexed daoAddress, string name);
 
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();
@@ -137,6 +139,8 @@ contract ElasticDAO {
 
     // tokencontract mint shares
     tokenContract.mintShares(msg.sender, _deltaLambda);
+
+    emit MemberJoined(address(this), msg.sender);
   }
 
   // Summoning
@@ -152,7 +156,6 @@ contract ElasticDAO {
 
     uint256 deltaE = msg.value;
     uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByl);
-    uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
     ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
   }
 
@@ -173,6 +176,8 @@ contract ElasticDAO {
     }
     dao.summoned = true;
     daoContract.serialize(dao);
+
+    emit DAOSummoned(address(this), dao.name);
   }
 
   // Getters
