@@ -157,7 +157,6 @@ contract ElasticDAO {
 
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
-
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     DAO daoContract = DAO(ecosystem.daoModelAddress);
     DAO.Instance memory dao = daoContract.deserialize(address(this), ecosystem);
