@@ -1,7 +1,7 @@
+const { deployments } = require('hardhat');
 const { expect } = require('chai');
 const ethers = require('ethers');
-const bre = require('@nomiclabs/buidler').ethers;
-const { deployments } = require('@nomiclabs/buidler');
+const hre = require('hardhat').ethers;
 
 describe('ElasticDAO: Permission Model', () => {
   let agent;
@@ -12,7 +12,7 @@ describe('ElasticDAO: Permission Model', () => {
   let permissionStorage;
 
   beforeEach(async () => {
-    [agent] = await bre.getSigners();
+    [agent] = await hre.getSigners();
 
     await deployments.fixture();
 
