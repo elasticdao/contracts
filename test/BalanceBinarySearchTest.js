@@ -46,7 +46,7 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     sdk.signer = summoner;
   });
 
-  it('intial data set, initial test', async () => {
+  it('2 record dataset test', async () => {
     // create an initial data set - >  two records
 
     /* blockNumber:  21    22
@@ -113,7 +113,7 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     expect(postSummonBalanceRecord.lambda.toNumber()).to.equal(10.1);
   });
 
-  it.only('Second data set', async () => {
+  it('3 record dataset test', async () => {
     // create second data set - >  3 records
     /* blockNumber:  21    25     27
        lambda:       10    10.1   11.1
@@ -220,5 +220,57 @@ describe('ElasticDAO: findByBlockNumber ', () => {
       tokenHolderRecord,
     );
     expect(postBuyingBalanceRecord.lambda.toNumber()).to.equal(11.1);
+  });
+
+  it.only('5 record data set test', async () => {
+    // create third data set - >  5 records
+    /* blockNumber:  21    25     27    29      31
+       lambda:       10    10.1   11.1   10.1    11.1
+       index:         0     1      2       3      4
+       numberOfRecords = 5
+    */
+
+    // blockNumber 20
+    console.log('test: InitialBlockNumber: ', await provider.getBlockNumber());
+
+    // blocknumber 21 - seedSummon the DAO
+    await dao.elasticDAO.seedSummoning({
+      value: 1,
+    });
+
+    // move the blockchain 21 -> 24
+    await provider.send('evm_mine', []);
+    await provider.send('evm_mine', []);
+    await provider.send('evm_mine', []);
+
+    // blocknumber 25 - summon the dao
+    await dao.elasticDAO.summon(0.1);
+
+    // move the blockchain - 25 -> 26
+    await provider.send('evm_mine', []);
+    await dao.refresh();
+
+    // buy shares - 27
+    const valueOfEth = BigNumber('0.227672730700348763');
+    await dao.elasticDAO.join(1, {
+      value: valueOfEth,
+    });
+
+    // move the blockchain - 27 -> 28
+    await provider.send('evm_mine', []);
+
+    //  use burnShares functionality on ElasticGovernanceToken
+    // burnShares or exitDAO - 29
+    const { elasticGovernanceToken } = dao;
+    console.log('elasticGovernanceToken: ', elasticGovernanceToken.burnShares);
+    await elasticGovernanceToken.burnShares(summoner.address, 1);
+    // move the blockchain 29 -> 30
+    await provider.send('evm_mine', []);
+
+    // buy shares - 31
+    console.log('flag');
+    await dao.elasticDAO.join(1, {
+      value: valueOfEth,
+    });
   });
 });
