@@ -65,6 +65,13 @@ contract ElasticDAO {
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
+  function exitDAO(uint256 _deltaLambda) public onlyAfterSummoning {
+    // exitDAO - burn _deltaLambda amount of shares, transfer that much value of Eth to address calling
+    Token.Instance memory token = _getToken();
+    require()
+
+  }
+
   function initializeToken(
     string memory _name,
     string memory _symbol,

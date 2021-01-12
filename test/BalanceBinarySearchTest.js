@@ -262,8 +262,8 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     //  use burnShares functionality on ElasticGovernanceToken
     // burnShares or exitDAO - 29
     const { elasticGovernanceToken } = dao;
-    console.log('elasticGovernanceToken: ', elasticGovernanceToken.burnShares);
     await elasticGovernanceToken.burnShares(summoner.address, 1);
+
     // move the blockchain 29 -> 30
     await provider.send('evm_mine', []);
 
