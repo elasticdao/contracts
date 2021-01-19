@@ -65,13 +65,20 @@ contract ElasticDAO {
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
-  // function exitDAO(uint256 _deltaLambda) public onlyAfterSummoning {
-  //   // exitDAO - burn _deltaLambda amount of shares, transfer
-  // that much value of Eth to address calling
-  //   Token.Instance memory token = _getToken();
-  //   require()
+  function exitDAO(uint256 _deltaLambda) public onlyAfterSummoning {
 
-  // }
+    // burn the shares
+    Token.Instance memory token = _getToken();
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
+    tokenContract.burnShares(msg.sender, _deltLambda);
+
+    // eth to be transfered = ( deltaLambda/lambda ) * totalEthInTheDAO
+    uint256 ratioOfShares = ElasticMath.wdiv(_deltaLambda, token.lambda);
+    uint256 ethToBeTransfered = ElasticMath.wmul(ratioOfShares, address(this).balance);
+
+    // transfer the eth
+      msg.sender.transfer(ethToBeTransfered);
+  }
 
   function initializeToken(
     string memory _name,
