@@ -11,6 +11,7 @@ import '../models/Token.sol';
 
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
+import "hardhat/console.sol";
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -69,14 +70,17 @@ contract ElasticDAO {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    tokenContract.burnShares(msg.sender, _deltLambda);
+    console.log('contract: elasticDAO: 1');
+    tokenContract.burnShares(msg.sender, _deltaLambda);
+    console.log('contract: elasticDAO: 2');
 
     // eth to be transfered = ( deltaLambda/lambda ) * totalEthInTheDAO
     uint256 ratioOfShares = ElasticMath.wdiv(_deltaLambda, token.lambda);
     uint256 ethToBeTransfered = ElasticMath.wmul(ratioOfShares, address(this).balance);
-
+    console.log('contract: elasticDAO: 3');
     // transfer the eth
-      msg.sender.transfer(ethToBeTransfered);
+    msg.sender.transfer(ethToBeTransfered);
+    console.log('contract: elasticDAO: 4');
   }
 
   function initializeToken(
