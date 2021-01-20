@@ -12,6 +12,7 @@ import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
+import "hardhat/console.sol";
 
 /**
  * @dev Implementation of the IERC20 interface
@@ -73,7 +74,6 @@ contract ElasticGovernanceToken is IElasticToken {
   function balanceOf(address _account) external override view returns (uint256) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-
     uint256 t = ElasticMath.t(tokenHolder.lambda, token.k, token.m);
 
     return t;
@@ -148,6 +148,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @return bool
    */
   function burnShares(address _account, uint256 _amount) external override returns (bool) {
+    console.log('contract: elasticGovernanceToken: burnShares');
     _burnShares(_account, _amount);
     return true;
   }
@@ -329,16 +330,19 @@ contract ElasticGovernanceToken is IElasticToken {
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    console.log('contract: elasticGovernanceToken: _burnShares: 1');
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
     tokenHolder = _updateBalance(token, tokenHolder, false, _deltaLambda);
 
     token.lambda = SafeMath.sub(token.lambda, _deltaLambda);
     tokenStorage.serialize(token);
+    console.log('contract: elasticGovernanceToken: _burnShares: 2');
 
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
     _updateNumberOfTokenHolders(alreadyTokenHolder, token, tokenHolder, tokenStorage);
+    console.log('contract: elasticGovernanceToken: _burnShares: 3');
   }
 
   function _mint(address _account, uint256 _deltaT) internal {

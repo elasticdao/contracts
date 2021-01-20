@@ -222,7 +222,7 @@ describe('ElasticDAO: findByBlockNumber ', () => {
     expect(postBuyingBalanceRecord.lambda.toNumber()).to.equal(11.1);
   });
 
-  it.only('5 record data set test', async () => {
+  it('5 record data set test', async () => {
     // create third data set - >  5 records
     /* blockNumber:  21    25     27    29      31
        lambda:       10    10.1   11.1   10.1    11.1
