@@ -1,6 +1,6 @@
 {
   "name": "contracts",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Elastic DAO Contracts",
   "main": "index.js",
   "repository": "git@github.com:elasticdao/contracts.git",
