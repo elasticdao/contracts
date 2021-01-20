@@ -10,7 +10,6 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
 import '../services/Configurator.sol';
-import '../services/Registrator.sol';
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -99,15 +98,6 @@ contract ElasticDAO {
       ecosystem
     );
     emit ElasticGovernanceTokenDeployed(token.uuid);
-  }
-
-  function initializeModule(address _moduleAddress, string memory _name)
-    external
-  // onlySummoners - TODO: Replace this with a permission
-  {
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Registrator registrator = Registrator(ecosystem.registratorAddress);
-    registrator.registerModule(_moduleAddress, _name, ecosystem);
   }
 
   function join(uint256 _deltaLambda) public payable onlyAfterSummoning {

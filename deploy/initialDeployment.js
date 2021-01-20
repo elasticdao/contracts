@@ -15,8 +15,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     Ecosystem.abi,
     hre.provider.getSigner(agent),
   );
-  const ElasticModule = await deployments.get('ElasticModule');
-  const Registrator = await deployments.get('Registrator');
   const Token = await deployments.get('Token');
   const TokenHolder = await deployments.get('TokenHolder');
 
@@ -27,15 +25,15 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     BalanceMultipliers.address,
     Dao.address,
     Ecosystem.address,
-    ElasticModule.address,
     TokenHolder.address,
     Token.address,
     // Services
     Configurator.address,
-    Registrator.address,
     // Tokens
     ethers.constants.AddressZero,
   ];
+
+  console.log('Ecosystem', ecosystemStructArray);
 
   await ecosystemStorage.functions.serialize(ecosystemStructArray);
 
@@ -49,10 +47,6 @@ module.exports.dependencies = [
   'DAO',
   'Ecosystem',
   'ElasticDAOFactory',
-  'ElasticModule',
-  'InformationalVote',
-  'TransactionalVote',
-  'Registrator',
   'Token',
   'TokenHolder',
 ];

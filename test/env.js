@@ -10,14 +10,6 @@ module.exports = async () => {
     Factory,
     Token,
     TokenHolder,
-    InformationalVote,
-    InformationalVoteBallot,
-    InformationalVoteFactory,
-    InformationalVoteSettings,
-    TransactionalVote,
-    TransactionalVoteBallot,
-    TransactionalVoteFactory,
-    TransactionalVoteSettings,
   ] = await Promise.all([
     deployments.get('Balance'),
     deployments.get('BalanceMultipliers'),
@@ -27,14 +19,6 @@ module.exports = async () => {
     deployments.get('ElasticDAOFactory'),
     deployments.get('Token'),
     deployments.get('TokenHolder'),
-    deployments.get('InformationalVote'),
-    deployments.get('InformationalVoteBallot'),
-    deployments.get('InformationalVoteFactory'),
-    deployments.get('InformationalVoteSettings'),
-    deployments.get('TransactionalVote'),
-    deployments.get('TransactionalVoteBallot'),
-    deployments.get('TransactionalVoteFactory'),
-    deployments.get('TransactionalVoteSettings'),
   ]);
   const env = {
     elasticDAO: {
@@ -46,21 +30,6 @@ module.exports = async () => {
       factoryAddress: Factory.address,
       tokenModelAddress: Token.address,
       tokenHolderModelAddress: TokenHolder.address,
-
-      modules: {
-        informationalVote: {
-          ballotModelAddress: InformationalVoteBallot.address,
-          factoryAddress: InformationalVoteFactory.address,
-          settingsModelAddress: InformationalVoteSettings.address,
-          voteModelAddress: InformationalVote.address,
-        },
-        transactionalVote: {
-          ballotModelAddress: TransactionalVoteBallot.address,
-          factoryAddress: TransactionalVoteFactory.address,
-          settingsModelAddress: TransactionalVoteSettings.address,
-          voteModelAddress: TransactionalVote.address,
-        },
-      },
     },
     fees: {
       deploy: 0.25,

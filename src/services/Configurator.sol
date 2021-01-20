@@ -56,13 +56,11 @@ contract Configurator {
     ecosystem.balanceMultipliersModelAddress = defaults.balanceMultipliersModelAddress;
     ecosystem.daoModelAddress = defaults.daoModelAddress;
     ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
-    ecosystem.elasticModuleModelAddress = defaults.elasticModuleModelAddress;
     ecosystem.tokenHolderModelAddress = defaults.tokenHolderModelAddress;
     ecosystem.tokenModelAddress = defaults.tokenModelAddress;
 
     // Services
     ecosystem.configuratorAddress = defaults.configuratorAddress;
-    ecosystem.registratorAddress = defaults.registratorAddress;
 
     ecosystemStorage.serialize(ecosystem);
     return ecosystem;
