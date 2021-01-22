@@ -19,7 +19,7 @@ describe('ElasticDAO: Factory', () => {
     const sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env,
+      env: await env(),
       provider,
       signer: agent,
     });

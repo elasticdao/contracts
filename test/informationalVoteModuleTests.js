@@ -3,15 +3,11 @@ const { expect } = require('chai');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
 const SDK = require('@elastic-dao/sdk');
-const env = require('./env');
+const generateEnv = require('./env');
 const {
-  FIFTY,
   FIFTY_PERCENT,
-  ONE,
   ONE_HUNDRED,
   ONE_TENTH,
-  SIXTY_PERCENT,
-  TEN,
   THIRTY_FIVE_PERCENT,
   TWO_HUNDREDTHS,
 } = require('./constants');
@@ -19,6 +15,7 @@ const {
 describe('ElasticDAO: Informational Vote Module', () => {
   let agent;
   let Ecosystem;
+  let env;
   let Ballot;
   let ecosystem;
   let elasticDAO;
@@ -37,6 +34,7 @@ describe('ElasticDAO: Informational Vote Module', () => {
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     provider = hre.provider;
+    env = await generateEnv();
     sdk = SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
@@ -225,18 +223,17 @@ describe('ElasticDAO: Informational Vote Module', () => {
         env.elasticDAO.modules.informationalVote.voteModelAddress,
         ecosystem.governanceTokenAddress,
         true,
-
         [
-          FIFTY_PERCENT, // approval
-          ONE, // maxSharesPerTokenHolder
-          FIFTY, // minBlocksForPenalty
-          TEN, // minDurationInBlocks
-          ONE_TENTH, // minPenaltyInShares
-          ONE_TENTH, // minRewardInShares
-          FIFTY_PERCENT, // minSharesToCreate
-          ONE_TENTH, // penalty
-          SIXTY_PERCENT, // quoroum
-          ONE_TENTH, // reward
+          0.5, // approval
+          1, // maxSharesPerTokenHolder
+          50, // minBlocksForPenalty
+          10, // minDurationInBlocks
+          0.1, // minPenaltyInShares
+          0.1, // minRewardInShares
+          0.5, // minSharesToCreate
+          0.1, // penalty
+          0.6, // quoroum
+          0.1, // reward
         ],
       );
 

@@ -56,22 +56,19 @@ describe('ElasticDAO: exitDAO ', () => {
     await dao.elasticDAO.getDAO();
   });
 
-  it.only('should allow to exit with 1 share and corresponding eth', async () => {
+  it('should allow to exit with 1 share and corresponding eth', async () => {
     // summoner exits one share -> should have 9.1 shares and ( 1 * CapitalDelta ) eth
 
     const elasticGovernanceToken = await dao.elasticGovernanceToken;
     const postSummonBalanceOf = await elasticGovernanceToken.balanceOf(summoner.address);
 
-    console.log('test: postSummonBalanceOf:', postSummonBalanceOf.toNumber());
     expect(postSummonBalanceOf.toNumber()).to.equal(1010);
 
     // post exit dao
     // blockNumber 23
     await dao.elasticDAO.exitDAO(1);
-    console.log('test: postExitBlockNumber: ', await provider.getBlockNumber());
 
     const atExitBalanceRecord = await elasticGovernanceToken.balanceOf(summoner.address);
-    console.log(atExitBalanceRecord.toNumber());
     expect(atExitBalanceRecord.toNumber()).to.equal(910);
   });
 });
