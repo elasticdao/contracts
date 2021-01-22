@@ -23,10 +23,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@elastic-dao/sdk@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@elastic-dao/sdk/-/sdk-0.0.9.tgz#bfc82a86227e1334e20f4422d282ce4b2475e999"
-  integrity sha512-85HYhv3sONW1+v9mYBptmJpfKPovZjnQtznSIfKbEGYphx0u4AI0kbi6v68dqVVnxnsI1Qk55TbPfycmhFYLfA==
+"@elastic-dao/sdk@0.9.0-beta1":
+  version "0.9.0-beta1"
+  resolved "https://registry.yarnpkg.com/@elastic-dao/sdk/-/sdk-0.9.0-beta1.tgz#7082990443e45b95d7a33190a57c1e312a167c4d"
+  integrity sha512-YhkhZOyYNYCguluFZ3fV5+R0Yn3GWbuT3ahhOdwbm92hAVssYF7DdAtTzL/OSsWpgEAT3HBWJu5RuicgJ5YA1w==
   dependencies:
     "@pie-dao/utils" "^1.0.0"
     bignumber.js "^9.0.0"
