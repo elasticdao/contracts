@@ -41,7 +41,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * This value changes when {approve} or {transferFrom} are called
    * @return uint256
    */
-  function allowance(address _owner, address _spender) external override view returns (uint256) {
+  function allowance(address _owner, address _spender) external view override returns (uint256) {
     return _allowances[_owner][_spender];
   }
 
@@ -70,7 +70,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _account - address of the account
    * @return uint256
    */
-  function balanceOf(address _account) external override view returns (uint256) {
+  function balanceOf(address _account) external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     uint256 t = ElasticMath.t(tokenHolder.lambda, token.k, token.m);
@@ -83,7 +83,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _account - address of the account
    * @return lambda uint256 - lambda is the number of shares
    */
-  function balanceOfInShares(address _account) external override view returns (uint256 lambda) {
+  function balanceOfInShares(address _account) external view override returns (uint256 lambda) {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     return tokenHolder.lambda;
   }
@@ -96,8 +96,8 @@ contract ElasticGovernanceToken is IElasticToken {
    */
   function balanceOfAt(address _account, uint256 _blockNumber)
     external
-    override
     view
+    override
     returns (uint256 t)
   {
     t = 0;
@@ -116,8 +116,8 @@ contract ElasticGovernanceToken is IElasticToken {
    */
   function balanceOfInSharesAt(address _account, uint256 _blockNumber)
     external
-    override
     view
+    override
     returns (uint256 lambda)
   {
     Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
@@ -216,7 +216,7 @@ contract ElasticGovernanceToken is IElasticToken {
     return _getToken().name;
   }
 
-  function numberOfTokenHolders() external override view returns (uint256) {
+  function numberOfTokenHolders() external view override returns (uint256) {
     return _getToken().numberOfTokenHolders;
   }
 
@@ -238,12 +238,12 @@ contract ElasticGovernanceToken is IElasticToken {
    * t = ( lambda * m * k )
    * @return uint256 - the value of t
    */
-  function totalSupply() external override view returns (uint256) {
+  function totalSupply() external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     return ElasticMath.t(token.lambda, token.k, token.m);
   }
 
-  function totalSupplyInShares() external override view returns (uint256) {
+  function totalSupplyInShares() external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     return token.lambda;
   }

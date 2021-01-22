@@ -38,12 +38,12 @@ contract Balance is EternalModel {
     record.token = _token;
     record.tokenHolder = _tokenHolder;
 
-    BalanceMultipliers.Instance memory balanceMultipliers = BalanceMultipliers(
-      record
-        .ecosystem
-        .balanceMultipliersModelAddress
-    )
-      .deserialize(_blockNumber, record.ecosystem, record.token);
+    BalanceMultipliers.Instance memory balanceMultipliers =
+      BalanceMultipliers(record.ecosystem.balanceMultipliersModelAddress).deserialize(
+        _blockNumber,
+        record.ecosystem,
+        record.token
+      );
 
     record.blockNumber = _blockNumber;
     record.k = balanceMultipliers.k;

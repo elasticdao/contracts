@@ -25,10 +25,8 @@ contract ElasticDAO {
   }
   modifier onlyAfterTokenInitialized() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    bool tokenInitialized = Token(_getEcosystem().tokenModelAddress).exists(
-      ecosystem.governanceTokenAddress,
-      ecosystem
-    );
+    bool tokenInitialized =
+      Token(_getEcosystem().tokenModelAddress).exists(ecosystem.governanceTokenAddress, ecosystem);
     require(tokenInitialized, 'ElasticDAO: Please call initializeToken first');
     _;
   }
@@ -88,15 +86,16 @@ contract ElasticDAO {
     require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
-    Token.Instance memory token = Configurator(ecosystem.configuratorAddress).buildToken(
-      _name,
-      _symbol,
-      _eByL,
-      _elasticity,
-      _k,
-      _maxLambdaPurchase,
-      ecosystem
-    );
+    Token.Instance memory token =
+      Configurator(ecosystem.configuratorAddress).buildToken(
+        _name,
+        _symbol,
+        _eByL,
+        _elasticity,
+        _k,
+        _maxLambdaPurchase,
+        ecosystem
+      );
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
@@ -109,22 +108,24 @@ contract ElasticDAO {
     );
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    uint256 capitalDelta = ElasticMath.capitalDelta(
-      // at this stage address(this).balance has the eth present in it(before function join),
-      // along with msg.value
-      // hence msg.value is subtracted from capitalDelta because capitalDelta is calculated
-      // with the eth present in the contract prior to recieving msg.value
-      address(this).balance - msg.value,
-      tokenContract.totalSupply()
-    );
-    uint256 deltaE = ElasticMath.deltaE(
-      _deltaLambda,
-      capitalDelta,
-      token.k,
-      token.elasticity,
-      token.lambda,
-      token.m
-    );
+    uint256 capitalDelta =
+      ElasticMath.capitalDelta(
+        // at this stage address(this).balance has the eth present in it(before function join),
+        // along with msg.value
+        // hence msg.value is subtracted from capitalDelta because capitalDelta is calculated
+        // with the eth present in the contract prior to recieving msg.value
+        address(this).balance - msg.value,
+        tokenContract.totalSupply()
+      );
+    uint256 deltaE =
+      ElasticMath.deltaE(
+        _deltaLambda,
+        capitalDelta,
+        token.k,
+        token.elasticity,
+        token.lambda,
+        token.m
+      );
 
     require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
 
@@ -164,10 +165,8 @@ contract ElasticDAO {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     DAO daoContract = DAO(ecosystem.daoModelAddress);
     DAO.Instance memory dao = daoContract.deserialize(address(this), ecosystem);
-    Token.Instance memory token = Token(ecosystem.tokenModelAddress).deserialize(
-      ecosystem.governanceTokenAddress,
-      ecosystem
-    );
+    Token.Instance memory token =
+      Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {

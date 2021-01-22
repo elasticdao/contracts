@@ -36,12 +36,8 @@ contract ElasticDAOFactory {
     uint256 _maxLambdaPurchase
   ) public payable {
     // create the DAO
-    ElasticDAO elasticDAO = new ElasticDAO(
-      ecosystemModelAddress,
-      _summoners,
-      _nameOfDAO,
-      _numberOfSummoners
-    );
+    ElasticDAO elasticDAO =
+      new ElasticDAO(ecosystemModelAddress, _summoners, _nameOfDAO, _numberOfSummoners);
 
     // initialize the token
     elasticDAO.initializeToken(_nameOfToken, _symbol, _eByL, _elasticity, _k, _maxLambdaPurchase);
