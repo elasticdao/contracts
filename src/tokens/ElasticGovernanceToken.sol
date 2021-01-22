@@ -73,7 +73,6 @@ contract ElasticGovernanceToken is IElasticToken {
   function balanceOf(address _account) external override view returns (uint256) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-
     uint256 t = ElasticMath.t(tokenHolder.lambda, token.k, token.m);
 
     return t;
