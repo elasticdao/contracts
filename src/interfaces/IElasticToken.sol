@@ -12,25 +12,6 @@ interface IElasticToken is IERC20 {
   function balanceOfInShares(address _account) external view returns (uint256 lambda);
 
   /**
-   * @dev Returns the amount of tokens owned by @param _account at @param _blockNumber.
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance is to be checked at
-   * @return t uint256  - t is the number of tokens
-   */
-  function balanceOfAt(address _account, uint256 _blockNumber) external view returns (uint256 t);
-
-  /**
-   * @dev Returns the amount of shares owned by @param _account at @param _blockNumber.
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance of shares is to be checked at
-   * @return lambda uint256 - lambda is the number of shares
-   */
-  function balanceOfInSharesAt(address _account, uint256 _blockNumber)
-    external
-    view
-    returns (uint256 lambda);
-
-  /**
    * @dev Reduces the balance(tokens) of @param _account by @param _amount
    * @param _account address of the account
    * @param _amount - the amount by which the number of tokens has to be reduced

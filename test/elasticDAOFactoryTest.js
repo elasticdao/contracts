@@ -1,10 +1,10 @@
 const { expect } = require('chai');
 const ethers = require('ethers');
 const hre = require('hardhat').ethers;
-const SDK = require('@elastic-dao/sdk');
+const { SDK } = require('@elastic-dao/sdk');
 
 const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
-const env = require('./env');
+const generateEnv = require('./env');
 
 describe('ElasticDAO: Factory', () => {
   let agent;
@@ -16,10 +16,12 @@ describe('ElasticDAO: Factory', () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
     const { provider } = hre;
 
-    const sdk = SDK({
+    const env = await generateEnv();
+
+    const sdk = new SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env: await env(),
+      env,
       provider,
       signer: agent,
     });

@@ -7,6 +7,7 @@ import '../models/Ecosystem.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
+  address internal deployer;
   address internal ecosystemModelAddress;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
@@ -16,7 +17,13 @@ contract ElasticDAOFactory {
   event FeeAddressUpdated(address indexed feeReceiver);
   event FeesCollected(address treasuryAddress, uint256 amount);
 
+  modifier onlyDeployer() {
+    require(msg.sender == deployer, 'ElasticDAO: Only deployer');
+    _;
+  }
+
   constructor(address _ecosystemModelAddress) {
+    deployer = msg.sender;
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
@@ -37,7 +44,7 @@ contract ElasticDAOFactory {
   ) public payable {
     // create the DAO
     ElasticDAO elasticDAO =
-      new ElasticDAO(ecosystemModelAddress, _summoners, _nameOfDAO, _numberOfSummoners);
+      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _numberOfSummoners);
 
     // initialize the token
     elasticDAO.initializeToken(_nameOfToken, _symbol, _eByL, _elasticity, _k, _maxLambdaPurchase);
@@ -47,15 +54,12 @@ contract ElasticDAOFactory {
     emit DAODeployed(address(elasticDAO));
   }
 
-  function updateFeeAddress(address _feeReceiver) external {
-    // TODO: NEEDS MODIFIER!!! THIS SHOULD ONLY BE UPDATEABLE BY A TRANSACTIONAL VOTE
-
+  function updateFeeAddress(address _feeReceiver) external onlyDeployer {
     feeAddress = payable(_feeReceiver);
     emit FeeAddressUpdated(_feeReceiver);
   }
 
   function collectFees() external {
-    // TODO: NEEDS MODIFIER!!! THIS SHOULD ONLY BE UPDATEABLE BY A TRANSACTIONAL VOTE
     uint256 amount = address(this).balance;
 
     feeAddress.transfer(amount);

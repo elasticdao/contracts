@@ -17,19 +17,33 @@ import '../models/TokenHolder.sol';
  * @dev Implementation of the IERC20 interface
  */
 contract ElasticGovernanceToken is IElasticToken {
+  address burner;
   address daoAddress;
   address ecosystemModelAddress;
+  address minter;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
   modifier onlyDAO() {
-    require(msg.sender == daoAddress, 'ElasticDAO: Not authorized.');
+    require(msg.sender == daoAddress || msg.sender == minter, 'ElasticDAO: Not authorized');
+    _;
+  }
+
+  modifier onlyDAOorBurner() {
+    require(msg.sender == daoAddress || msg.sender == burner, 'ElasticDAO: Not authorized');
+    _;
+  }
+
+  modifier onlyDAOorMinter() {
+    require(msg.sender == daoAddress || msg.sender == minter, 'ElasticDAO: Not authorized');
     _;
   }
 
   constructor(address _daoAddress, address _ecosystemModelAddress) IERC20() {
+    burner = _daoAddress;
     daoAddress = _daoAddress;
     ecosystemModelAddress = _ecosystemModelAddress;
+    minter = _daoAddress;
   }
 
   /**
@@ -89,53 +103,17 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   /**
-   * @dev Returns the amount of tokens owned by @param _account at the specific @param _blockNumber
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance is to be checked at
-   * @return t uint256 - the number of tokens
-   */
-  function balanceOfAt(address _account, uint256 _blockNumber)
-    external
-    view
-    override
-    returns (uint256 t)
-  {
-    t = 0;
-    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
-    if (balance.blockNumber <= _blockNumber) {
-      t = ElasticMath.t(balance.lambda, balance.m, balance.k);
-    }
-    return t;
-  }
-
-  /**
-   * @dev Returns the amount of shares owned by @param _account at @param _blockNumber.
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance of shares has to be checked at
-   * @return lambda uint256 - lambda is the number of shares
-   */
-  function balanceOfInSharesAt(address _account, uint256 _blockNumber)
-    external
-    view
-    override
-    returns (uint256 lambda)
-  {
-    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
-
-    if (balance.blockNumber > _blockNumber) {
-      return 0;
-    }
-
-    return balance.lambda;
-  }
-
-  /**
    * @dev Reduces the balance(tokens) of @param _account by @param _amount
    * @param _account address of the account
    * @param _amount - the amount by which the number of tokens is to be reduced
    * @return bool
    */
-  function burn(address _account, uint256 _amount) external override onlyDAO returns (bool) {
+  function burn(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorBurner
+    returns (bool)
+  {
     _burn(_account, _amount);
     return true;
   }
@@ -146,7 +124,12 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _amount - the amount by which the number of shares has to be reduced
    * @return bool
    */
-  function burnShares(address _account, uint256 _amount) external override returns (bool) {
+  function burnShares(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorBurner
+    returns (bool)
+  {
     _burnShares(_account, _amount);
     return true;
   }
@@ -191,7 +174,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _account - the address of the account for whom the token have to be minted to
    * @return bool
    */
-  function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
+  function mint(address _account, uint256 _amount) external onlyDAOorMinter returns (bool) {
     _mint(_account, _amount);
 
     return true;
@@ -203,7 +186,12 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _amount - the amount of shares to be minted
    * @return bool
    */
-  function mintShares(address _account, uint256 _amount) external override returns (bool) {
+  function mintShares(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorMinter
+    returns (bool)
+  {
     _mintShares(_account, _amount);
     return true;
   }
@@ -218,6 +206,14 @@ contract ElasticGovernanceToken is IElasticToken {
 
   function numberOfTokenHolders() external view override returns (uint256) {
     return _getToken().numberOfTokenHolders;
+  }
+
+  function setBurner(address _burner) external onlyDAO {
+    burner = _burner;
+  }
+
+  function setMinter(address _minter) external onlyDAO {
+    minter = _minter;
   }
 
   /**
@@ -411,6 +407,7 @@ contract ElasticGovernanceToken is IElasticToken {
     balance.m = _token.m;
     balance.token = _token;
     balance.tokenHolder = _tokenHolder;
+    _token.counter = SafeMath.add(_token.counter, 1);
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
 
     if (_isIncreasing) {
@@ -422,6 +419,7 @@ contract ElasticGovernanceToken is IElasticToken {
     balance.lambda = _tokenHolder.lambda;
 
     Balance(ecosystem.balanceModelAddress).serialize(balance);
+    Token(ecosystem.tokenModelAddress).incrementCounter(_token);
 
     return _tokenHolder;
   }

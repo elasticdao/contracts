@@ -28,9 +28,11 @@ contract BalanceMultipliers is EternalModel {
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
   ) public view returns (Instance memory record) {
-    record = _findByBlockNumber(_blockNumber, _token.counter, 0, _token);
     record.blockNumber = _blockNumber;
     record.ecosystem = _ecosystem;
+    record.index = _token.counter;
+    record.k = getUint(keccak256(abi.encode(_token.uuid, record.index, 'k')));
+    record.m = getUint(keccak256(abi.encode(_token.uuid, record.index, 'm')));
     record.token = _token;
     return record;
   }
@@ -48,64 +50,13 @@ contract BalanceMultipliers is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    require(msg.sender == record.ecosystem.balanceModelAddress, 'ElasticDAO: Unauthorized');
+
     setUint(
       keccak256(abi.encode(record.token.uuid, record.index, 'blockNumber')),
       record.blockNumber
     );
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'k')), record.k);
     setUint(keccak256(abi.encode(record.token.uuid, record.index, 'm')), record.m);
-  }
-
-  function _findByBlockNumber(
-    uint256 _blockNumber,
-    uint256 _numberOfRecords,
-    uint256 _offset,
-    Token.Instance memory _token
-  ) internal view returns (Instance memory record) {
-    if (_numberOfRecords == 0) {
-      record.blockNumber = _blockNumber;
-      record.k = 0;
-      record.m = 0;
-      return record;
-    }
-
-    if (_numberOfRecords == 1) {
-      uint256 index = SafeMath.add(_offset, _numberOfRecords);
-      record.blockNumber = getUint(keccak256(abi.encode(_token.uuid, index, 'blockNumber')));
-
-      if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
-        if (_offset == 0) {
-          record.blockNumber = getUint(keccak256(abi.encode(_token.uuid, 0, 'blockNumber')));
-          if (record.blockNumber == 0 || record.blockNumber > _blockNumber) {
-            record.k = 0;
-            record.m = 0;
-            return record;
-          }
-          record.k = getUint(keccak256(abi.encode(_token.uuid, 0, 'k')));
-          record.m = getUint(keccak256(abi.encode(_token.uuid, 0, 'm')));
-          return record;
-        }
-        return _findByBlockNumber(_blockNumber, _numberOfRecords, SafeMath.sub(_offset, 1), _token);
-      }
-      record.k = getUint(keccak256(abi.encode(_token.uuid, index, 'k')));
-      record.m = getUint(keccak256(abi.encode(_token.uuid, index, 'm')));
-      return record;
-    }
-
-    uint256 half = SafeMath.div(_numberOfRecords, 2);
-    uint256 middleIndex = SafeMath.add(half, _offset);
-    record.blockNumber = getUint(keccak256(abi.encode(_token.uuid, middleIndex, 'blockNumber')));
-
-    if (record.blockNumber > _blockNumber) {
-      return _findByBlockNumber(_blockNumber, half, _offset, _token);
-    }
-
-    if (record.blockNumber < _blockNumber) {
-      return _findByBlockNumber(_blockNumber, half, middleIndex, _token);
-    }
-
-    record.k = getUint(keccak256(abi.encode(_token.uuid, middleIndex, 'k')));
-    record.m = getUint(keccak256(abi.encode(_token.uuid, middleIndex, 'm')));
-    return record;
   }
 }

@@ -75,6 +75,15 @@ contract Ecosystem is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    bool recordExists = _exists(record.daoAddress);
+
+    require(
+      msg.sender == record.daoAddress ||
+        msg.sender == record.configuratorAddress ||
+        (record.daoAddress == address(0) && !recordExists),
+      'ElasticDAO: Unauthorized'
+    );
+
     setAddress(
       keccak256(abi.encode(record.daoAddress, 'balanceModelAddress')),
       record.balanceModelAddress

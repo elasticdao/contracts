@@ -38,6 +38,7 @@ describe('ElasticDAO: Core', () => {
       from: agent.address,
       args: [
         Ecosystem.address,
+        summoner1.address,
         [summoner.address, summoner1.address, summoner2.address],
         'ElasticDAO',
         3,
@@ -80,7 +81,7 @@ describe('ElasticDAO: Core', () => {
         ONE_HUNDRED,
         ethers.constants.WeiPerEther,
       ),
-    ).to.be.revertedWith('ElasticDAO: Only deployer can initialize the Token');
+    ).to.be.revertedWith('ElasticDAO: Only deployer');
   });
 
   it('Should not allow the DAO to be summoned before it has been seeded', async () => {
@@ -138,10 +139,7 @@ describe('ElasticDAO: Core', () => {
     expect(await tokenContract.balanceOf(summoner.address)).to.equal(ONE_THOUSAND);
     /// get balance at block
     await hre.provider.send('evm_mine');
-    const blockNumber = await hre.provider.getBlockNumber();
-    await tokenContract.balanceOfAt(summoner.address, blockNumber);
-
-    expect(await tokenContract.balanceOfAt(summoner.address, blockNumber)).to.equal(ONE_THOUSAND);
+    expect(await tokenContract.balanceOf(summoner.address)).to.equal(ONE_THOUSAND);
   });
 
   it('Should not allow summoners to seed before token has been initialized', async () => {

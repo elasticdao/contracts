@@ -69,6 +69,11 @@ contract DAO is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    require(
+      msg.sender == record.uuid || msg.sender == record.ecosystem.configuratorAddress,
+      'ElasticDAO: Unauthorized'
+    );
+
     setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
     setUint(keccak256(abi.encode(record.uuid, 'numberOfSummoners')), record.numberOfSummoners);
     setBool(keccak256(abi.encode(record.uuid, 'summoned')), record.summoned);

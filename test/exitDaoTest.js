@@ -5,8 +5,8 @@ const hre = require('hardhat').ethers;
 
 const { provider } = hre;
 
-const SDK = require('@elastic-dao/sdk');
-const env = require('./env');
+const { SDK } = require('@elastic-dao/sdk');
+const generateEnv = require('./env');
 
 describe('ElasticDAO: exitDAO ', () => {
   let agent;
@@ -19,11 +19,13 @@ describe('ElasticDAO: exitDAO ', () => {
   beforeEach(async () => {
     [agent, summoner, summoner1, summoner2] = await hre.getSigners();
 
+    const env = await generateEnv();
+
     // agent is the deployer
-    sdk = SDK({
+    sdk = new SDK({
       account: agent.address,
       contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env: await env(),
+      env,
       provider,
       signer: agent,
     });
@@ -66,7 +68,7 @@ describe('ElasticDAO: exitDAO ', () => {
 
     // post exit dao
     // blockNumber 23
-    await dao.elasticDAO.exitDAO(1);
+    await dao.elasticDAO.exit(1);
 
     const atExitBalanceRecord = await elasticGovernanceToken.balanceOf(summoner.address);
     expect(atExitBalanceRecord.toNumber()).to.equal(910);

@@ -62,9 +62,11 @@ contract Token is EternalModel {
     return _exists(_uuid);
   }
 
-  function incrementCounter(address _uuid) external {
-    uint256 counter = getUint(keccak256(abi.encode(_uuid, 'counter')));
-    setUint(keccak256(abi.encode(_uuid, 'counter')), SafeMath.add(counter, 1));
+  function incrementCounter(Instance memory record) external {
+    require(msg.sender == record.uuid, 'ElasticDAO: Unauthorized');
+
+    uint256 counter = getUint(keccak256(abi.encode(record.uuid, 'counter')));
+    setUint(keccak256(abi.encode(record.uuid, 'counter')), SafeMath.add(counter, 1));
   }
 
   /**
@@ -72,6 +74,13 @@ contract Token is EternalModel {
    * @param record Instance
    */
   function serialize(Instance memory record) external {
+    require(
+      msg.sender == record.uuid ||
+        msg.sender == record.ecosystem.daoAddress ||
+        (msg.sender == record.ecosystem.configuratorAddress && !_exists(record.uuid)),
+      'ElasticDAO: Unauthorized'
+    );
+
     setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
     setString(keccak256(abi.encode(record.uuid, 'symbol')), record.symbol);
     setUint(keccak256(abi.encode(record.uuid, 'eByL')), record.eByL);

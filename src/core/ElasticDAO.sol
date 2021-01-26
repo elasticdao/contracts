@@ -12,8 +12,9 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 
 contract ElasticDAO {
-  address internal ecosystemModelAddress;
+  address internal controller;
   address internal deployer;
+  address internal ecosystemModelAddress;
   address[] public summoners;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
@@ -35,7 +36,14 @@ contract ElasticDAO {
     require(dao.summoned == false, 'ElasticDAO: DAO must not be summoned');
     _;
   }
-
+  modifier onlyController() {
+    require(msg.sender == controller, 'ElasticDAO: Only controller');
+    _;
+  }
+  modifier onlyDeployer() {
+    require(msg.sender == deployer, 'ElasticDAO: Only deployer');
+    _;
+  }
   modifier onlySummoners() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     DAO daoContract = DAO(ecosystem.daoModelAddress);
@@ -45,14 +53,20 @@ contract ElasticDAO {
     require(summonerCheck, 'ElasticDAO: Only summoners');
     _;
   }
+  modifier onlyWhenOpen() {
+    require(address(this).balance > 0, 'ElasticDAO: This DAO is closed');
+    _;
+  }
 
   constructor(
     address _ecosystemModelAddress,
+    address _controller,
     address[] memory _summoners,
     string memory _name,
     uint256 _numberOfSummoners
   ) {
     ecosystemModelAddress = _ecosystemModelAddress;
+    controller = _controller;
     deployer = msg.sender;
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
     summoners = _summoners;
@@ -62,7 +76,7 @@ contract ElasticDAO {
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
-  function exitDAO(uint256 _deltaLambda) public onlyAfterSummoning {
+  function exit(uint256 _deltaLambda) public onlyAfterSummoning {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
@@ -82,7 +96,7 @@ contract ElasticDAO {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) external onlyBeforeSummoning {
+  ) external onlyBeforeSummoning onlyDeployer {
     require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
@@ -96,10 +110,15 @@ contract ElasticDAO {
         _maxLambdaPurchase,
         ecosystem
       );
+
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
+    tokenContract.setBurner(controller);
+    tokenContract.setMinter(controller);
+
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
-  function join(uint256 _deltaLambda) public payable onlyAfterSummoning {
+  function join(uint256 _deltaLambda) public payable onlyAfterSummoning onlyWhenOpen {
     Token.Instance memory token = _getToken();
 
     require(
@@ -141,6 +160,13 @@ contract ElasticDAO {
 
     // tokencontract mint shares
     tokenContract.mintShares(msg.sender, _deltaLambda);
+  }
+
+  function setController(address _controller) external onlyController {
+    controller = _controller;
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
+    tokenContract.setBurner(controller);
+    tokenContract.setMinter(controller);
   }
 
   // Summoning

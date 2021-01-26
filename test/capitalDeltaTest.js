@@ -35,6 +35,7 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
       from: agent.address,
       args: [
         Ecosystem.address,
+        summoner.address,
         [summoner.address, summoner1.address, summoner2.address],
         'ElasticDAO',
         3,
