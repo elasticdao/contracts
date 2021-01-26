@@ -38,6 +38,13 @@ library ElasticMath {
     uint256 lambda,
     uint256 m
   ) internal view returns (uint256 deltaEValue) {
+    console.log('contract: deltaLambda: ', deltaLambda);
+    console.log('contract: capitalDeltaValue: ', capitalDeltaValue);
+    console.log('contract: k: ', k);
+    console.log('contract: elasticity: ', elasticity);
+    console.log('contract: lambda: ', lambda);
+    console.log('contract: m: ', m);
+
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
     console.log('contract: lambdadash: ', lambdaDash);
 
