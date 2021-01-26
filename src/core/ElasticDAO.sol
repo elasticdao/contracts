@@ -11,6 +11,7 @@ import '../models/Token.sol';
 
 import '../services/Configurator.sol';
 import '../services/Registrator.sol';
+import "hardhat/console.sol";
 
 contract ElasticDAO {
   address internal ecosystemModelAddress;
@@ -111,6 +112,7 @@ contract ElasticDAO {
   }
 
   function join(uint256 _deltaLambda) public payable onlyAfterSummoning {
+    console.log('contract: ', _deltaLambda);
     Token.Instance memory token = _getToken();
 
     require(

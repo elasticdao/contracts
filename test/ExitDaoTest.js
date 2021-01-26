@@ -56,7 +56,7 @@ describe('ElasticDAO: exitDAO ', () => {
     await dao.elasticDAO.getDAO();
   });
 
-  it.only('should allow to exit with 1 share and corresponding eth', async () => {
+  it('should allow to exit with 1 share and corresponding eth', async () => {
     // summoner exits one share -> should have 9.1 shares and ( 1 * CapitalDelta ) eth
 
     const elasticGovernanceToken = await dao.elasticGovernanceToken;
