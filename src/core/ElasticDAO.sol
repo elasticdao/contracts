@@ -16,6 +16,7 @@ contract ElasticDAO {
   address internal deployer;
   address internal ecosystemModelAddress;
   address[] public summoners;
+  uint256 public maxVotingLambda;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
 
@@ -69,6 +70,7 @@ contract ElasticDAO {
     controller = _controller;
     deployer = msg.sender;
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
+    maxVotingLambda = 1000000000000000000;
     summoners = _summoners;
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
@@ -167,6 +169,10 @@ contract ElasticDAO {
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
     tokenContract.setBurner(controller);
     tokenContract.setMinter(controller);
+  }
+
+  function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController {
+    maxVotingLambda = _maxVotingLambda;
   }
 
   // Summoning

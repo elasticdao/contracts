@@ -7,6 +7,7 @@ import '../interfaces/IElasticToken.sol';
 import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
 
+import '../core/ElasticDAO.sol';
 import '../models/Balance.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
@@ -17,10 +18,10 @@ import '../models/TokenHolder.sol';
  * @dev Implementation of the IERC20 interface
  */
 contract ElasticGovernanceToken is IElasticToken {
-  address burner;
-  address daoAddress;
-  address ecosystemModelAddress;
-  address minter;
+  address public burner;
+  address public daoAddress;
+  address public ecosystemModelAddress;
+  address public minter;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
@@ -100,6 +101,19 @@ contract ElasticGovernanceToken is IElasticToken {
   function balanceOfInShares(address _account) external view override returns (uint256 lambda) {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     return tokenHolder.lambda;
+  }
+
+  function balanceOfVoting(address _account) external view returns (uint256 balance) {
+    Token.Instance memory token = _getToken();
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    ElasticDAO elasticDAO = ElasticDAO(payable(daoAddress));
+    uint256 maxVotingLambda = elasticDAO.maxVotingLambda();
+
+    if (tokenHolder.lambda > maxVotingLambda) {
+      return ElasticMath.t(maxVotingLambda, token.k, token.m);
+    } else {
+      return ElasticMath.t(tokenHolder.lambda, token.k, token.m);
+    }
   }
 
   /**
