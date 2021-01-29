@@ -17,8 +17,6 @@ describe('ElasticDAO: Ecosystem Model', () => {
   beforeEach(async () => {
     [agent] = await hre.getSigners();
 
-    await deployments.fixture();
-
     // setup needed contracts
     Balance = await deployments.get('Balance');
     BalanceMultipliers = await deployments.get('BalanceMultipliers');

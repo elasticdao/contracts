@@ -1,76 +1,18 @@
 const { expect } = require('chai');
-// const BigNumber = require('bignumber.js');
-const ethers = require('ethers');
-const hre = require('hardhat').ethers;
+const { signers, summonedDAO } = require('./helpers');
 
-const { provider } = hre;
-
-const { SDK } = require('@elastic-dao/sdk');
-const generateEnv = require('./env');
-
-describe('ElasticDAO: exitDAO ', () => {
-  let agent;
-  let dao;
-  let sdk;
-  let summoner;
-  let summoner1;
-  let summoner2;
-
-  beforeEach(async () => {
-    [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-
-    const env = await generateEnv();
-
-    // agent is the deployer
-    sdk = new SDK({
-      account: agent.address,
-      contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env,
-      provider,
-      signer: agent,
-    });
-
-    dao = await sdk.elasticDAOFactory.deployDAOAndToken(
-      [summoner.address, summoner1.address, summoner2.address],
-      'Elastic DAO',
-      3,
-      'Elastic Governance Token',
-      'EGT',
-      0.1,
-      0.02,
-      100,
-      1,
-    );
-
-    sdk.account = summoner.address;
-    sdk.contract = ({ abi, address }) => new ethers.Contract(address, abi, summoner);
-    sdk.signer = summoner;
-
-    // blocknumber 21
-    await dao.elasticDAO.seedSummoning({
-      value: 1,
-    });
-
-    // blocknumber 22
-    await dao.elasticDAO.summon(0.1);
-
-    // refresh
-    await dao.elasticDAO.getDAO();
-  });
-
+describe('ElasticDAO: exit', () => {
   it('should allow to exit with 1 share and corresponding eth', async () => {
-    // summoner exits one share -> should have 9.1 shares and ( 1 * CapitalDelta ) eth
+    const dao = await summonedDAO();
+    const { summoner1 } = await signers();
 
-    const elasticGovernanceToken = await dao.elasticGovernanceToken;
-    const postSummonBalanceOf = await elasticGovernanceToken.balanceOf(summoner.address);
+    const postSummonBalanceOf = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
 
     expect(postSummonBalanceOf.toNumber()).to.equal(1010);
 
-    // post exit dao
-    // blockNumber 23
     await dao.elasticDAO.exit(1);
 
-    const atExitBalanceRecord = await elasticGovernanceToken.balanceOf(summoner.address);
+    const atExitBalanceRecord = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
     expect(atExitBalanceRecord.toNumber()).to.equal(910);
   });
 });

@@ -18,6 +18,7 @@ module.exports = {
     'mocha/no-mocha-arrows': 0,
     'no-console': 0,
     'no-underscore-dangle': 0,
+    'no-use-before-define': 0,
     'object-curly-newline': 0,
   },
 };

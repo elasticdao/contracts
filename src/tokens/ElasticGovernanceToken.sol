@@ -98,7 +98,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _account - address of the account
    * @return lambda uint256 - lambda is the number of shares
    */
-  function balanceOfInShares(address _account) external view override returns (uint256 lambda) {
+  function balanceOfInShares(address _account) external view override returns (uint256) {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     return tokenHolder.lambda;
   }
