@@ -7,6 +7,7 @@ require('hardhat-gas-reporter');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-deploy');
 require('hardhat-contract-sizer');
+require('solidity-coverage');
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 
