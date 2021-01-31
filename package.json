@@ -38,7 +38,8 @@
     "hardhat-deploy": "^0.7.0-beta.44",
     "hardhat-gas-reporter": "1.0.4",
     "scrypt": "6.0.3",
-    "solc": "0.7.2"
+    "solc": "0.7.2",
+    "solidity-coverage": "git://github.com/elasticdao/solidity-coverage.git#e0cdfce1478898a8440471768f304d9786db03e8"
   },
   "devDependencies": {
     "chai": "4.2.0",
@@ -49,7 +50,6 @@
     "mocha": "8.2.1",
     "prettier": "2.2.1",
     "prettier-plugin-solidity": "1.0.0-beta.3",
-    "solhint": "3.3.2",
-    "solidity-coverage": "git://github.com/elasticdao/solidity-coverage.git#e0cdfce1478898a8440471768f304d9786db03e8"
+    "solhint": "3.3.2"
   }
 }
