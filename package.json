@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "console": "npx hardhat console",
-    "coverage": "npx hardhat coverage --network localhost",
+    "coverage": "npx hardhat coverage --network coverage --temp artifacts",
     "deploy": "npx hardhat deploy",
     "ethereum": "yarn lint && npx hardhat node",
     "lint": "yarn run prettier && yarn run lint:es6 && yarn run lint:solidity && yarn run lint:tests",
