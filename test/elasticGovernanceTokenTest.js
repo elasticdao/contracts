@@ -21,10 +21,16 @@ describe('ElasticDAO: Elastic Governance Token', () => {
 
     expect(allowance.toFixed()).to.equal('1');
   });
-  it('Should get balance of votable shares for user', async () => {
+  it('Should return maxVotingLambda(100) if member has more shares than are votable', async () => {
     const { summoner1 } = await signers();
     const balanceOfVoting = await dao.elasticGovernanceToken.balanceOfVoting(summoner1.address);
     expect(balanceOfVoting.toFixed()).to.equal('100');
+  });
+  it('Should get balance of votable shares for user', async () => {
+    const { summoner1, summoner2 } = await signers();
+    await dao.elasticGovernanceToken.transfer(summoner2.address, 950);
+    const balanceOfVoting = await dao.elasticGovernanceToken.balanceOfVoting(summoner1.address);
+    expect(balanceOfVoting.toFixed()).to.equal('60');
   });
   it('Should get token decimals', async () => {
     const decimals = await dao.elasticGovernanceToken.decimals();

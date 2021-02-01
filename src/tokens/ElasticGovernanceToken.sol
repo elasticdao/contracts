@@ -314,19 +314,6 @@ contract ElasticGovernanceToken is IElasticToken {
     emit Approval(_owner, _spender, _amount);
   }
 
-  function _balanceAt(address _account, uint256 _blockNumber)
-    internal
-    view
-    returns (Balance.Instance memory)
-  {
-    Token.Instance memory token = _getToken();
-    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance balanceStorage = Balance(ecosystem.balanceModelAddress);
-
-    return balanceStorage.deserialize(_blockNumber, ecosystem, token, tokenHolder);
-  }
-
   function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
     uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
