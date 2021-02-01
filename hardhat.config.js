@@ -44,6 +44,7 @@ module.exports = {
     hardhat: {
       gasPrice: 0,
       blockGasLimit: 100000000,
+      allowUnlimitedContractSize: true,
     },
     coverage: {
       url: 'http://127.0.0.1:8555',

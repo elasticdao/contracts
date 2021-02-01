@@ -2,7 +2,8 @@
 pragma solidity 0.7.2;
 
 import './SafeMath.sol';
-import 'hardhat/console.sol';
+
+// import 'hardhat/console.sol';
 
 /**
  * This library does the Elastic math
@@ -38,39 +39,31 @@ library ElasticMath {
     uint256 lambda,
     uint256 m
   ) internal view returns (uint256 deltaEValue) {
-    console.log('contract: deltaLambda: ', deltaLambda);
-    console.log('contract: capitalDeltaValue: ', capitalDeltaValue);
-    console.log('contract: k: ', k);
-    console.log('contract: elasticity: ', elasticity);
-    console.log('contract: lambda: ', lambda);
-    console.log('contract: m: ', m);
-
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
-    console.log('contract: lambdadash: ', lambdaDash);
 
     uint256 a = wmul(capitalDeltaValue, k);
-    console.log('contract: a:', a);
+    // console.log('contract: a:', a);
 
     uint256 b = revamp(elasticity);
-    console.log('contract: b: ', b);
+    // console.log('contract: b: ', b);
 
     uint256 c = wmul(lambda, m);
-    console.log('contract: c: ', c);
+    // console.log('contract: c: ', c);
 
     uint256 d = mDash(lambdaDash, lambda, m);
-    console.log('contract: d: ', d);
+    // console.log('contract: d: ', d);
 
     uint256 e = wmul(d, b);
-    console.log('contract: e: ', e);
+    // console.log('contract: e: ', e);
 
     uint256 f = wmul(lambdaDash, e);
-    console.log('contract: f: ', f);
+    // console.log('contract: f: ', f);
 
     uint256 g = SafeMath.sub(f, c);
-    console.log('contract: g: ', g);
+    // console.log('contract: g: ', g);
 
     deltaEValue = wmul(a, g);
-    console.log('contract: deltaEValue: ', deltaEValue);
+    // console.log('contract: deltaEValue: ', deltaEValue);
 
     return deltaEValue;
   }

@@ -1,5 +1,6 @@
 const { ethers } = require('ethers');
 const { expect } = require('chai');
+
 const { newDAO } = require('./helpers');
 
 describe('ElasticDAO: Factory', () => {

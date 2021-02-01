@@ -1,4 +1,6 @@
 const { expect } = require('chai');
+const { deployments } = require('hardhat');
+
 const { capitalDelta, deltaE, mDash } = require('@elastic-dao/sdk');
 const BigNumber = require('bignumber.js');
 const { ONE } = require('./constants');
@@ -9,12 +11,11 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
   let dao;
   let token;
 
-  beforeEach(async () => {
+  it('Should return a mismatch in the values of capital delta', async () => {
+    await deployments.fixture();
     dao = await summonedDAO();
     token = await dao.token();
-  });
 
-  it('Should return a mismatch in the values of capital delta', async () => {
     const { agent } = await signers();
 
     // get the eth balance of elasticDAO
@@ -41,6 +42,8 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
   });
 
   it('Should return a match in the values of capital delta', async () => {
+    dao = await summonedDAO();
+    token = await dao.token();
     // get the eth balance of elasticDAO
     const ethBalanceElasticDAOBeforeJoin = await ethBalance(dao.uuid);
 
