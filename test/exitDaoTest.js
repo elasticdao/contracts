@@ -1,8 +1,8 @@
 const { expect } = require('chai');
 const { signers, summonedDAO } = require('./helpers');
 
-describe('ElasticDAO: exit', () => {
-  it('should allow to exit with 1 share and corresponding eth', async () => {
+describe('ElasticDAO: Exit', () => {
+  it('Should allow to exit with 1 share and corresponding eth', async () => {
     const dao = await summonedDAO();
     const { summoner1 } = await signers();
 
