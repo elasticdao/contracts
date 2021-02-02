@@ -39,7 +39,7 @@ describe('ElasticDAO: Elastic Governance Token', () => {
   });
   it('Should increase allowance', async () => {
     const { summoner1, summoner2 } = await signers();
-    await dao.elasticGovernanceToken.increaseAllowance(summoner2.address, '1000000000000000000');
+    await dao.elasticGovernanceToken.increaseAllowance(summoner2.address, 1);
 
     const allowance = await dao.elasticGovernanceToken.allowance(
       summoner1.address,
@@ -50,8 +50,8 @@ describe('ElasticDAO: Elastic Governance Token', () => {
   });
   it('Should decrease allowance', async () => {
     const { summoner1, summoner2 } = await signers();
-    await dao.elasticGovernanceToken.increaseAllowance(summoner2.address, '2000000000000000000');
-    await dao.elasticGovernanceToken.decreaseAllowance(summoner2.address, '1000000000000000000');
+    await dao.elasticGovernanceToken.increaseAllowance(summoner2.address, 2);
+    await dao.elasticGovernanceToken.decreaseAllowance(summoner2.address, 1);
 
     const allowance = await dao.elasticGovernanceToken.allowance(
       summoner1.address,
@@ -68,6 +68,13 @@ describe('ElasticDAO: Elastic Governance Token', () => {
     const balance = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
     expect(balance.toFixed()).to.equal('1011');
   });
+  it('Should not mint tokens if caller is not valid minter', async () => {
+    const { summoner1 } = await signers();
+
+    await expect(dao.elasticGovernanceToken.mint(summoner1.address, 1)).to.be.revertedWith(
+      'ElasticDAO: Not authorized',
+    );
+  });
   it('Should burn tokens', async () => {
     const { agent, summoner1 } = await signers();
 
@@ -78,15 +85,22 @@ describe('ElasticDAO: Elastic Governance Token', () => {
 
     expect(balance.toFixed()).to.equal('1009');
   });
+  it('Should not burn tokens if caller is not the valid burner', async () => {
+    const { summoner1 } = await signers();
+
+    await expect(dao.elasticGovernanceToken.burn(summoner1.address, 1)).to.be.revertedWith(
+      'ElasticDAO: Not authorized',
+    );
+  });
   it('Should get token name', async () => {
     const name = await dao.elasticGovernanceToken.name();
 
     expect(name).to.equal('Elastic Governance Token');
   });
   it('Should get token symbol', async () => {
-    const name = await dao.elasticGovernanceToken.symbol();
+    const symbol = await dao.elasticGovernanceToken.symbol();
 
-    expect(name).to.equal('EGT');
+    expect(symbol).to.equal('EGT');
   });
   it('Should get number of token holders', async () => {
     const numberOfTokenHolders = await dao.elasticGovernanceToken.numberOfTokenHolders();
@@ -110,7 +124,7 @@ describe('ElasticDAO: Elastic Governance Token', () => {
     expect(balance.toFixed()).to.equal('11');
   });
 
-  it('should transfer tokens on behalf of a to b', async () => {
+  it('should transfer tokens on behalf of a to b(transferFrom)', async () => {
     const { summoner2, summoner1, agent } = await signers();
 
     let balance = await dao.elasticGovernanceToken.balanceOf(summoner2.address);
