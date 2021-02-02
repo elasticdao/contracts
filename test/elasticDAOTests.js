@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const { ethers } = require('ethers');
+const { deployments } = require('hardhat');
 const hre = require('hardhat').ethers;
 const { ethBalance, SDK, signers, summoners, summonedDAO } = require('./helpers');
 
@@ -185,5 +186,75 @@ describe('ElasticDAO: Core', () => {
         ethers.constants.WeiPerEther,
       ),
     ).to.be.revertedWith('ElasticDAO: DAO must not be summoned');
+  });
+
+  it('Should not allow the caller to setController if not controller', async () => {
+    dao = await summonedDAO();
+
+    const { summoner1 } = await signers();
+    dao.sdk.changeSigner(summoner1);
+
+    await expect(dao.elasticDAO.contract.setController(summoner1.address)).to.be.revertedWith(
+      'ElasticDAO: Only controller',
+    );
+  });
+
+  it('Should allow the controller to setController', async () => {
+    dao = await summonedDAO();
+    const { summoner1, agent } = await signers();
+    dao.sdk.changeSigner(agent);
+
+    await dao.elasticDAO.contract.setController(summoner1.address);
+
+    const controller = await dao.elasticDAO.getController();
+    expect(controller).to.equal(summoner1.address);
+  });
+
+  it('Should allow the controller to setMaxVotingLambda', async () => {
+    dao = await summonedDAO();
+    const { agent } = await signers();
+    dao.sdk.changeSigner(agent);
+
+    await dao.elasticDAO.contract.setMaxVotingLambda(dao.toEthersBigNumber(5, 18));
+
+    const maxVotingLambda = await dao.elasticDAO.getMaxVotingLambda();
+    expect(maxVotingLambda).to.equal(dao.toEthersBigNumber(5, 18));
+  });
+
+  it('Should not allow the caller to setMaxVotingLambda if not controller', async () => {
+    dao = await summonedDAO();
+    const { summoner1 } = await signers();
+    dao.sdk.changeSigner(summoner1);
+
+    await expect(
+      dao.elasticDAO.contract.setMaxVotingLambda(dao.toEthersBigNumber(5, 18)),
+    ).to.be.revertedWith('ElasticDAO: Only controller');
+  });
+
+  it('Should getDAO', async () => {
+    const getDAO = await dao.elasticDAO.contract.getDAO();
+
+    expect(getDAO.uuid.toLowerCase()).to.equal(dao.id);
+  });
+
+  it('Should getEcosystem', async () => {
+    const getEcosystem = await dao.elasticDAO.contract.getEcosystem();
+
+    expect(getEcosystem.daoAddress.toLowerCase()).to.equal(dao.id);
+  });
+
+  it('Should check to see if a instance record exists by daoAddress', async () => {
+    const { agent } = await signers();
+    const DAOModel = await deployments.get('DAO');
+    const DAOModelInstance = new ethers.Contract(DAOModel.address, DAOModel.abi, agent);
+    const ecosystem = await dao.elasticDAO.contract.getEcosystem();
+    const recordDoesntExist = await DAOModelInstance.exists(
+      ethers.constants.AddressZero,
+      ecosystem,
+    );
+    const recordExists = await DAOModelInstance.exists(dao.uuid, ecosystem);
+
+    expect(recordDoesntExist).to.equal(false);
+    expect(recordExists).to.equal(true);
   });
 });

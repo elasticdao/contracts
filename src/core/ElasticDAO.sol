@@ -12,9 +12,9 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 
 contract ElasticDAO {
-  address internal controller;
   address internal deployer;
   address internal ecosystemModelAddress;
+  address public controller;
   address[] public summoners;
   uint256 public maxVotingLambda;
 

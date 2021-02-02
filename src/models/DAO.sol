@@ -42,7 +42,7 @@ contract DAO is EternalModel {
   }
 
   /**
-   * @dev checks if @param _uuid and @param _name exist
+   * @dev checks if @param _uuid exists
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
