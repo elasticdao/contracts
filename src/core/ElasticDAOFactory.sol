@@ -3,6 +3,7 @@ pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 import './ElasticDAO.sol';
+
 import '../models/Ecosystem.sol';
 
 // This contract is the facory contract for ElasticDAO

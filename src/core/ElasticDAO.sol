@@ -19,9 +19,20 @@ contract ElasticDAO {
   uint256 public maxVotingLambda;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
-  event SettingsChanged(address indexed daoAddress, bytes32 settingName, uint256 value);
-  event ExitDAO(address indexed daoAddress, address indexed memberAddress, uint256 amount);
-  event JoinDAO(address indexed daoAddress, address indexed memberAddress, uint256 amount);
+  event MaxVotingLambdaChanged(address indexed daoAddress, bytes32 settingName, uint256 value);
+  event ControllerChanged(address indexed daoAddress, bytes32 settingName, address value);
+  event ExitDAO(
+    address indexed daoAddress,
+    address indexed memberAddress,
+    uint256 shareAmount,
+    uint256 ethAmount
+  );
+  event JoinDAO(
+    address indexed daoAddress,
+    address indexed memberAddress,
+    uint256 shareAmount,
+    uint256 ethAmount
+  );
   event SeedDAO(address indexed daoAddress, address indexed summonerAddress, uint256 amount);
   event SummonedDAO(address indexed daoAddress, address indexed summonedBy);
 
@@ -94,6 +105,7 @@ contract ElasticDAO {
     uint256 ethToBeTransfered = ElasticMath.wmul(ratioOfShares, address(this).balance);
     // transfer the eth
     msg.sender.transfer(ethToBeTransfered);
+    emit ExitDAO(address(this), msg.sender, _deltaLambda, ethToBeTransfered);
   }
 
   function initializeToken(
@@ -168,7 +180,7 @@ contract ElasticDAO {
     // tokencontract mint shares
     tokenContract.mintShares(msg.sender, _deltaLambda);
 
-    emit JoinDAO(address(this), msg.sender, _deltaLambda);
+    emit JoinDAO(address(this), msg.sender, _deltaLambda, msg.value);
   }
 
   function setController(address _controller) external onlyController {
@@ -176,10 +188,14 @@ contract ElasticDAO {
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
     tokenContract.setBurner(controller);
     tokenContract.setMinter(controller);
+
+    emit ControllerChanged(address(this), 'setController', controller);
   }
 
   function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController {
     maxVotingLambda = _maxVotingLambda;
+
+    emit MaxVotingLambdaChanged(address(this), 'setMaxVotingLambda', _maxVotingLambda);
   }
 
   // Summoning
