@@ -2,11 +2,11 @@ const { deployments } = require('hardhat');
 
 module.exports = async () => {
   const [DAO, Ecosystem, Factory, Token, TokenHolder] = await Promise.all([
-    deployments.get('DAO'),
-    deployments.get('Ecosystem'),
-    deployments.get('ElasticDAOFactory'),
-    deployments.get('Token'),
-    deployments.get('TokenHolder'),
+    deployments.get('DAO_Implementation'),
+    deployments.get('Ecosystem_Implementation'),
+    deployments.get('ElasticDAOFactory_Implementation'),
+    deployments.get('Token_Implementation'),
+    deployments.get('TokenHolder_Implementation'),
   ]);
   const env = {
     elasticDAO: {

@@ -16,12 +16,12 @@ describe('ElasticDAO: Ecosystem Model', () => {
     [agent] = await hre.getSigners();
 
     // setup needed contracts
-    Configurator = await deployments.get('Configurator');
-    Dao = await deployments.get('DAO');
-    Ecosystem = await deployments.get('Ecosystem');
+    Configurator = await deployments.get('Configurator_Implementation');
+    Dao = await deployments.get('DAO_Implementation');
+    Ecosystem = await deployments.get('Ecosystem_Implementation');
     ecosystemStorage = new ethers.Contract(Ecosystem.address, Ecosystem.abi, agent);
-    TokenHolder = await deployments.get('TokenHolder');
-    Token = await deployments.get('Token');
+    TokenHolder = await deployments.get('TokenHolder_Implementation');
+    Token = await deployments.get('Token_Implementation');
   });
 
   it('Should look up and return ecosystem instance record by uuid address', async () => {

@@ -245,7 +245,7 @@ describe('ElasticDAO: Core', () => {
 
   it('Should check to see if a instance record exists by daoAddress', async () => {
     const { agent } = await signers();
-    const DAOModel = await deployments.get('DAO');
+    const DAOModel = await deployments.get('DAO_Implementation');
     const DAOModelStorage = new ethers.Contract(DAOModel.address, DAOModel.abi, agent);
     const ecosystem = await dao.elasticDAO.contract.getEcosystem();
     const recordDoesntExist = await DAOModelStorage.exists(ethers.constants.AddressZero, ecosystem);
