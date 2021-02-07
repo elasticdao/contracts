@@ -7,13 +7,13 @@ import '../models/Ecosystem.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory {
-  address internal deployer;
-  address internal ecosystemModelAddress;
+  address public deployer;
+  address public ecosystemModelAddress;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
   uint256 public deployedDAOCount = 0;
 
-  event DAODeployed(address indexed daoAddress);
+  event DeployedDAO(address indexed daoAddress);
   event FeeAddressUpdated(address indexed feeReceiver);
   event FeesCollected(address treasuryAddress, uint256 amount);
 
@@ -51,7 +51,7 @@ contract ElasticDAOFactory {
 
     deployedDAOAddresses.push(address(elasticDAO));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
-    emit DAODeployed(address(elasticDAO));
+    emit DeployedDAO(address(elasticDAO));
   }
 
   function updateFeeAddress(address _feeReceiver) external onlyDeployer {

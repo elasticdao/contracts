@@ -6,6 +6,7 @@ import './Ecosystem.sol';
 import './EternalModel.sol';
 import './Token.sol';
 import '../libraries/SafeMath.sol';
+import 'hardhat/console.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
@@ -30,7 +31,13 @@ contract TokenHolder is EternalModel {
     record.ecosystem = _ecosystem;
     record.token = _token;
 
-    if (_exists(_account, _ecosystem, _token)) {
+    console.log("EXISTS DESERIALIZE");
+    console.logBool(_exists(_account, _token));
+    console.logAddress(record.account);
+    console.log(record.token.uuid);
+
+
+    if (_exists(_account, _token)) {
       record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
       record.lambda = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')));
     }
@@ -40,10 +47,12 @@ contract TokenHolder is EternalModel {
 
   function exists(
     address _account,
-    Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
-  ) external view returns (bool recordExists) {
-    return _exists(_account, _ecosystem, _token);
+  ) external view returns (bool) {
+    console.log("EXISTS");
+    console.logBool(_exists(_account, _token));
+
+    return _exists(_account, _token);
   }
 
   /**
@@ -61,9 +70,8 @@ contract TokenHolder is EternalModel {
 
   function _exists(
     address _account,
-    Ecosystem.Instance memory,
     Token.Instance memory _token
-  ) internal view returns (bool recordExists) {
+  ) internal view returns (bool) {
     return getBool(keccak256(abi.encode(_token.uuid, _account, 'exists')));
   }
 }

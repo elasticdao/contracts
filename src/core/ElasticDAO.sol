@@ -12,13 +12,18 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 
 contract ElasticDAO {
-  address internal deployer;
-  address internal ecosystemModelAddress;
+  address public deployer;
+  address public ecosystemModelAddress;
   address public controller;
   address[] public summoners;
   uint256 public maxVotingLambda;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
+  event SettingsChanged(address indexed daoAddress, bytes32 settingName, uint256 value);
+  event ExitDAO(address indexed daoAddress, address indexed memberAddress, uint256 amount);
+  event JoinDAO(address indexed daoAddress, address indexed memberAddress, uint256 amount);
+  event SeedDAO(address indexed daoAddress, address indexed summonerAddress, uint256 amount);
+  event SummonedDAO(address indexed daoAddress, address indexed summonedBy);
 
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();
@@ -162,6 +167,8 @@ contract ElasticDAO {
 
     // tokencontract mint shares
     tokenContract.mintShares(msg.sender, _deltaLambda);
+
+    emit JoinDAO(address(this), msg.sender, _deltaLambda);
   }
 
   function setController(address _controller) external onlyController {
@@ -189,6 +196,8 @@ contract ElasticDAO {
     uint256 deltaE = msg.value;
     uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByL);
     ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
+
+    emit SeedDAO(address(this), msg.sender, deltaLambda);
   }
 
   function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
@@ -206,6 +215,8 @@ contract ElasticDAO {
     }
     dao.summoned = true;
     daoContract.serialize(dao);
+
+    emit SummonedDAO(address(this), msg.sender);
   }
 
   // Getters

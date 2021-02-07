@@ -54,7 +54,7 @@ contract Ecosystem is EternalModel {
   }
 
   /**
-   * @dev checks if @param _daoAddress and @param _name exist
+   * @dev checks if @param _daoAddress
    * @param _daoAddress - address of the unique user ID
    * @return recordExists bool
    */
