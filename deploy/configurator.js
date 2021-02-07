@@ -5,6 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const configurator = await deploy('Configurator', {
     from: agent,
     args: [],
+    proxy: true,
   });
 
   if (configurator.newlyDeployed) {

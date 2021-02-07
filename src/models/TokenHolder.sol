@@ -31,11 +31,10 @@ contract TokenHolder is EternalModel {
     record.ecosystem = _ecosystem;
     record.token = _token;
 
-    console.log("EXISTS DESERIALIZE");
+    console.log('EXISTS DESERIALIZE');
     console.logBool(_exists(_account, _token));
     console.logAddress(record.account);
     console.log(record.token.uuid);
-
 
     if (_exists(_account, _token)) {
       record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
@@ -45,11 +44,8 @@ contract TokenHolder is EternalModel {
     return record;
   }
 
-  function exists(
-    address _account,
-    Token.Instance memory _token
-  ) external view returns (bool) {
-    console.log("EXISTS");
+  function exists(address _account, Token.Instance memory _token) external view returns (bool) {
+    console.log('EXISTS');
     console.logBool(_exists(_account, _token));
 
     return _exists(_account, _token);
@@ -68,10 +64,7 @@ contract TokenHolder is EternalModel {
     setBool(keccak256(abi.encode(record.token.uuid, record.account, 'exists')), true);
   }
 
-  function _exists(
-    address _account,
-    Token.Instance memory _token
-  ) internal view returns (bool) {
+  function _exists(address _account, Token.Instance memory _token) internal view returns (bool) {
     return getBool(keccak256(abi.encode(_token.uuid, _account, 'exists')));
   }
 }

@@ -5,6 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const tokenModel = await deploy('Token', {
     from: agent,
     args: [],
+    proxy: true,
   });
 
   if (tokenModel.newlyDeployed) {

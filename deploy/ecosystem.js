@@ -5,6 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const ecosystemModel = await deploy('Ecosystem', {
     from: agent,
     args: [],
+    proxy: true,
   });
 
   if (ecosystemModel.newlyDeployed) {

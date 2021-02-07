@@ -7,6 +7,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const elasticDAOFactory = await deploy('ElasticDAOFactory', {
     from: agent,
     args: [Ecosystem.address],
+    proxy: true,
   });
 
   if (elasticDAOFactory.newlyDeployed) {

@@ -5,6 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const tokenHolder = await deploy('TokenHolder', {
     from: agent,
     args: [],
+    proxy: true,
   });
 
   if (tokenHolder.newlyDeployed) {
