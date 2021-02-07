@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-const { deployments } = require('hardhat');
 
 const { capitalDelta, deltaE, mDash } = require('@elastic-dao/sdk');
 const BigNumber = require('bignumber.js');
@@ -12,7 +11,6 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
   let token;
 
   it('Should return a mismatch in the values of capital delta', async () => {
-    await deployments.fixture();
     dao = await summonedDAO();
     token = await dao.token();
 

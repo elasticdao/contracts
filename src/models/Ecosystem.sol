@@ -14,8 +14,6 @@ contract Ecosystem is EternalModel {
   struct Instance {
     address daoAddress;
     // Models
-    address balanceModelAddress;
-    address balanceMultipliersModelAddress;
     address daoModelAddress;
     address ecosystemModelAddress;
     address tokenHolderModelAddress;
@@ -34,12 +32,6 @@ contract Ecosystem is EternalModel {
   function deserialize(address _daoAddress) external view returns (Instance memory record) {
     if (_exists(_daoAddress)) {
       record.daoAddress = _daoAddress;
-      record.balanceModelAddress = getAddress(
-        keccak256(abi.encode(record.daoAddress, 'balanceModelAddress'))
-      );
-      record.balanceMultipliersModelAddress = getAddress(
-        keccak256(abi.encode(record.daoAddress, 'balanceMultipliersModelAddress'))
-      );
       record.configuratorAddress = getAddress(
         keccak256(abi.encode(record.daoAddress, 'configuratorAddress'))
       );
@@ -84,14 +76,6 @@ contract Ecosystem is EternalModel {
       'ElasticDAO: Unauthorized'
     );
 
-    setAddress(
-      keccak256(abi.encode(record.daoAddress, 'balanceModelAddress')),
-      record.balanceModelAddress
-    );
-    setAddress(
-      keccak256(abi.encode(record.daoAddress, 'balanceMultipliersModelAddress')),
-      record.balanceMultipliersModelAddress
-    );
     setAddress(
       keccak256(abi.encode(record.daoAddress, 'configuratorAddress')),
       record.configuratorAddress

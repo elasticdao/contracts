@@ -5,8 +5,6 @@ const { deployments } = require('hardhat');
 
 describe('ElasticDAO: Ecosystem Model', () => {
   let agent;
-  let Balance;
-  let BalanceMultipliers;
   let Configurator;
   let Dao;
   let Ecosystem;
@@ -18,8 +16,6 @@ describe('ElasticDAO: Ecosystem Model', () => {
     [agent] = await hre.getSigners();
 
     // setup needed contracts
-    Balance = await deployments.get('Balance');
-    BalanceMultipliers = await deployments.get('BalanceMultipliers');
     Configurator = await deployments.get('Configurator');
     Dao = await deployments.get('DAO');
     Ecosystem = await deployments.get('Ecosystem');
@@ -31,8 +27,6 @@ describe('ElasticDAO: Ecosystem Model', () => {
   it('Should look up and return ecosystem instance record by uuid address', async () => {
     const record = await ecosystemStorage.deserialize(ethers.constants.AddressZero);
 
-    expect(record.balanceModelAddress).to.equal(Balance.address);
-    expect(record.balanceMultipliersModelAddress).to.equal(BalanceMultipliers.address);
     expect(record.configuratorAddress).to.equal(Configurator.address);
     expect(record.daoAddress).to.equal(ethers.constants.AddressZero);
     expect(record.daoModelAddress).to.equal(Dao.address);

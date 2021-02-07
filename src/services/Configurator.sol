@@ -52,8 +52,6 @@ contract Configurator {
     ecosystem.daoAddress = msg.sender;
 
     // Models
-    ecosystem.balanceModelAddress = defaults.balanceModelAddress;
-    ecosystem.balanceMultipliersModelAddress = defaults.balanceMultipliersModelAddress;
     ecosystem.daoModelAddress = defaults.daoModelAddress;
     ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
     ecosystem.tokenHolderModelAddress = defaults.tokenHolderModelAddress;

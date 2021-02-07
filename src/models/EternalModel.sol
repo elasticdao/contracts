@@ -34,8 +34,6 @@ contract EternalModel {
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @return string _value from storage _key location
   function getString(bytes32 _key) internal view returns (string memory) {
-    require(_key[0] != 0, 'ElasticDAO: Zero Address');
-
     return s.stringStorage[_key];
   }
 
@@ -64,8 +62,6 @@ contract EternalModel {
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   /// @return bytes _value from storage _key location
   function getBytes(bytes32 _key) internal view returns (bytes memory) {
-    require(_key[0] != 0, 'ElasticDAO: Zero Address');
-
     return s.bytesStorage[_key];
   }
 
@@ -136,8 +132,6 @@ contract EternalModel {
   /// @dev restricted to latest ElasticDAO Networks contracts
   /// @param _key bytes32 location should be keccak256 and abi.encodePacked
   function deleteString(bytes32 _key) internal {
-    require(_key[0] != 0, 'ElasticDAO: Zero Address');
-
     delete s.stringStorage[_key];
   }
 

@@ -3,8 +3,6 @@ pragma solidity 0.7.2;
 
 import './SafeMath.sol';
 
-// import 'hardhat/console.sol';
-
 /**
  * This library does the Elastic math
  */

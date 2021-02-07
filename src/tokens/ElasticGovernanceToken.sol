@@ -8,7 +8,6 @@ import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
 
 import '../core/ElasticDAO.sol';
-import '../models/Balance.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
@@ -400,14 +399,7 @@ contract ElasticGovernanceToken is IElasticToken {
     uint256 _deltaLambda
   ) internal returns (TokenHolder.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance.Instance memory balance;
-    balance.blockNumber = block.number;
-    balance.ecosystem = ecosystem;
-    balance.index = _tokenHolder.counter;
-    balance.k = _token.k;
-    balance.m = _token.m;
-    balance.token = _token;
-    balance.tokenHolder = _tokenHolder;
+
     _token.counter = SafeMath.add(_token.counter, 1);
     _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
 
@@ -417,9 +409,6 @@ contract ElasticGovernanceToken is IElasticToken {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
 
-    balance.lambda = _tokenHolder.lambda;
-
-    Balance(ecosystem.balanceModelAddress).serialize(balance);
     Token(ecosystem.tokenModelAddress).incrementCounter(_token);
 
     return _tokenHolder;
