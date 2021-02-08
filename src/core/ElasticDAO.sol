@@ -8,10 +8,11 @@ import '../libraries/SafeMath.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
+import '../services/ReentryProtection.sol';
 
 import '../services/Configurator.sol';
 
-contract ElasticDAO {
+contract ElasticDAO is ReentryProtection {
   address public deployer;
   address public ecosystemModelAddress;
   address public controller;
@@ -94,7 +95,7 @@ contract ElasticDAO {
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
-  function exit(uint256 _deltaLambda) public onlyAfterSummoning {
+  function exit(uint256 _deltaLambda) public onlyAfterSummoning preventReentry {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
@@ -115,7 +116,7 @@ contract ElasticDAO {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) external onlyBeforeSummoning onlyDeployer {
+  ) external onlyBeforeSummoning onlyDeployer preventReentry {
     require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
@@ -137,7 +138,13 @@ contract ElasticDAO {
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
-  function join(uint256 _deltaLambda) public payable onlyAfterSummoning onlyWhenOpen {
+  function join(uint256 _deltaLambda)
+    public
+    payable
+    onlyAfterSummoning
+    onlyWhenOpen
+    preventReentry
+  {
     Token.Instance memory token = _getToken();
 
     require(
@@ -183,7 +190,7 @@ contract ElasticDAO {
     emit JoinDAO(address(this), msg.sender, _deltaLambda, msg.value);
   }
 
-  function setController(address _controller) external onlyController {
+  function setController(address _controller) external onlyController preventReentry {
     controller = _controller;
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
     tokenContract.setBurner(controller);
@@ -192,7 +199,7 @@ contract ElasticDAO {
     emit ControllerChanged(address(this), 'setController', controller);
   }
 
-  function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController {
+  function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController preventReentry {
     maxVotingLambda = _maxVotingLambda;
 
     emit MaxVotingLambdaChanged(address(this), 'setMaxVotingLambda', _maxVotingLambda);
@@ -206,6 +213,7 @@ contract ElasticDAO {
     onlyBeforeSummoning
     onlySummoners
     onlyAfterTokenInitialized
+    preventReentry
   {
     Token.Instance memory token = _getToken();
 
@@ -216,7 +224,7 @@ contract ElasticDAO {
     emit SeedDAO(address(this), msg.sender, deltaLambda);
   }
 
-  function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners {
+  function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners preventReentry {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
     Ecosystem.Instance memory ecosystem = _getEcosystem();

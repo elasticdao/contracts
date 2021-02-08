@@ -25,7 +25,7 @@
     "test": "yarn run prettier:tests && yarn run lint:tests && npx hardhat test --deploy-fixture"
   },
   "dependencies": {
-    "@elastic-dao/sdk": "0.9.0-beta7",
+    "@elastic-dao/sdk": "0.9.0-beta9",
     "@nomiclabs/hardhat-ethers": "2.0.1",
     "@nomiclabs/hardhat-etherscan": "2.1.1",
     "@nomiclabs/hardhat-waffle": "2.0.1",

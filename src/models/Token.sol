@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import './Ecosystem.sol';
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
-
+import '../services/ReentryProtection.sol';
 import '../tokens/ElasticGovernanceToken.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
@@ -13,7 +13,7 @@ import '../tokens/ElasticGovernanceToken.sol';
 /// @dev ElasticDAO network contracts can read/write from this contract
 /// Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
-contract Token is EternalModel {
+contract Token is EternalModel, ReentryProtection {
   struct Instance {
     address uuid;
     string name;
@@ -73,7 +73,7 @@ contract Token is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record) external {
+  function serialize(Instance memory record) external preventReentry {
     require(
       msg.sender == record.uuid ||
         msg.sender == record.ecosystem.daoAddress ||
@@ -95,6 +95,7 @@ contract Token is EternalModel {
 
   function updateNumberOfTokenHolders(Instance memory record, uint256 numberOfTokenHolders)
     external
+    preventReentry
   {
     setUint(keccak256(abi.encode(record.uuid, 'numberOfTokenHolders')), numberOfTokenHolders);
   }

@@ -5,11 +5,12 @@ pragma experimental ABIEncoderV2;
 import './Ecosystem.sol';
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
+import '../services/ReentryProtection.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing core dao data
 /// @dev ElasticDAO network contracts can read/write from this contract
-contract DAO is EternalModel {
+contract DAO is EternalModel, ReentryProtection {
   struct Instance {
     address uuid;
     address[] summoners;
@@ -68,7 +69,7 @@ contract DAO is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record) external {
+  function serialize(Instance memory record) external preventReentry {
     require(
       msg.sender == record.uuid || msg.sender == record.ecosystem.configuratorAddress,
       'ElasticDAO: Unauthorized'

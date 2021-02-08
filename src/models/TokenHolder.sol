@@ -6,14 +6,14 @@ import './Ecosystem.sol';
 import './EternalModel.sol';
 import './Token.sol';
 import '../libraries/SafeMath.sol';
-import 'hardhat/console.sol';
+import '../services/ReentryProtection.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing token data
 /// @dev ElasticDAO network contracts can read/write from this contract
 // Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
-contract TokenHolder is EternalModel {
+contract TokenHolder is EternalModel, ReentryProtection {
   struct Instance {
     address account;
     uint256 counter;
@@ -47,7 +47,7 @@ contract TokenHolder is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record) external {
+  function serialize(Instance memory record) external preventReentry {
     require(msg.sender == record.token.uuid, 'ElasticDAO: Unauthorized');
 
     setUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')), record.counter);

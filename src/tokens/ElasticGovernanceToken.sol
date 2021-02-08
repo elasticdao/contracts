@@ -13,10 +13,12 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
+import '../services/ReentryProtection.sol';
+
 /**
  * @dev Implementation of the IERC20 interface
  */
-contract ElasticGovernanceToken is IElasticToken {
+contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   address public burner;
   address public daoAddress;
   address public ecosystemModelAddress;
@@ -74,7 +76,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * Emits an {Approval} event
    * @return bool
    */
-  function approve(address _spender, uint256 _amount) external override returns (bool) {
+  function approve(address _spender, uint256 _amount) external preventReentry override returns (bool) {
     _approve(msg.sender, _spender, _amount);
     return true;
   }
@@ -125,6 +127,7 @@ contract ElasticGovernanceToken is IElasticToken {
     external
     override
     onlyDAOorBurner
+    preventReentry
     returns (bool)
   {
     _burn(_account, _amount);
@@ -141,6 +144,7 @@ contract ElasticGovernanceToken is IElasticToken {
     external
     override
     onlyDAOorBurner
+    preventReentry
     returns (bool)
   {
     _burnShares(_account, _amount);
@@ -161,7 +165,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _subtractedValue - the value the allowance has to be decreased by
    * @return bool
    */
-  function decreaseAllowance(address _spender, uint256 _subtractedValue) external returns (bool) {
+  function decreaseAllowance(address _spender, uint256 _subtractedValue) external preventReentry returns (bool) {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
 
     require(newAllowance > 0, 'ElasticDAO: Allowance decrease less than 0');
@@ -176,7 +180,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _addedValue - the value the allowance has to be increased by
    * @return bool
    */
-  function increaseAllowance(address _spender, uint256 _addedValue) external returns (bool) {
+  function increaseAllowance(address _spender, uint256 _addedValue) external preventReentry returns (bool) {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
@@ -187,7 +191,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _account - the address of the account for whom the token have to be minted to
    * @return bool
    */
-  function mint(address _account, uint256 _amount) external onlyDAOorMinter returns (bool) {
+  function mint(address _account, uint256 _amount) external onlyDAOorMinter preventReentry returns (bool) {
     _mint(_account, _amount);
 
     return true;
@@ -203,6 +207,7 @@ contract ElasticGovernanceToken is IElasticToken {
     external
     override
     onlyDAOorMinter
+    preventReentry
     returns (bool)
   {
     _mintShares(_account, _amount);
@@ -221,11 +226,11 @@ contract ElasticGovernanceToken is IElasticToken {
     return _getToken().numberOfTokenHolders;
   }
 
-  function setBurner(address _burner) external onlyDAO {
+  function setBurner(address _burner) external onlyDAO preventReentry {
     burner = _burner;
   }
 
-  function setMinter(address _minter) external onlyDAO {
+  function setMinter(address _minter) external onlyDAO preventReentry {
     minter = _minter;
   }
 
@@ -265,7 +270,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * Emits a {Transfer} event
    * @return bool
    */
-  function transfer(address _to, uint256 _amount) external override returns (bool) {
+  function transfer(address _to, uint256 _amount) external override preventReentry returns (bool) {
     _transfer(msg.sender, _to, _amount);
     return true;
   }
@@ -284,7 +289,7 @@ contract ElasticGovernanceToken is IElasticToken {
     address _from,
     address _to,
     uint256 _amount
-  ) external override returns (bool) {
+  ) external override preventReentry returns (bool) {
     require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
 
     _transfer(_from, _to, _amount);

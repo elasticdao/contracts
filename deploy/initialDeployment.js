@@ -39,6 +39,7 @@ module.exports.dependencies = [
   'DAO',
   'Ecosystem',
   'ElasticDAOFactory',
+  'ReentryProtection',
   'Token',
   'TokenHolder',
 ];

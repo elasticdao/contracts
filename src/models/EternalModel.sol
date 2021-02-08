@@ -51,20 +51,6 @@ contract EternalModel {
     return s.boolStorage[_key];
   }
 
-  /// @notice Get stored contract data in int256 format
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @return int256 _value from storage _key location
-  function getInt(bytes32 _key) internal view returns (int256) {
-    return s.intStorage[_key];
-  }
-
-  /// @notice Get stored contract data in bytes format
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @return bytes _value from storage _key location
-  function getBytes(bytes32 _key) internal view returns (bytes memory) {
-    return s.bytesStorage[_key];
-  }
-
   //////////////////////////////
   /// @notice Setter Functions
   /////////////////////////////
@@ -99,67 +85,5 @@ contract EternalModel {
   /// @param _value bool value
   function setBool(bytes32 _key, bool _value) internal {
     s.boolStorage[_key] = _value;
-  }
-
-  /// @notice Store contract data in int256 format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @param _value int256 value
-  function setInt(bytes32 _key, int256 _value) internal {
-    s.intStorage[_key] = _value;
-  }
-
-  /// @notice Store contract data in bytes format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  /// @param _value bytes value
-  function setBytes(bytes32 _key, bytes memory _value) internal {
-    s.bytesStorage[_key] = _value;
-  }
-
-  //////////////////////////////
-  /// @notice Delete Functions
-  /////////////////////////////
-
-  /// @notice Delete stored contract data in bytes format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteUint(bytes32 _key) internal {
-    delete s.uIntStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in string format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteString(bytes32 _key) internal {
-    delete s.stringStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in address format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteAddress(bytes32 _key) internal {
-    delete s.addressStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in bool format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteBool(bytes32 _key) internal {
-    delete s.boolStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in int256 format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteInt(bytes32 _key) internal {
-    delete s.intStorage[_key];
-  }
-
-  /// @notice Delete stored contract data in bytes format
-  /// @dev restricted to latest ElasticDAO Networks contracts
-  /// @param _key bytes32 location should be keccak256 and abi.encodePacked
-  function deleteBytes(bytes32 _key) internal {
-    delete s.bytesStorage[_key];
   }
 }

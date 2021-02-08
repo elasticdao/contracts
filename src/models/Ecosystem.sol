@@ -4,13 +4,14 @@ pragma experimental ABIEncoderV2;
 
 import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
+import '../services/ReentryProtection.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for storing core dao data
 /// @dev ElasticDAO network contracts can read/write from this contract
 /// Serialize -> Translation of data from the concerned struct to key-value pairs
 /// Deserialize -> Translation of data from the key-value pairs to a struct
-contract Ecosystem is EternalModel {
+contract Ecosystem is EternalModel, ReentryProtection {
   struct Instance {
     address daoAddress;
     // Models
@@ -29,7 +30,7 @@ contract Ecosystem is EternalModel {
    * @param _daoAddress - address of the unique user ID
    * @return record Instance
    */
-  function deserialize(address _daoAddress) external view returns (Instance memory record) {
+  function deserialize(address _daoAddress) external view returns (Instance memory record)  {
     if (_exists(_daoAddress)) {
       record.daoAddress = _daoAddress;
       record.configuratorAddress = getAddress(
@@ -66,7 +67,7 @@ contract Ecosystem is EternalModel {
    * @dev serializes Instance struct
    * @param record Instance
    */
-  function serialize(Instance memory record) external {
+  function serialize(Instance memory record) external preventReentry {
     bool recordExists = _exists(record.daoAddress);
 
     require(

@@ -5,9 +5,10 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
+import '../services/ReentryProtection.sol';
 
 // This contract is the facory contract for ElasticDAO
-contract ElasticDAOFactory {
+contract ElasticDAOFactory is ReentryProtection {
   address public deployer;
   address public ecosystemModelAddress;
   address payable feeAddress;
@@ -42,7 +43,7 @@ contract ElasticDAOFactory {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) public payable {
+  ) public payable preventReentry {
     // create the DAO
     ElasticDAO elasticDAO =
       new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _numberOfSummoners);
@@ -55,12 +56,12 @@ contract ElasticDAOFactory {
     emit DeployedDAO(address(elasticDAO));
   }
 
-  function updateFeeAddress(address _feeReceiver) external onlyDeployer {
+  function updateFeeAddress(address _feeReceiver) external onlyDeployer preventReentry {
     feeAddress = payable(_feeReceiver);
     emit FeeAddressUpdated(_feeReceiver);
   }
 
-  function collectFees() external {
+  function collectFees() external preventReentry {
     uint256 amount = address(this).balance;
 
     feeAddress.transfer(amount);
