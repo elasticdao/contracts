@@ -76,7 +76,12 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * Emits an {Approval} event
    * @return bool
    */
-  function approve(address _spender, uint256 _amount) external preventReentry override returns (bool) {
+  function approve(address _spender, uint256 _amount)
+    external
+    override
+    preventReentry
+    returns (bool)
+  {
     _approve(msg.sender, _spender, _amount);
     return true;
   }
@@ -165,7 +170,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * @param _subtractedValue - the value the allowance has to be decreased by
    * @return bool
    */
-  function decreaseAllowance(address _spender, uint256 _subtractedValue) external preventReentry returns (bool) {
+  function decreaseAllowance(address _spender, uint256 _subtractedValue)
+    external
+    preventReentry
+    returns (bool)
+  {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
 
     require(newAllowance > 0, 'ElasticDAO: Allowance decrease less than 0');
@@ -180,7 +189,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * @param _addedValue - the value the allowance has to be increased by
    * @return bool
    */
-  function increaseAllowance(address _spender, uint256 _addedValue) external preventReentry returns (bool) {
+  function increaseAllowance(address _spender, uint256 _addedValue)
+    external
+    preventReentry
+    returns (bool)
+  {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
@@ -191,7 +204,12 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * @param _account - the address of the account for whom the token have to be minted to
    * @return bool
    */
-  function mint(address _account, uint256 _amount) external onlyDAOorMinter preventReentry returns (bool) {
+  function mint(address _account, uint256 _amount)
+    external
+    onlyDAOorMinter
+    preventReentry
+    returns (bool)
+  {
     _mint(_account, _amount);
 
     return true;

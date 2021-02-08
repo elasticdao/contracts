@@ -30,7 +30,7 @@ contract Ecosystem is EternalModel, ReentryProtection {
    * @param _daoAddress - address of the unique user ID
    * @return record Instance
    */
-  function deserialize(address _daoAddress) external view returns (Instance memory record)  {
+  function deserialize(address _daoAddress) external view returns (Instance memory record) {
     if (_exists(_daoAddress)) {
       record.daoAddress = _daoAddress;
       record.configuratorAddress = getAddress(
