@@ -254,4 +254,18 @@ describe('ElasticDAO: Core', () => {
     expect(recordDoesntExist).to.equal(false);
     expect(recordExists).to.equal(true);
   });
+
+  it('Should allow to exit with 1 share and corresponding eth', async () => {
+    dao = await summonedDAO();
+    const { summoner1 } = await signers();
+
+    const postSummonBalanceOf = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
+
+    expect(postSummonBalanceOf.toNumber()).to.equal(1010);
+
+    await dao.elasticDAO.exit(1);
+
+    const atExitBalanceRecord = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
+    expect(atExitBalanceRecord.toNumber()).to.equal(910);
+  });
 });

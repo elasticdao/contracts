@@ -173,7 +173,9 @@ contract ElasticDAO is ReentryProtection {
         token.m
       );
 
-    require(deltaE == msg.value, 'ElasticDAO: Incorrect ETH amount');
+    if(deltaE != msg.value) {
+      revert('ElasticDAO: Incorrect ETH amount');
+    }
 
     // mdash
     uint256 lambdaDash = SafeMath.add(_deltaLambda, token.lambda);
