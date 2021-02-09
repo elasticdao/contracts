@@ -49,6 +49,14 @@ module.exports = {
     coverage: {
       url: 'http://127.0.0.1:8555',
     },
+    edaoTestnet: {
+      url: 'https://node.edao.app',
+      chainId: 420,
+      accounts: {
+        mnemonic: process.env.TESTNET_SEED,
+        count: 10,
+      },
+    },
   },
   gasReporter: {
     src: 'src',
