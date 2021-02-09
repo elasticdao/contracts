@@ -95,7 +95,7 @@ contract ElasticDAO is ReentryProtection {
     configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
   }
 
-  function exit(uint256 _deltaLambda) public onlyAfterSummoning preventReentry {
+  function exit(uint256 _deltaLambda) external onlyAfterSummoning preventReentry {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
@@ -105,7 +105,8 @@ contract ElasticDAO is ReentryProtection {
     uint256 ratioOfShares = ElasticMath.wdiv(_deltaLambda, token.lambda);
     uint256 ethToBeTransfered = ElasticMath.wmul(ratioOfShares, address(this).balance);
     // transfer the eth
-    msg.sender.transfer(ethToBeTransfered);
+    (bool success, ) = msg.sender.call{ value: ethToBeTransfered }('');
+    require(success, 'ElasticDAO: Exit Failed');
     emit ExitDAO(address(this), msg.sender, _deltaLambda, ethToBeTransfered);
   }
 
@@ -139,7 +140,7 @@ contract ElasticDAO is ReentryProtection {
   }
 
   function join(uint256 _deltaLambda)
-    public
+    external
     payable
     onlyAfterSummoning
     onlyWhenOpen
@@ -208,7 +209,7 @@ contract ElasticDAO is ReentryProtection {
   // Summoning
 
   function seedSummoning()
-    public
+    external
     payable
     onlyBeforeSummoning
     onlySummoners
@@ -224,7 +225,7 @@ contract ElasticDAO is ReentryProtection {
     emit SeedDAO(address(this), msg.sender, deltaLambda);
   }
 
-  function summon(uint256 _deltaLambda) public onlyBeforeSummoning onlySummoners preventReentry {
+  function summon(uint256 _deltaLambda) external onlyBeforeSummoning onlySummoners preventReentry {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
     Ecosystem.Instance memory ecosystem = _getEcosystem();
@@ -234,6 +235,7 @@ contract ElasticDAO is ReentryProtection {
       Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
+    // number of summoners can not grow unboundly. it is fixed limit.
     for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
       tokenContract.mintShares(daoContract.getSummoner(dao, i), _deltaLambda);
     }
@@ -245,11 +247,11 @@ contract ElasticDAO is ReentryProtection {
 
   // Getters
 
-  function getDAO() public view returns (DAO.Instance memory) {
+  function getDAO() external view returns (DAO.Instance memory) {
     return _getDAO();
   }
 
-  function getEcosystem() public view returns (Ecosystem.Instance memory) {
+  function getEcosystem() external view returns (Ecosystem.Instance memory) {
     return _getEcosystem();
   }
 

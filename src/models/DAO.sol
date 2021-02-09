@@ -80,6 +80,7 @@ contract DAO is EternalModel, ReentryProtection {
     setBool(keccak256(abi.encode(record.uuid, 'summoned')), record.summoned);
 
     if (record.summoners.length == record.numberOfSummoners) {
+      // not an unbound number of summoners. fixed limit.
       for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
         setBool(keccak256(abi.encode(record.uuid, 'summoner', record.summoners[i])), true);
         setAddress(keccak256(abi.encode(record.uuid, 'summoners', i)), record.summoners[i]);

@@ -43,7 +43,7 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) public payable preventReentry {
+  ) external payable preventReentry {
     // create the DAO
     ElasticDAO elasticDAO =
       new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _numberOfSummoners);
@@ -64,7 +64,8 @@ contract ElasticDAOFactory is ReentryProtection {
   function collectFees() external preventReentry {
     uint256 amount = address(this).balance;
 
-    feeAddress.transfer(amount);
+    (bool success, ) = feeAddress.call{ value: amount }('');
+    require(success, 'ElasticDAO: TransactionFailed');
     emit FeesCollected(address(feeAddress), amount);
   }
 
