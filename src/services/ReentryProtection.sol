@@ -8,7 +8,7 @@ pragma solidity 0.7.2;
 /// @dev ElasticDAO network contracts can read/write from this contract
 contract ReentryProtection {
   // The reentry protection state mutex
-  bool mutex = false;
+  bool internal mutex = false;
 
   // This modifier can be used on functions with external calls to
   // prevent reentry attacks.
@@ -18,9 +18,9 @@ contract ReentryProtection {
   //   Protected functions return values must be through return parameters.
   modifier preventReentry() {
     require(!mutex, 'ElasticDAO: Reentry Detected');
+
     mutex = true;
     _;
-    delete mutex;
-    return;
+    mutex = false;
   }
 }

@@ -83,6 +83,11 @@ contract ElasticDAO is ReentryProtection {
     string memory _name,
     uint256 _numberOfSummoners
   ) {
+    require(
+      _ecosystemModelAddress != address(0) || _controller != address(0),
+      'ElasticDAO: Address Zero'
+    );
+
     ecosystemModelAddress = _ecosystemModelAddress;
     controller = _controller;
     deployer = msg.sender;
@@ -92,19 +97,20 @@ contract ElasticDAO is ReentryProtection {
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
-    configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
+    bool success = configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
+    require(success, 'ElasticDAO: Build DAO Failed');
   }
 
   function exit(uint256 _deltaLambda) external onlyAfterSummoning preventReentry {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    tokenContract.burnShares(msg.sender, _deltaLambda);
 
     // eth to be transfered = ( deltaLambda/lambda ) * totalEthInTheDAO
     uint256 ratioOfShares = ElasticMath.wdiv(_deltaLambda, token.lambda);
     uint256 ethToBeTransfered = ElasticMath.wmul(ratioOfShares, address(this).balance);
     // transfer the eth
+    tokenContract.burnShares(msg.sender, _deltaLambda);
     (bool success, ) = msg.sender.call{ value: ethToBeTransfered }('');
     require(success, 'ElasticDAO: Exit Failed');
     emit ExitDAO(address(this), msg.sender, _deltaLambda, ethToBeTransfered);
@@ -173,7 +179,7 @@ contract ElasticDAO is ReentryProtection {
         token.m
       );
 
-    if(deltaE != msg.value) {
+    if (deltaE != msg.value) {
       revert('ElasticDAO: Incorrect ETH amount');
     }
 
@@ -194,6 +200,8 @@ contract ElasticDAO is ReentryProtection {
   }
 
   function setController(address _controller) external onlyController preventReentry {
+    require(_controller != address(0), 'ElasticDAO: Address Zero');
+
     controller = _controller;
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
     tokenContract.setBurner(controller);

@@ -25,6 +25,8 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   constructor(address _ecosystemModelAddress) {
+    require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
+
     deployer = msg.sender;
     ecosystemModelAddress = _ecosystemModelAddress;
   }
@@ -48,15 +50,17 @@ contract ElasticDAOFactory is ReentryProtection {
     ElasticDAO elasticDAO =
       new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _numberOfSummoners);
 
-    // initialize the token
-    elasticDAO.initializeToken(_nameOfToken, _symbol, _eByL, _elasticity, _k, _maxLambdaPurchase);
-
     deployedDAOAddresses.push(address(elasticDAO));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
+
+    // initialize the token
+    elasticDAO.initializeToken(_nameOfToken, _symbol, _eByL, _elasticity, _k, _maxLambdaPurchase);
     emit DeployedDAO(address(elasticDAO));
   }
 
   function updateFeeAddress(address _feeReceiver) external onlyDeployer preventReentry {
+    require(_feeReceiver != address(0), 'ElasticDAO: Address Zero');
+
     feeAddress = payable(_feeReceiver);
     emit FeeAddressUpdated(_feeReceiver);
   }

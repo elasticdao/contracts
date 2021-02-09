@@ -67,11 +67,11 @@ library ElasticMath {
   }
 
   function lambdaFromT(
-    uint256 t,
+    uint256 tokens,
     uint256 k,
     uint256 m
   ) internal pure returns (uint256 lambda) {
-    return wdiv(t, wmul(k, m));
+    return wdiv(tokens, wmul(k, m));
   }
 
   /**
