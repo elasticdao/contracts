@@ -11,6 +11,7 @@ bin
 
 #coverage
 coverage
+coverage.json
 .coverage_cache
 .coverage_contracts
 .coverage_artifacts
