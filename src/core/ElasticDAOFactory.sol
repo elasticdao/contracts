@@ -9,26 +9,37 @@ import '../services/ReentryProtection.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
-  address public deployer;
   address public ecosystemModelAddress;
+  address public manager;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
   uint256 public deployedDAOCount = 0;
+  uint256 public fee = 250000000000000000;
 
   event DeployedDAO(address indexed daoAddress);
   event FeeAddressUpdated(address indexed feeReceiver);
   event FeesCollected(address treasuryAddress, uint256 amount);
+  event FeeUpdated(uint256 amount);
+  event ManagerUpdated(address indexed newManager);
 
-  modifier onlyDeployer() {
-    require(msg.sender == deployer, 'ElasticDAO: Only deployer');
+  modifier onlyManager() {
+    require(manager == msg.sender, 'ElasticDAO: Only manager');
     _;
   }
 
   constructor(address _ecosystemModelAddress) {
     require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
 
-    deployer = msg.sender;
+    manager = msg.sender;
     ecosystemModelAddress = _ecosystemModelAddress;
+  }
+
+  function collectFees() external preventReentry {
+    uint256 amount = address(this).balance;
+
+    (bool success, ) = feeAddress.call{ value: amount }('');
+    require(success, 'ElasticDAO: TransactionFailed');
+    emit FeesCollected(address(feeAddress), amount);
   }
 
   /**
@@ -45,6 +56,8 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _k,
     uint256 _maxLambdaPurchase
   ) external payable preventReentry {
+    require(fee == msg.value, 'ElasticDAO: pay up');
+
     // create the DAO
     ElasticDAO elasticDAO =
       new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO);
@@ -57,19 +70,21 @@ contract ElasticDAOFactory is ReentryProtection {
     emit DeployedDAO(address(elasticDAO));
   }
 
-  function updateFeeAddress(address _feeReceiver) external onlyDeployer preventReentry {
+  function updateFee(uint256 amount) external onlyManager preventReentry {
+    fee = amount;
+    emit FeeUpdated(fee);
+  }
+
+  function updateFeeAddress(address _feeReceiver) external onlyManager preventReentry {
     require(_feeReceiver != address(0), 'ElasticDAO: Address Zero');
 
     feeAddress = payable(_feeReceiver);
     emit FeeAddressUpdated(_feeReceiver);
   }
 
-  function collectFees() external preventReentry {
-    uint256 amount = address(this).balance;
-
-    (bool success, ) = feeAddress.call{ value: amount }('');
-    require(success, 'ElasticDAO: TransactionFailed');
-    emit FeesCollected(address(feeAddress), amount);
+  function updateManager(address newManager) external onlyManager preventReentry {
+    manager = newManager;
+    emit ManagerUpdated(manager);
   }
 
   receive() external payable {}
