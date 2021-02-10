@@ -17,3 +17,5 @@ coverage.json
 .coverage_artifacts
 
 miner*.json
+.DS_Store
+.DS_Store?
