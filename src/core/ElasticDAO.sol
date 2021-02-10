@@ -200,6 +200,40 @@ contract ElasticDAO is ReentryProtection {
     emit JoinDAO(address(this), msg.sender, _deltaLambda, msg.value);
   }
 
+  function penalize(address[] memory _addresses, uint256[] memory _amounts)
+    external
+    onlyController
+    preventReentry
+  {
+    require(
+      _addresses.length == _amounts.length,
+      'ElasticDAO: An amount is required for each address'
+    );
+
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
+
+    for (uint256 i = 0; i < _addresses.length; i = SafeMath.add(i, 1)) {
+      tokenContract.burnShares(_addresses[i], _amounts[i]);
+    }
+  }
+
+  function reward(address[] memory _addresses, uint256[] memory _amounts)
+    external
+    onlyController
+    preventReentry
+  {
+    require(
+      _addresses.length == _amounts.length,
+      'ElasticDAO: An amount is required for each address'
+    );
+
+    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
+
+    for (uint256 i = 0; i < _addresses.length; i = SafeMath.add(i, 1)) {
+      tokenContract.mintShares(_addresses[i], _amounts[i]);
+    }
+  }
+
   function setController(address _controller) external onlyController preventReentry {
     require(_controller != address(0), 'ElasticDAO: Address Zero');
 

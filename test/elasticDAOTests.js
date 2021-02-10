@@ -278,5 +278,59 @@ describe('ElasticDAO: Core', () => {
         'SafeMath: subtraction overflow',
       );
     });
+
+    it('Should allow multiple addresses to be rewarded', async () => {
+      const { agent } = await signers();
+      const addresses = await summoners();
+      const amount = 0.1;
+      const rewards = addresses.map(() => dao.elasticDAO.toEthersBigNumber(amount, 18));
+
+      const balances = await Promise.all(
+        addresses.map((address) => dao.elasticGovernanceToken.balanceOfInShares(address)),
+      );
+      const expectedBalances = balances.map((balance) => balance.plus(amount).toNumber());
+
+      dao.sdk.changeSigner(agent);
+
+      await dao.elasticDAO.contract.reward(addresses, rewards);
+
+      const newBalances = await Promise.all(
+        addresses.map(async (address) => {
+          const balance = await dao.elasticGovernanceToken.balanceOfInShares(address);
+          return balance.toNumber();
+        }),
+      );
+
+      for (let i = 0; i < expectedBalances.length; i += 1) {
+        expect(expectedBalances[i]).to.equal(newBalances[i]);
+      }
+    });
+
+    it('Should allow multiple addresses to be penalized', async () => {
+      const { agent } = await signers();
+      const addresses = await summoners();
+      const amount = 0.01;
+      const rewards = addresses.map(() => dao.elasticDAO.toEthersBigNumber(amount, 18));
+
+      const balances = await Promise.all(
+        addresses.map((address) => dao.elasticGovernanceToken.balanceOfInShares(address)),
+      );
+      const expectedBalances = balances.map((balance) => balance.minus(amount).toNumber());
+
+      dao.sdk.changeSigner(agent);
+
+      await dao.elasticDAO.contract.penalize(addresses, rewards);
+
+      const newBalances = await Promise.all(
+        addresses.map(async (address) => {
+          const balance = await dao.elasticGovernanceToken.balanceOfInShares(address);
+          return balance.toNumber();
+        }),
+      );
+
+      for (let i = 0; i < expectedBalances.length; i += 1) {
+        expect(expectedBalances[i]).to.equal(newBalances[i]);
+      }
+    });
   });
 });
