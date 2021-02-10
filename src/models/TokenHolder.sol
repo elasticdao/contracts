@@ -16,7 +16,6 @@ import '../services/ReentryProtection.sol';
 contract TokenHolder is EternalModel, ReentryProtection {
   struct Instance {
     address account;
-    uint256 counter;
     uint256 lambda;
     Ecosystem.Instance ecosystem;
     Token.Instance token;
@@ -32,7 +31,6 @@ contract TokenHolder is EternalModel, ReentryProtection {
     record.token = _token;
 
     if (_exists(_account, _token)) {
-      record.counter = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')));
       record.lambda = getUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')));
     }
 
@@ -50,9 +48,7 @@ contract TokenHolder is EternalModel, ReentryProtection {
   function serialize(Instance memory record) external preventReentry {
     require(msg.sender == record.token.uuid, 'ElasticDAO: Unauthorized');
 
-    setUint(keccak256(abi.encode(record.token.uuid, record.account, 'counter')), record.counter);
     setUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')), record.lambda);
-
     setBool(keccak256(abi.encode(record.token.uuid, record.account, 'exists')), true);
   }
 

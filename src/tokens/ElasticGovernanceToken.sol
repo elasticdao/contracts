@@ -352,7 +352,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
-    tokenHolder = _updateBalance(token, tokenHolder, false, _deltaLambda);
+    tokenHolder = _updateBalance(tokenHolder, false, _deltaLambda);
 
     token.lambda = SafeMath.sub(token.lambda, _deltaLambda);
     tokenStorage.serialize(token);
@@ -378,7 +378,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
 
-    tokenHolder = _updateBalance(token, tokenHolder, true, _deltaLambda);
+    tokenHolder = _updateBalance(tokenHolder, true, _deltaLambda);
 
     token.lambda = SafeMath.add(token.lambda, _deltaLambda);
     tokenStorage.serialize(token);
@@ -407,8 +407,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
-    fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
-    toTokenHolder = _updateBalance(token, toTokenHolder, true, deltaLambda);
+    fromTokenHolder = _updateBalance(fromTokenHolder, false, deltaLambda);
+    toTokenHolder = _updateBalance(toTokenHolder, true, deltaLambda);
 
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(fromTokenHolder);
@@ -420,23 +420,15 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   function _updateBalance(
-    Token.Instance memory _token,
     TokenHolder.Instance memory _tokenHolder,
     bool _isIncreasing,
     uint256 _deltaLambda
-  ) internal returns (TokenHolder.Instance memory) {
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-
-    _token.counter = SafeMath.add(_token.counter, 1);
-    _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
-
+  ) internal pure returns (TokenHolder.Instance memory) {
     if (_isIncreasing) {
       _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
-
-    Token(ecosystem.tokenModelAddress).incrementCounter(_token);
 
     return _tokenHolder;
   }

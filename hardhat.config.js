@@ -12,7 +12,6 @@ require('solidity-coverage');
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 const TESTNET_SEED = process.env.TESTNET_SEED || '';
 
-
 // Tasks
 task('seed', 'Seed account with Buidler ETH')
   .addParam('account', "The account's address")

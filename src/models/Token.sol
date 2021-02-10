@@ -18,7 +18,6 @@ contract Token is EternalModel, ReentryProtection {
     address uuid;
     string name;
     string symbol;
-    uint256 counter; // passed as ID to balance multipliers
     uint256 eByL;
     uint256 elasticity;
     uint256 k;
@@ -43,7 +42,6 @@ contract Token is EternalModel, ReentryProtection {
     record.ecosystem = _ecosystem;
 
     if (_exists(_uuid)) {
-      record.counter = getUint(keccak256(abi.encode(_uuid, 'counter')));
       record.eByL = getUint(keccak256(abi.encode(_uuid, 'eByL')));
       record.elasticity = getUint(keccak256(abi.encode(_uuid, 'elasticity')));
       record.k = getUint(keccak256(abi.encode(_uuid, 'k')));
@@ -60,13 +58,6 @@ contract Token is EternalModel, ReentryProtection {
 
   function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
     return _exists(_uuid);
-  }
-
-  function incrementCounter(Instance memory record) external {
-    require(msg.sender == record.uuid, 'ElasticDAO: Unauthorized');
-
-    uint256 counter = getUint(keccak256(abi.encode(record.uuid, 'counter')));
-    setUint(keccak256(abi.encode(record.uuid, 'counter')), SafeMath.add(counter, 1));
   }
 
   /**

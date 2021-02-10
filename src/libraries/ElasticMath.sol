@@ -36,34 +36,17 @@ library ElasticMath {
     uint256 elasticity,
     uint256 lambda,
     uint256 m
-  ) internal view returns (uint256 deltaEValue) {
+  ) internal pure returns (uint256 deltaEValue) {
     uint256 lambdaDash = SafeMath.add(deltaLambda, lambda);
 
-    uint256 a = wmul(capitalDeltaValue, k);
-    // console.log('contract: a:', a);
-
-    uint256 b = revamp(elasticity);
-    // console.log('contract: b: ', b);
-
-    uint256 c = wmul(lambda, m);
-    // console.log('contract: c: ', c);
-
-    uint256 d = mDash(lambdaDash, lambda, m);
-    // console.log('contract: d: ', d);
-
-    uint256 e = wmul(d, b);
-    // console.log('contract: e: ', e);
-
-    uint256 f = wmul(lambdaDash, e);
-    // console.log('contract: f: ', f);
-
-    uint256 g = SafeMath.sub(f, c);
-    // console.log('contract: g: ', g);
-
-    deltaEValue = wmul(a, g);
-    // console.log('contract: deltaEValue: ', deltaEValue);
-
-    return deltaEValue;
+    return
+      wmul(
+        wmul(capitalDeltaValue, k),
+        SafeMath.sub(
+          wmul(lambdaDash, wmul(mDash(lambdaDash, lambda, m), revamp(elasticity))),
+          wmul(lambda, m)
+        )
+      );
   }
 
   function lambdaFromT(
