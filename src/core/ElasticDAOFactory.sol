@@ -38,7 +38,6 @@ contract ElasticDAOFactory is ReentryProtection {
   function deployDAOAndToken(
     address[] memory _summoners,
     string memory _nameOfDAO,
-    uint256 _numberOfSummoners,
     string memory _nameOfToken,
     string memory _symbol,
     uint256 _eByL,
@@ -48,7 +47,7 @@ contract ElasticDAOFactory is ReentryProtection {
   ) external payable preventReentry {
     // create the DAO
     ElasticDAO elasticDAO =
-      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _numberOfSummoners);
+      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO);
 
     deployedDAOAddresses.push(address(elasticDAO));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);

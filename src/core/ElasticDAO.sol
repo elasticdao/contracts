@@ -80,13 +80,13 @@ contract ElasticDAO is ReentryProtection {
     address _ecosystemModelAddress,
     address _controller,
     address[] memory _summoners,
-    string memory _name,
-    uint256 _numberOfSummoners
+    string memory _name
   ) {
     require(
       _ecosystemModelAddress != address(0) || _controller != address(0),
       'ElasticDAO: Address Zero'
     );
+    require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');
 
     ecosystemModelAddress = _ecosystemModelAddress;
     controller = _controller;
@@ -97,7 +97,7 @@ contract ElasticDAO is ReentryProtection {
 
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
-    bool success = configurator.buildDAO(_summoners, _name, _numberOfSummoners, ecosystem);
+    bool success = configurator.buildDAO(_summoners, _name, ecosystem);
     require(success, 'ElasticDAO: Build DAO Failed');
   }
 

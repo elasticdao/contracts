@@ -16,7 +16,6 @@ contract Configurator {
    * @dev creates DAO.Instance record
    * @param _summoners - an array of the addresses of the summoners
    * @param _name - the name of the DAO
-   * @param _numberOfSummoners - the number of summoners
    * @param _ecosystem - an instance of Ecosystem
    * @return bool true
    */
@@ -24,7 +23,6 @@ contract Configurator {
   function buildDAO(
     address[] memory _summoners,
     string memory _name,
-    uint256 _numberOfSummoners,
     Ecosystem.Instance memory _ecosystem
   ) external returns (bool) {
     DAO daoStorage = DAO(_ecosystem.daoModelAddress);
@@ -33,7 +31,6 @@ contract Configurator {
     dao.uuid = msg.sender;
     dao.ecosystem = _ecosystem;
     dao.name = _name;
-    dao.numberOfSummoners = _numberOfSummoners;
     dao.summoned = false;
     dao.summoners = _summoners;
     daoStorage.serialize(dao);

@@ -16,7 +16,6 @@ describe('ElasticDAO: Core', () => {
         summoner1.address,
         await summoners(),
         'ElasticDAO',
-        3,
       ];
 
       const ElasticDAO = await hre.getContractFactory('ElasticDAO');

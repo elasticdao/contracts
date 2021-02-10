@@ -18,7 +18,6 @@ const newDAO = async () => {
   return elasticDAOFactory.deployDAOAndToken(
     await summoners(),
     'Elastic DAO',
-    3,
     'Elastic Governance Token',
     'EGT',
     0.1,
