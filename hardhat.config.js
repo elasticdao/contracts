@@ -10,6 +10,8 @@ require('hardhat-contract-sizer');
 require('solidity-coverage');
 
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
+const TESTNET_SEED = process.env.TESTNET_SEED || '';
+
 
 // Tasks
 task('seed', 'Seed account with Buidler ETH')
@@ -53,7 +55,7 @@ module.exports = {
       url: 'https://node.edao.app',
       chainId: 420,
       accounts: {
-        mnemonic: process.env.TESTNET_SEED,
+        mnemonic: TESTNET_SEED,
         count: 10,
       },
     },
