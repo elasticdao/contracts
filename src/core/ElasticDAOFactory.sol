@@ -54,13 +54,14 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _eByL,
     uint256 _elasticity,
     uint256 _k,
-    uint256 _maxLambdaPurchase
+    uint256 _maxLambdaPurchase,
+    uint256 _maxVotingLambda
   ) external payable preventReentry {
     require(fee == msg.value, 'ElasticDAO: pay up');
 
     // create the DAO
     ElasticDAO elasticDAO =
-      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO);
+      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _maxVotingLambda);
 
     deployedDAOAddresses.push(address(elasticDAO));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);

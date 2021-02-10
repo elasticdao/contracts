@@ -16,6 +16,7 @@ describe('ElasticDAO: Core', () => {
         summoner1.address,
         await summoners(),
         'ElasticDAO',
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
       ];
 
       const ElasticDAO = await hre.getContractFactory('ElasticDAO');

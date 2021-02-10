@@ -80,7 +80,8 @@ contract ElasticDAO is ReentryProtection {
     address _ecosystemModelAddress,
     address _controller,
     address[] memory _summoners,
-    string memory _name
+    string memory _name,
+    uint256 _maxVotingLambda
   ) {
     require(
       _ecosystemModelAddress != address(0) || _controller != address(0),
@@ -92,7 +93,7 @@ contract ElasticDAO is ReentryProtection {
     controller = _controller;
     deployer = msg.sender;
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
-    maxVotingLambda = 1000000000000000000;
+    maxVotingLambda = _maxVotingLambda;
     summoners = _summoners;
 
     Configurator configurator = Configurator(defaults.configuratorAddress);

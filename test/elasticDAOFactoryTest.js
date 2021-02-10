@@ -57,6 +57,7 @@ describe('ElasticDAO: Factory', () => {
         sdk.elasticDAOFactory.toEthersBigNumber(0.02, 18),
         sdk.elasticDAOFactory.toEthersBigNumber(100, 18),
         sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
         { value: 0 },
       ),
     ).to.be.revertedWith('ElasticDAO: pay up');
