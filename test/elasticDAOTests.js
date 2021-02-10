@@ -271,5 +271,12 @@ describe('ElasticDAO: Core', () => {
       const atExitBalanceRecord = await dao.elasticGovernanceToken.balanceOf(summoner1.address);
       expect(atExitBalanceRecord.toNumber()).to.equal(910);
     });
+
+    it('Should not allow exit with too many shares', async () => {
+      const totalShares = await dao.elasticGovernanceToken.totalSupplyInShares();
+      await expect(dao.elasticDAO.exit(totalShares)).to.be.revertedWith(
+        'SafeMath: subtraction overflow',
+      );
+    });
   });
 });
