@@ -323,6 +323,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
 
     _transfer(_from, _to, _amount);
     emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);
+
+    return true;
   }
 
   // Private
