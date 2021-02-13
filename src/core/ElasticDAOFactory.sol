@@ -70,7 +70,7 @@ contract ElasticDAOFactory is ReentryProtection {
       address(uint160(Create2.computeAddress(salt, type(ElasticDAO).creationCode)));
 
     // deploy proxy with the computed dao address
-    EIP173Proxy proxy =
+    EIP173ProxyWithReceive proxy =
       new EIP173ProxyWithReceive(daoAddress, type(ElasticDAO).creationCode, msg.sender);
 
     // deploy DAO with computed address and initialize
