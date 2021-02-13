@@ -20,7 +20,8 @@ describe('ElasticDAO: Core', () => {
       ];
 
       const ElasticDAO = await hre.getContractFactory('ElasticDAO');
-      const elasticDAO = await ElasticDAO.deploy(...args);
+      const elasticDAO = await ElasticDAO.deploy();
+      await elasticDAO.initialize(...args);
 
       dao = await sdk.models.DAO.deserialize(elasticDAO.address);
     });

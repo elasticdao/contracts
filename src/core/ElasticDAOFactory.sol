@@ -8,8 +8,9 @@ import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
 import '../libraries/Create2.sol';
 
-// import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
-import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
+import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
+
+// import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
@@ -62,23 +63,21 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _maxVotingLambda
   ) external payable preventReentry {
     require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
-    bytes32 salt = keccak256(abi.encode(_nameOfDAO));
+    bytes32 salt = keccak256(abi.encode(_nameOfDAO, deployedDAOCount));
 
     // compute deployed DAO address
     address payable daoAddress =
       address(uint160(Create2.computeAddress(salt, type(ElasticDAO).creationCode)));
 
-    // deploy proxy with that address
-    EIP173Proxy proxy = new EIP173Proxy(daoAddress, type(ElasticDAO).creationCode, address(this));
-    // console.logAddress(address(proxy.owner()));
-    // console.log('this addres');
-    // console.logAddress(address(this));
+    // deploy proxy with the computed dao address
+    EIP173Proxy proxy =
+      new EIP173ProxyWithReceive(daoAddress, type(ElasticDAO).creationCode, msg.sender);
 
     // deploy DAO with computed address and initialize
     Create2.deploy(salt, type(ElasticDAO).creationCode);
     ElasticDAO(daoAddress).initialize(
       ecosystemModelAddress,
-      address(proxy),
+      proxy.owner(),
       _summoners,
       _nameOfDAO,
       _maxVotingLambda

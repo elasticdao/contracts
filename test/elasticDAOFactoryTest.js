@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const { newDAO, SDK, signers, summoners } = require('./helpers');
 
-describe.only('ElasticDAO: Factory', () => {
+describe('ElasticDAO: Factory', () => {
   let sdk;
 
   beforeEach(async () => {
