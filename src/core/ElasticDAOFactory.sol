@@ -10,7 +10,6 @@ import '../libraries/Create2.sol';
 
 // import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
-import 'hardhat/console.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
@@ -70,7 +69,7 @@ contract ElasticDAOFactory is ReentryProtection {
       address(uint160(Create2.computeAddress(salt, type(ElasticDAO).creationCode)));
 
     // deploy proxy with that address
-    //EIP173Proxy proxy = new EIP173Proxy(daoAddress, type(ElasticDAO).creationCode, address(this));
+    EIP173Proxy proxy = new EIP173Proxy(daoAddress, type(ElasticDAO).creationCode, address(this));
     // console.logAddress(address(proxy.owner()));
     // console.log('this addres');
     // console.logAddress(address(this));
