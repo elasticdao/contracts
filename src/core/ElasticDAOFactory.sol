@@ -6,6 +6,11 @@ import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
+import '../libraries/Create2.sol';
+
+// import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
+import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
+import 'hardhat/console.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
@@ -57,18 +62,42 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _maxLambdaPurchase,
     uint256 _maxVotingLambda
   ) external payable preventReentry {
-    require(fee == msg.value, 'ElasticDAO: pay up');
+    require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
+    bytes32 salt = keccak256(abi.encode(_nameOfDAO));
 
-    // create the DAO
-    ElasticDAO elasticDAO =
-      new ElasticDAO(ecosystemModelAddress, msg.sender, _summoners, _nameOfDAO, _maxVotingLambda);
+    // compute deployed DAO address
+    address payable daoAddress =
+      address(uint160(Create2.computeAddress(salt, type(ElasticDAO).creationCode)));
 
-    deployedDAOAddresses.push(address(elasticDAO));
+    // deploy proxy with that address
+    //EIP173Proxy proxy = new EIP173Proxy(daoAddress, type(ElasticDAO).creationCode, address(this));
+    // console.logAddress(address(proxy.owner()));
+    // console.log('this addres');
+    // console.logAddress(address(this));
+
+    // deploy DAO with computed address and initialize
+    Create2.deploy(salt, type(ElasticDAO).creationCode);
+    ElasticDAO(daoAddress).initialize(
+      ecosystemModelAddress,
+      address(proxy),
+      _summoners,
+      _nameOfDAO,
+      _maxVotingLambda
+    );
+
+    deployedDAOAddresses.push(address(daoAddress));
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
 
     // initialize the token
-    elasticDAO.initializeToken(_nameOfToken, _symbol, _eByL, _elasticity, _k, _maxLambdaPurchase);
-    emit DeployedDAO(address(elasticDAO));
+    ElasticDAO(daoAddress).initializeToken(
+      _nameOfToken,
+      _symbol,
+      _eByL,
+      _elasticity,
+      _k,
+      _maxLambdaPurchase
+    );
+    emit DeployedDAO(address(daoAddress));
   }
 
   function updateFee(uint256 amount) external onlyManager preventReentry {

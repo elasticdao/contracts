@@ -317,7 +317,6 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   ) external override preventReentry returns (bool) {
     require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
 
-
     if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {
       _allowances[_from][msg.sender] = SafeMath.sub(_allowances[_from][msg.sender], _amount);
       emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);

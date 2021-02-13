@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const { newDAO, SDK, signers, summoners } = require('./helpers');
 
-describe('ElasticDAO: Factory', () => {
+describe.only('ElasticDAO: Factory', () => {
   let sdk;
 
   beforeEach(async () => {
@@ -12,7 +12,9 @@ describe('ElasticDAO: Factory', () => {
 
   it('Should allow a DAO to be deployed using the factory', async () => {
     const dao = await newDAO();
-    expect(dao.uuid).to.not.equal(ethers.constants.AddressZero);
+    const token = await dao.token();
+
+    expect(token.symbol).to.equal('EGT');
     expect(dao.ecosystem.governanceTokenAddress).to.not.equal(ethers.constants.AddressZero);
   });
 
@@ -60,7 +62,7 @@ describe('ElasticDAO: Factory', () => {
         sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
         { value: 0 },
       ),
-    ).to.be.revertedWith('ElasticDAO: pay up');
+    ).to.be.revertedWith('ElasticDAO: A fee is required to deploy a DAO');
   });
 
   it('Should updateFeeAddress', async () => {

@@ -76,19 +76,18 @@ contract ElasticDAO is ReentryProtection {
     _;
   }
 
-  constructor(
+  function initialize (
     address _ecosystemModelAddress,
     address _controller,
     address[] memory _summoners,
     string memory _name,
     uint256 _maxVotingLambda
-  ) {
+  ) public {
     require(
       _ecosystemModelAddress != address(0) || _controller != address(0),
       'ElasticDAO: Address Zero'
     );
     require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');
-
     ecosystemModelAddress = _ecosystemModelAddress;
     controller = _controller;
     deployer = msg.sender;
