@@ -6,6 +6,8 @@ const { ethBalance, SDK, signers, summoners, summonedDAO } = require('./helpers'
 
 describe('ElasticDAO: Core', () => {
   let dao;
+  let salt;
+  let mockDeployedDAOCount = 0;
 
   describe('before summoning', () => {
     beforeEach(async () => {
@@ -21,6 +23,11 @@ describe('ElasticDAO: Core', () => {
 
       const ElasticDAO = await hre.getContractFactory('ElasticDAO');
       const elasticDAO = await ElasticDAO.deploy();
+      mockDeployedDAOCount += 1;
+      salt = ethers.utils.solidityKeccak256(
+        ['address', 'uint'],
+        [summoner1.address, mockDeployedDAOCount],
+      );
       await elasticDAO.initialize(...args);
 
       dao = await sdk.models.DAO.deserialize(elasticDAO.address);
@@ -34,6 +41,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
+        salt,
       );
 
       await dao.ecosystem.refresh();
@@ -53,6 +61,7 @@ describe('ElasticDAO: Core', () => {
           dao.toEthersBigNumber(0.02, 18),
           dao.toEthersBigNumber(100, 18),
           ethers.constants.WeiPerEther,
+          salt,
         ),
       ).to.be.revertedWith('ElasticDAO: Only deployer');
     });
@@ -65,6 +74,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
+        salt,
       );
 
       const { summoner1 } = await signers();
@@ -84,6 +94,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther, // lambda
+        salt,
       );
 
       const { summoner1 } = await signers();
@@ -122,6 +133,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther, // lambda
+        salt,
       );
 
       await expect(
@@ -137,6 +149,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
+        salt,
       );
 
       const { agent, summoner1 } = await signers();
@@ -157,6 +170,7 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
+        salt,
       );
 
       const { summoner1, summoner2, summoner3 } = await signers();
@@ -218,6 +232,7 @@ describe('ElasticDAO: Core', () => {
           dao.toEthersBigNumber(0.02, 18),
           dao.toEthersBigNumber(100, 18),
           ethers.constants.WeiPerEther,
+          salt,
         ),
       ).to.be.revertedWith('ElasticDAO: DAO must not be summoned');
     });

@@ -7,6 +7,8 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
+import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
+import '../libraries/Create2.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for configuring ElasticDAOs
@@ -84,6 +86,7 @@ contract Configurator {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase,
+    bytes32 _salt,
     Ecosystem.Instance memory _ecosystem
   ) external returns (Token.Instance memory token) {
     Token tokenStorage = Token(_ecosystem.tokenModelAddress);
@@ -96,9 +99,27 @@ contract Configurator {
     token.maxLambdaPurchase = _maxLambdaPurchase;
     token.name = _name;
     token.symbol = _symbol;
-    token.uuid = address(new ElasticGovernanceToken(msg.sender, _ecosystem.ecosystemModelAddress));
 
+    // deploy new token with create2 and set the computed address as uuid
+    address tokenAddress = Create2.computeAddress(_salt, type(ElasticGovernanceToken).creationCode);
+    // set token uuid to computed address
+    token.uuid = tokenAddress;
+    // create upgradeable ERC20 proxy
+    EIP173Proxy proxy =
+      new EIP173Proxy(
+        tokenAddress,
+        type(ElasticGovernanceToken).creationCode,
+        _ecosystem.daoAddress
+      );
+    // deploy the new elastic governance token
+    Create2.deploy(_salt, type(ElasticGovernanceToken).creationCode);
+    // initialize the token within the ecosystem
+    ElasticGovernanceToken(tokenAddress).initialize(
+      proxy.owner(),
+      _ecosystem.ecosystemModelAddress
+    );
     _ecosystem.governanceTokenAddress = token.uuid;
+    // serialize ecosystem
     Ecosystem(_ecosystem.ecosystemModelAddress).serialize(_ecosystem);
     tokenStorage.serialize(token);
 

@@ -41,7 +41,9 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     _;
   }
 
-  constructor(address _daoAddress, address _ecosystemModelAddress) IERC20() {
+  constructor() IERC20() {}
+
+  function initialize(address _daoAddress, address _ecosystemModelAddress) external returns (bool) {
     require(_daoAddress != address(0), 'ElasticDAO: Address Zero');
     require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
 
@@ -49,6 +51,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     daoAddress = _daoAddress;
     ecosystemModelAddress = _ecosystemModelAddress;
     minter = _daoAddress;
+
+    return true;
   }
 
   /**
@@ -247,16 +251,20 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     return _getToken().numberOfTokenHolders;
   }
 
-  function setBurner(address _burner) external onlyDAO preventReentry {
+  function setBurner(address _burner) external onlyDAO preventReentry returns (bool) {
     require(_burner != address(0), 'ElasticDAO: Address Zero');
 
     burner = _burner;
+
+    return true;
   }
 
-  function setMinter(address _minter) external onlyDAO preventReentry {
+  function setMinter(address _minter) external onlyDAO preventReentry returns (bool) {
     require(_minter != address(0), 'ElasticDAO: Address Zero');
 
     minter = _minter;
+
+    return true;
   }
 
   /**

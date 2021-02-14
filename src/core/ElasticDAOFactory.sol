@@ -7,7 +7,6 @@ import './ElasticDAO.sol';
 import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
 import '../libraries/Create2.sol';
-
 import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
 
 // import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
@@ -63,7 +62,7 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _maxVotingLambda
   ) external payable preventReentry {
     require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
-    bytes32 salt = keccak256(abi.encode(_nameOfDAO, deployedDAOCount));
+    bytes32 salt = keccak256(abi.encode(msg.sender, deployedDAOCount));
 
     // compute deployed DAO address
     address payable daoAddress =
@@ -93,7 +92,8 @@ contract ElasticDAOFactory is ReentryProtection {
       _eByL,
       _elasticity,
       _k,
-      _maxLambdaPurchase
+      _maxLambdaPurchase,
+      salt
     );
     emit DeployedDAO(address(daoAddress));
   }

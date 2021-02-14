@@ -122,7 +122,8 @@ contract ElasticDAO is ReentryProtection {
     uint256 _eByL,
     uint256 _elasticity,
     uint256 _k,
-    uint256 _maxLambdaPurchase
+    uint256 _maxLambdaPurchase,
+    bytes32 _salt
   ) external onlyBeforeSummoning onlyDeployer preventReentry {
     require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
@@ -135,12 +136,15 @@ contract ElasticDAO is ReentryProtection {
         _elasticity,
         _k,
         _maxLambdaPurchase,
+        _salt,
         ecosystem
       );
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    tokenContract.setBurner(controller);
-    tokenContract.setMinter(controller);
+    bool success = tokenContract.setBurner(controller);
+    require(success, 'ElasticDAO: Set Burner failed during initialize token');
+    success = tokenContract.setMinter(controller);
+    require(success, 'ElasticDAO: Set Minter failed during initialize token');
 
     emit ElasticGovernanceTokenDeployed(token.uuid);
   }
@@ -194,8 +198,8 @@ contract ElasticDAO is ReentryProtection {
     tokenStorage.serialize(token);
 
     // tokencontract mint shares
-    tokenContract.mintShares(msg.sender, _deltaLambda);
-
+    bool success = tokenContract.mintShares(msg.sender, _deltaLambda);
+    require(success, 'ElasticDAO: Mint Shares Failed during Join');
     emit JoinDAO(address(this), msg.sender, _deltaLambda, msg.value);
   }
 
@@ -238,8 +242,10 @@ contract ElasticDAO is ReentryProtection {
 
     controller = _controller;
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
-    tokenContract.setBurner(controller);
-    tokenContract.setMinter(controller);
+    bool success = tokenContract.setBurner(controller);
+    require(success, 'ElasticDAO: Set Burner failed during setController');
+    success = tokenContract.setMinter(controller);
+    require(success, 'ElasticDAO: Set Minter failed during setController');
 
     emit ControllerChanged(address(this), 'setController', controller);
   }
