@@ -10,7 +10,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const elasticDAOFactory = await deploy('ElasticDAOFactory', {
     from: agent,
     args: [],
-    proxy: true,
+    proxy: {
+      proxyContract: "EIP173ProxyWithReceive"
+    },
   });
 
   const factory = new ethers.Contract(
