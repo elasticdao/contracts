@@ -2,8 +2,8 @@ const { expect } = require('chai');
 
 const { capitalDelta, deltaE, mDash } = require('@elastic-dao/sdk');
 const BigNumber = require('bignumber.js');
-const { ONE } = require('./constants');
 
+const { ONE } = require('./constants');
 const { ethBalance, signers, summonedDAO } = require('./helpers');
 
 describe('ElasticDAO: CapitalDelta value of a token', () => {

@@ -18,6 +18,7 @@ contract ElasticDAO is ReentryProtection {
   address public controller;
   address[] public summoners;
   uint256 public maxVotingLambda;
+  bool public initialized;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
   event MaxVotingLambdaChanged(address indexed daoAddress, bytes32 settingName, uint256 value);
@@ -82,7 +83,9 @@ contract ElasticDAO is ReentryProtection {
     address[] memory _summoners,
     string memory _name,
     uint256 _maxVotingLambda
-  ) external {
+  ) external preventReentry {
+    require(initialized == false, 'ElasticDAO: Already initialized');
+
     require(
       _ecosystemModelAddress != address(0) || _controller != address(0),
       'ElasticDAO: Address Zero'
@@ -98,6 +101,7 @@ contract ElasticDAO is ReentryProtection {
     Configurator configurator = Configurator(defaults.configuratorAddress);
     Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
     bool success = configurator.buildDAO(_summoners, _name, ecosystem);
+    initialized = true;
     require(success, 'ElasticDAO: Build DAO Failed');
   }
 

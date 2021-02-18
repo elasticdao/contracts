@@ -8,8 +8,7 @@ import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
 import '../libraries/Create2.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
-
-// import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
+import 'hardhat/console.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
@@ -17,8 +16,9 @@ contract ElasticDAOFactory is ReentryProtection {
   address public manager;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
-  uint256 public deployedDAOCount = 0;
-  uint256 public fee = 250000000000000000;
+  uint256 public deployedDAOCount;
+  uint256 public fee;
+  bool public initialized = false;
 
   event DeployedDAO(address indexed daoAddress);
   event FeeAddressUpdated(address indexed feeReceiver);
@@ -31,10 +31,14 @@ contract ElasticDAOFactory is ReentryProtection {
     _;
   }
 
-  constructor(address _ecosystemModelAddress) {
+  function initialize(address _ecosystemModelAddress) external preventReentry {
+    require(initialized == false, 'ElasticDAO: Factory already initialized');
     require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
 
+    initialized = true;
     manager = msg.sender;
+    deployedDAOCount = 0;
+    fee = 250000000000000000;
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
