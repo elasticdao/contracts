@@ -10,18 +10,18 @@ import '../tokens/ElasticGovernanceToken.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
 import '@openzeppelin/contracts/utils/Create2.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for configuring ElasticDAOs
-/// @dev ElasticDAO network contracts can read/write from this contract
+/**
+ * @notice This contract is used for configuring ElasticDAOs
+ * @dev The main reason for having this is to decrease the size of ElasticDAO.sol
+ */
 contract Configurator {
   /**
    * @dev creates DAO.Instance record
-   * @param _summoners - an array of the addresses of the summoners
-   * @param _name - the name of the DAO
-   * @param _ecosystem - an instance of Ecosystem
+   * @param _summoners addresses of the summoners
+   * @param _name name of the DAO
+   * @param _ecosystem instance of Ecosystem the DAO uses
    * @return bool true
    */
-
   function buildDAO(
     address[] memory _summoners,
     string memory _name,
@@ -41,8 +41,9 @@ contract Configurator {
   }
 
   /**
-   * @dev duplicates the ecosystem contract address defaults
-   * @param defaults - An instance of the Ecosystem
+   * @dev duplicates the ecosystem contract address defaults so that each
+   * deployed DAO has it's own ecosystem configuration
+   * @param defaults instance of Ecosystem
    * @return ecosystem Ecosystem.Instance
    */
   function buildEcosystem(Ecosystem.Instance memory defaults)
@@ -67,16 +68,16 @@ contract Configurator {
   }
 
   /**
-   * @dev creates a governance token and it's storage
-   * @param _name - the name of the token
-   * @param _name - the symbol of the token
-   * @param _eByL is the initial Eth/Egt ratio before the DAO has been summoned
-   * @param _elasticity is the value of elasticity, initially set by the DAO
-   * @param _k is a constant, initially set by the DAO
-   * @param _maxLambdaPurchase - the maximum amount of lambda(shares) that can be
-   * purchased by an account
-   * m - initital share modifier = 1
-   * @param _ecosystem - ecosystem instance
+   * @dev creates a governance token proxy, implementation, and Token instance (storage)
+   * @param _name name of the token
+   * @param _symbol symbol of the token
+   * @param _eByL initial ETH/token ratio
+   * @param _elasticity the percentage by which capitalDelta should increase
+   * @param _k a constant, initially set by the DAO
+   * @param _maxLambdaPurchase maximum amount of lambda (shares) that can be
+   * minted on each call to the join function in ElasticDAO.sol
+   * @param _salt unique identifier for use with create2
+   * @param _ecosystem the DAO's ecosystem instance
    * @return token Token.Instance
    */
   function buildToken(
