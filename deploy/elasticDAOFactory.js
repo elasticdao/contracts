@@ -11,7 +11,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     from: agent,
     args: [],
     proxy: {
-      proxyContract: "EIP173ProxyWithReceive"
+      proxyContract: 'EIP173ProxyWithReceive',
     },
   });
 

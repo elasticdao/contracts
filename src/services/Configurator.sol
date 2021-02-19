@@ -101,7 +101,8 @@ contract Configurator {
     token.symbol = _symbol;
 
     // deploy new token with create2 and set the computed address as uuid
-    address tokenAddress = Create2.computeAddress(_salt, keccak256(type(ElasticGovernanceToken).creationCode));
+    address tokenAddress =
+      Create2.computeAddress(_salt, keccak256(type(ElasticGovernanceToken).creationCode));
     // set token uuid to computed address
     token.uuid = tokenAddress;
     // create upgradeable ERC20 proxy

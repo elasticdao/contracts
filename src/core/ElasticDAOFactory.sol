@@ -10,8 +10,10 @@ import '@openzeppelin/contracts/utils/Create2.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
 
 /**
-  @title This contract is the facory contract for ElasticDAO
- */ 
+ * @dev The factory contract for ElasticDAO
+ * Deploys ElasticDAO's and also sets all the required parameters and permissions,
+ * Collects a fee which is later used by ELasticDAO for further development of the project.
+ */
 contract ElasticDAOFactory is ReentryProtection {
   address public ecosystemModelAddress;
   address public manager;
@@ -33,8 +35,12 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   /**
-    @notice Initializes the ElasticDAO factory 
-    @param _ecosystemModelAddress - the address of the ecosystem model
+   * @notice Initializes the ElasticDAO factory
+   * @param _ecosystemModelAddress - the address of the ecosystem model
+   * @dev
+   * Requirements:
+   * - The factory cannot already be initialized
+   * - The ecosystem model address cannot be the zero address
    */
   function initialize(address _ecosystemModelAddress) external preventReentry {
     require(initialized == false, 'ElasticDAO: Factory already initialized');
@@ -48,8 +54,8 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   /**
-    @notice collects the fees sent to this contract
-    @dev emits FeesCollected event
+   * @notice collects the fees sent to this contract
+   * @dev emits FeesCollected event
    */
   function collectFees() external preventReentry {
     uint256 amount = address(this).balance;
@@ -64,12 +70,16 @@ contract ElasticDAOFactory is ReentryProtection {
    * @param _summoners - an array containing address of summoners
    * @param _nameOfDAO - the name of the DAO
    * @param _nameOfToken - the name of the token
-   * @param _eByL - the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO 
-   * @param _elasticity - the value by which the cost of entering the  DAO increases ( on every join )
-   * @param _k - is the constant token multiplier - it increases the number of tokens that each member of the DAO has with respect to their lambda 
+   * @param _eByL-the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO
+   * @param _elasticity-the value by which the cost of entering the  DAO increases ( on every join )
+   * @param _k - is the constant token multiplier,
+   * it increases the number of tokens that each member of the DAO has with respect to their lambda
    * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
    * @param _maxVotingLambda - is the maximum amount of lambda that can be used to vote
-   * @dev emits DeployedDAO event  
+   * @dev emits DeployedDAO event
+   * @dev
+   * Requirement:
+   * - The fee required should be sent in the call to the function
    */
   function deployDAOAndToken(
     address[] memory _summoners,
@@ -120,20 +130,23 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   /**
-  * @notice updates the fee required to deploy a DAQ
-  * @param _amount - the new amount of the fees
-  * @dev emits FeeUpdated event
-  */
+   * @notice updates the fee required to deploy a DAQ
+   * @param _amount - the new amount of the fees
+   * @dev emits FeeUpdated event
+   */
   function updateFee(uint256 _amount) external onlyManager preventReentry {
     fee = _amount;
     emit FeeUpdated(fee);
   }
 
   /**
-  * @notice updates the address of the fee reciever
-  * @param _feeReceiver - the new address of the fee reciever
-  * @dev emits FeeUpdated event
-  */
+   * @notice updates the address of the fee reciever
+   * @param _feeReceiver - the new address of the fee reciever
+   * @dev emits FeeUpdated event
+   * @dev
+   * Requirement:
+   * - The fee receiver address cannot be zero address
+   */
   function updateFeeAddress(address _feeReceiver) external onlyManager preventReentry {
     require(_feeReceiver != address(0), 'ElasticDAO: Address Zero');
 
@@ -142,10 +155,10 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   /**
-  * @notice updates the manager address
-  * @param _newManager - the address of the new manager
-  * @dev emits ManagerUpdated event
-  */
+   * @notice updates the manager address
+   * @param _newManager - the address of the new manager
+   * @dev emits ManagerUpdated event
+   */
   function updateManager(address _newManager) external onlyManager preventReentry {
     manager = _newManager;
     emit ManagerUpdated(manager);
