@@ -43,27 +43,8 @@ library SafeMath {
    * - Subtraction cannot overflow.
    */
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-    return sub(a, b, 'SafeMath: subtraction overflow');
-  }
-
-  /**
-   * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-   * overflow (when the result is negative).
-   *
-   * Counterpart to Solidity's `-` operator.
-   *
-   * Requirements:
-   *
-   * - Subtraction cannot overflow.
-   */
-  function sub(
-    uint256 a,
-    uint256 b,
-    string memory errorMessage
-  ) internal pure returns (uint256) {
-    require(b <= a, errorMessage);
+    require(b <= a, 'SafeMath: subtraction overflow');
     uint256 c = a - b;
-
     return c;
   }
 
@@ -91,6 +72,12 @@ library SafeMath {
     return c;
   }
 
+  /**
+   * @dev Returns one unsigned integer to the power of another, reverting on
+   * a multiplication overflow.
+   *
+   * Counterpart to Solidity's `**` operator.
+   */
   function pow(uint256 base, uint256 exponent) internal pure returns (uint256) {
     if (exponent == 0) {
       return 1;
@@ -100,7 +87,7 @@ library SafeMath {
       return 0;
     } else {
       uint256 z = base;
-      for (uint256 i = 1; i < exponent; i = add(i, 1)) z = mul(z, base);
+      for (uint256 i = 1; i < exponent; i += 1) z = mul(z, base);
       return z;
     }
   }
