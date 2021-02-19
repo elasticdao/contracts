@@ -13,10 +13,10 @@ import '../services/Configurator.sol';
 import '../services/ReentryProtection.sol';
 
 /**
-* @dev The ElasticDAO contract,
-* Serves as a blueprint for all the parameters and permissions 
-* required by an ElasticDAO
-*/
+ * @dev The ElasticDAO contract,
+ * Serves as a blueprint for all the parameters and permissions
+ * required by an ElasticDAO
+ */
 contract ElasticDAO is ReentryProtection {
   address public deployer;
   address public ecosystemModelAddress;
