@@ -36,6 +36,7 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice Initializes the ElasticDAO factory
+   *
    * @param _ecosystemModelAddress - the address of the ecosystem model
    * @dev
    * Requirements:
@@ -55,7 +56,10 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice collects the fees sent to this contract
+   *
    * @dev emits FeesCollected event
+   * Requirement:
+   * - The fee collection transaction should be successful
    */
   function collectFees() external preventReentry {
     uint256 amount = address(this).balance;
@@ -67,6 +71,7 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice deploys DAO and initializes token and stores the address of the deployed DAO
+   *
    * @param _summoners - an array containing address of summoners
    * @param _nameOfDAO - the name of the DAO
    * @param _nameOfToken - the name of the token
@@ -76,6 +81,7 @@ contract ElasticDAOFactory is ReentryProtection {
    * it increases the number of tokens that each member of the DAO has with respect to their lambda
    * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
    * @param _maxVotingLambda - is the maximum amount of lambda that can be used to vote
+   *
    * @dev emits DeployedDAO event
    * @dev
    * Requirement:
@@ -131,7 +137,9 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice updates the fee required to deploy a DAQ
+   *
    * @param _amount - the new amount of the fees
+   *
    * @dev emits FeeUpdated event
    */
   function updateFee(uint256 _amount) external onlyManager preventReentry {
@@ -141,7 +149,9 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice updates the address of the fee reciever
+   *
    * @param _feeReceiver - the new address of the fee reciever
+   *
    * @dev emits FeeUpdated event
    * @dev
    * Requirement:
@@ -156,7 +166,9 @@ contract ElasticDAOFactory is ReentryProtection {
 
   /**
    * @notice updates the manager address
+   *
    * @param _newManager - the address of the new manager
+   *
    * @dev emits ManagerUpdated event
    */
   function updateManager(address _newManager) external onlyManager preventReentry {

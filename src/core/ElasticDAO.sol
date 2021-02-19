@@ -85,16 +85,19 @@ contract ElasticDAO is ReentryProtection {
   /**
    * @notice Initializes and builds the ElasticDAO struct by passing and initializing
    * all the required parameters into the configurator
+   *
    * @param _ecosystemModelAddress - the address of the ecosystem model
    * @param _controller - the address of the controller
    * @param _summoners - an array containing the addresses of the summoners
    * @param _name - the name of the DAO
-   * @param _maxVotingLambda - the maximum amount of lambda that can be used to vote in the DAO
+   * @param _maxVotingLambda -the maximum amount of lambda that can be used to vote in the DAO
+   *
    * @dev
    * Requirements:
    * - The DAO cannot already be initialized
    * - The ecosystem model address cannot be the zero address
-   * - The DAO must have atleast one summoner
+   * - The DAO must have atleast one summoner to summon the DAO
+   * - The configurator should be able to successfully build the DAO
    */
   function initialize(
     address _ecosystemModelAddress,
@@ -125,8 +128,17 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice this function is used to exit the DAO
+   * @notice this function is to be used for exiting the DAO
+   * for the underlying ETH value of  _deltaLambda
+   *
+   * The eth value of _deltaLambda is calculated using:
+   *
+   * eth to be transfered = ( deltaLambda/lambda ) * totalEthInTheDAO
+   *
    * @param _deltaLambda - the amount of lambda the address exits with
+   *
+   * Requirement:
+   * - Should be able to successfully exit the DAO
    * @dev emits ExitDAO event
    */
   function exit(uint256 _deltaLambda) external onlyAfterSummoning preventReentry {
@@ -145,16 +157,26 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice initializes the token of the DAO
+   * @notice initializes the token of the DAO, using the Configurator
+   *
    * @param _name - name of the token
    * @param _symbol - symbol of the token
-   * @param _eByL - the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO
-   * @param _elasticity - the value by which the cost of entering the  DAO increases ( on every join )
-   * @param _k - is the constant token multiplier - it increases the number of tokens that each member of the DAO has with respect to their lambda
+   * @param _eByL -the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO
+   * @param _elasticity the value by which the cost of entering the  DAO increases ( on every join )
+   * @param _k - is the constant token multiplier
+   * it increases the number of tokens that each member of the DAO has with respect to their lambda
    * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
-   * @param _salt - an arbitary value provided by the function caller ( to follow the Create2 pattern of generating opcodes)
-   * @dev refer https://docs.openzeppelin.com/cli/2.8/deploying-with-create2#create2 for further understanding of Create2 and salt
+   * @param _salt-an arbitary value provided by the function caller
+   * (to follow the Create2 pattern of generating opcodes)
+   *
+   * @dev refer https://docs.openzeppelin.com/cli/2.8/deploying-with-create2#create2
+   * for further understanding of Create2 and salt
    * @dev emits ElasticGovernanceTokenDeployed event
+   * @dev
+   * Requirements:
+   * - Only the deployer of the DAO can initialize the Token
+   * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
+   * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
    */
   function initializeToken(
     string memory _name,
@@ -191,9 +213,23 @@ contract ElasticDAO is ReentryProtection {
 
   /**
    * @notice this function is used to join the DAO after it has been summoned
+   * Joining the DAO is syntactically equal to minting _deltaLambda for the function caller.
+   *
+   * Based on the current state of the DAO, capitalDelta, deltaE, mDash are calulated,
+   * after which  _deltaLambda is minted for the address calling the function.
+   *
    * @param _deltaLambda - the amount of lambda the address joins with
-   * @dev documentation and further math regarding capitalDelta, deltaE, mDash can be found at ../libraries/ElasticMath.sol
+   *
+   * @dev documentation and further math regarding capitalDelta, deltaE,
+   * mDash can be found at ../libraries/ElasticMath.sol
    * @dev emits the JoinDAO event
+   *
+   * @dev Requirements:
+   * The amount of shares being purchased has to be lower than maxLambdaPurchase
+   * (The value of maxLambdaPurchase is set during the initialzing of the DAO)
+   * The correct value of ETH, calculated via deltaE,
+   * must be sent in the transaction by the calling address
+   * The token contract should be successfully be able to mint  _deltaLambda
    */
   function join(uint256 _deltaLambda)
     external
@@ -206,16 +242,14 @@ contract ElasticDAO is ReentryProtection {
 
     require(
       _deltaLambda <= token.maxLambdaPurchase,
-      'ElasticDAO: Cannot purchase that many shares at once'
+      'ElasticDAO: Cannot purchase those many lambda at once'
     );
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
     uint256 capitalDelta =
       ElasticMath.capitalDelta(
-        // at this stage address(this).balance has the eth present in it(before function join),
-        // along with msg.value
-        // hence msg.value is subtracted from capitalDelta because capitalDelta is calculated
-        // with the eth present in the contract prior to receieving msg.value
+        // the current totalBalance of the DAO is inclusive of msg.value,
+        // capitalDelta is to be calculated without the msg.value
         address(this).balance - msg.value,
         tokenContract.totalSupply()
       );
@@ -251,8 +285,12 @@ contract ElasticDAO is ReentryProtection {
 
   /**
    * @notice penalizes @param _addresess with @param _amounts respectively
+   *
    * @param _addresses - an array of addresses
    * @param _amounts - an array containing the amounts each address has to be penalized respectively
+   *
+   * @dev Requirement:
+   * - Each address must have a corresponding amount to be penalized with
    */
   function penalize(address[] memory _addresses, uint256[] memory _amounts)
     external
@@ -273,8 +311,12 @@ contract ElasticDAO is ReentryProtection {
 
   /**
    * @notice rewards @param _addresess with @param _amounts respectively
+   *
    * @param _addresses - an array of addresses
    * @param _amounts - an array containing the amounts each address has to be rewarded respectively
+   *
+   * @dev Requirement:
+   * - Each address must have a corresponding amount to be rewarded with
    */
   function reward(address[] memory _addresses, uint256[] memory _amounts)
     external
@@ -294,9 +336,17 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice sets the controller of the DAO
-   * @param _controller - the address of the controller of the DAO
+   * @notice sets the controller of the DAO,
+   * The controller of the DAO handles various responsibilities of the DAO,
+   * such as burning and minting tokens on behalf of the DAO
+   *
+   * @param _controller - the new address of the controller of the DAO
+   *
    * @dev emits ControllerChanged event
+   * @dev Requirements:
+   * - Each address must have a corresponding amount to be penalized with
+   * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
+   * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
    */
   function setController(address _controller) external onlyController preventReentry {
     require(_controller != address(0), 'ElasticDAO: Address Zero');
@@ -323,8 +373,13 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice seeds the DAO
-   * @dev seeding of the DAO occurs after the DAO has been initialized and before the DAO has been summoned
+   * @notice seeds the DAO,
+   * Essentially transferring of ETH by a summoner address, in return for lambda is seeding the DAO,
+   * The lambda recieved is given by:
+   * Lambda = Eth  / eByL
+   *
+   * @dev seeding of the DAO occurs after the DAO has been initialized,
+   * and before the DAO has been summoned
    * @dev emits the SeedDAO event
    */
   function seedSummoning()
@@ -345,9 +400,19 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice summons the DAO
+   * @notice summons the DAO,
+   * Summoning the DAO results in all summoners getting _deltaLambda
+   * after which people can enter the DAO using the join function
+   *
    * @param _deltaLambda - the amount of lambda each summoner address receieves
+   *
    * @dev emits SummonedDAO event
+   * @dev Requirement:
+   * The DAO must be seeded with ETH during the seeding phase
+   * (This is to facilitate capitalDelta calculations after the DAO has been summoned).
+   *
+   * @dev documentation and further math regarding capitalDelta
+   * can be found at ../libraries/ElasticMath.sol
    */
   function summon(uint256 _deltaLambda) external onlyBeforeSummoning onlySummoners preventReentry {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
