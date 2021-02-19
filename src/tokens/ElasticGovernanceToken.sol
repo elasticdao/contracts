@@ -16,7 +16,8 @@ import '../models/TokenHolder.sol';
 import '../services/ReentryProtection.sol';
 
 /**
- * @dev Implementation of the IERC20 interface
+ * @dev ElasticGovernanceToken contract outlines and defines all the functionality
+ * of an ElasticGovernanceToken and also serves as it's storage
  */
 contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   address public burner;
@@ -42,6 +43,19 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     _;
   }
 
+  /**
+   * @notice initializes the ElasticGovernanceToken
+   *
+   * @param _daoAddress - the address of the deployed ElasticDAO
+   * @param _ecosystemModelAddress - the address of the ecosystem model
+   *
+   * @dev Requirements:
+   * - The token should not already be initialized
+   * - The address of the deployed ElasticDAO cannot be zero
+   * - The address of the ecosystemModelAddress cannot be zero
+   *
+   * @return bool
+   */
   function initialize(address _daoAddress, address _ecosystemModelAddress)
     external
     preventReentry
@@ -61,12 +75,15 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Returns the remaining number of tokens that @param _spender will be
+   * @notice Returns the remaining number of tokens that @param _spender will be
    * allowed to spend on behalf of @param _owner through {transferFrom}. This is
    * zero by default
+   *
    * @param _spender - the address of the spender
    * @param _owner - the address of the owner
-   * This value changes when {approve} or {transferFrom} are called
+   *
+   * @dev This value changes when {approve} or {transferFrom} are called
+   *
    * @return uint256
    */
   function allowance(address _owner, address _spender) external view override returns (uint256) {
@@ -74,10 +91,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Sets @param _amount as the allowance of @param _spender over the caller's tokens
-   * @param _spender - the address of the spender
-   * Returns a boolean value indicating whether the operation succeeded
+   * @notice Sets @param _amount as the allowance of @param _spender over the caller's tokens
    *
+   * @param _spender - the address of the spender
+   *
+   * @dev
    * IMPORTANT: Beware that changing an allowance with this method brings the risk
    * that someone may use both the old and the new allowance by unfortunate
    * transaction ordering. One possible solution to mitigate this race
@@ -85,7 +103,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * desired value afterwards:
    * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
    *
-   * Emits an {Approval} event
+   * @dev Emits an {Approval} event
+   *
    * @return bool
    */
   function approve(address _spender, uint256 _amount)
@@ -99,8 +118,20 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Returns the amount of tokens owned by @param _account.
+   * @notice Returns the amount of tokens owned by @param _account using ElasticMath
+   *
    * @param _account - address of the account
+   *
+   * @dev the number of tokens is given by:
+   * t = lambda * m * k
+   *
+   * t - number of tokens
+   * m - lambda modifier - it's value increases every time someone joins the DAO
+   * k - constant token multiplier - it increases the number of tokens
+   *  that each member of the DAO has with respect to their lambda
+   *
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
    * @return uint256
    */
   function balanceOf(address _account) external view override returns (uint256) {
@@ -112,8 +143,10 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Returns the amount of shares owned by @param _account.
+   * @notice Returns the amount of shares ( lambda ) owned by _account.
+   *
    * @param _account - address of the account
+   *
    * @return lambda uint256 - lambda is the number of shares
    */
   function balanceOfInShares(address _account) external view override returns (uint256) {
@@ -121,6 +154,17 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     return tokenHolder.lambda;
   }
 
+  /**
+   * @notice Returns the amount of tokens @param _account can vote with, using ElasticMath
+   *
+   * @param _account - the address of the account
+   *
+   * @dev checks if @param _account has more or less lambda than maxVotingLambda,
+   * based on which number of tokens (t) @param _account can vote with is calculated.
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
+   * @return balance uint256 numberOfTokens (t)
+   */
   function balanceOfVoting(address _account) external view returns (uint256 balance) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
@@ -135,9 +179,12 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Reduces the balance(tokens) of @param _account by @param _amount
+   * @notice Reduces the balance(tokens) of @param _account by  _amount
+   *
    * @param _account address of the account
+   *
    * @param _amount - the amount by which the number of tokens is to be reduced
+   *
    * @return bool
    */
   function burn(address _account, uint256 _amount)
@@ -152,9 +199,12 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev Reduces the balance(shares) of @param _account by @param _amount
+   * @notice Reduces the balance(lambda) of @param _account by  _amount
+   *
    * @param _account - address of the account
+   *
    * @param _amount - the amount by which the number of shares has to be reduced
+   *
    * @return bool
    */
   function burnShares(address _account, uint256 _amount)
@@ -169,7 +219,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev returns the number of decimals
+   * @notice returns the number of decimals
+   *
    * @return 18
    */
   function decimals() external pure returns (uint256) {
@@ -177,9 +228,14 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev decreases the allowance of @param _spender by @param _subtractedValue
+   * @notice decreases the allowance of @param _spender by _subtractedValue
+   *
    * @param _spender - address of the spender
    * @param _subtractedValue - the value the allowance has to be decreased by
+   *
+   * @dev Requirement:
+   * Allowance cannot be lower than 0
+   *
    * @return bool
    */
   function decreaseAllowance(address _spender, uint256 _subtractedValue)
@@ -196,9 +252,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev increases the allowance of @param _spender by @param _addedValue
+   * @notice increases the allowance of @param _spender by _addedValue
+   *
    * @param _spender - address of the spender
    * @param _addedValue - the value the allowance has to be increased by
+   *
    * @return bool
    */
   function increaseAllowance(address _spender, uint256 _addedValue)
@@ -252,10 +310,26 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     return _getToken().name;
   }
 
+  /**
+   * @notice Returns the number of token holders of ElasticGovernanceToken
+   *
+   * @return uint256 numberOfTokenHolders
+   */
   function numberOfTokenHolders() external view override returns (uint256) {
     return _getToken().numberOfTokenHolders;
   }
 
+  /**
+   * @notice sets the burner of the ElasticGovernanceToken
+   * a Burner is an address that can burn tokens(reduce the amount of tokens in circulation)
+   *
+   * @param _burner - the address of the burner
+   *
+   * @dev Requirement:
+   * - Address of the burner cannot be zero address
+   *
+   * @return bool
+   */
   function setBurner(address _burner) external onlyDAO preventReentry returns (bool) {
     require(_burner != address(0), 'ElasticDAO: Address Zero');
 
@@ -264,6 +338,17 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     return true;
   }
 
+  /**
+   * @notice sets the minter of the ElasticGovernanceToken
+   * a Minter is an address that can mint tokens(increase the amount of tokens in circulation)
+   *
+   * @param _minter - address of the minter
+   *
+   * @dev Requirement:
+   * - Address of the minter cannot be zero address
+   *
+   * @return bool
+   */
   function setMinter(address _minter) external onlyDAO preventReentry returns (bool) {
     require(_minter != address(0), 'ElasticDAO: Address Zero');
 
@@ -275,6 +360,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   /**
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
+   *
    * @return string - the symbol of the token
    */
   function symbol() external view returns (string memory) {
@@ -282,12 +368,16 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   /**
-   * @dev returns the totalSupply of tokens in thee DAO
+   * @notice returns the totalSupply of tokens in the DAO
+   *
+   * @dev
    * t - the total number of tokens in the DAO
    * lambda - the total number of shares outstanding in the DAO currently
    * m - current value of the share modifier
    * k - constant
    * t = ( lambda * m * k )
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
    * @return uint256 - the value of t
    */
   function totalSupply() external view override returns (uint256) {
@@ -295,6 +385,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     return ElasticMath.t(token.lambda, token.k, token.m);
   }
 
+  /**
+   * @notice Returns the current lambda value
+   *
+   * @return uint256 lambda
+   */
   function totalSupplyInShares() external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     return token.lambda;
