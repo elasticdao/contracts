@@ -8,7 +8,7 @@ import '../models/Token.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
-import '../libraries/Create2.sol';
+import '@openzeppelin/contracts/utils/Create2.sol';
 
 /// @author ElasticDAO - https://ElasticDAO.org
 /// @notice This contract is used for configuring ElasticDAOs
@@ -101,7 +101,7 @@ contract Configurator {
     token.symbol = _symbol;
 
     // deploy new token with create2 and set the computed address as uuid
-    address tokenAddress = Create2.computeAddress(_salt, type(ElasticGovernanceToken).creationCode);
+    address tokenAddress = Create2.computeAddress(_salt, keccak256(type(ElasticGovernanceToken).creationCode));
     // set token uuid to computed address
     token.uuid = tokenAddress;
     // create upgradeable ERC20 proxy
@@ -112,7 +112,7 @@ contract Configurator {
         _ecosystem.daoAddress
       );
     // deploy the new elastic governance token
-    Create2.deploy(_salt, type(ElasticGovernanceToken).creationCode);
+    Create2.deploy(0, _salt, type(ElasticGovernanceToken).creationCode);
     // initialize the token within the ecosystem
     ElasticGovernanceToken(tokenAddress).initialize(
       proxy.owner(),

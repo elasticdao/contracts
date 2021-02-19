@@ -6,9 +6,8 @@ import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
-import '../libraries/Create2.sol';
+import '@openzeppelin/contracts/utils/Create2.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
-import 'hardhat/console.sol';
 
 // This contract is the facory contract for ElasticDAO
 contract ElasticDAOFactory is ReentryProtection {
@@ -70,14 +69,14 @@ contract ElasticDAOFactory is ReentryProtection {
 
     // compute deployed DAO address
     address payable daoAddress =
-      address(uint160(Create2.computeAddress(salt, type(ElasticDAO).creationCode)));
+      address(uint160(Create2.computeAddress(salt, keccak256(type(ElasticDAO).creationCode))));
 
     // deploy proxy with the computed dao address
     EIP173ProxyWithReceive proxy =
       new EIP173ProxyWithReceive(daoAddress, type(ElasticDAO).creationCode, msg.sender);
 
     // deploy DAO with computed address and initialize
-    Create2.deploy(salt, type(ElasticDAO).creationCode);
+    Create2.deploy(0, salt, type(ElasticDAO).creationCode);
     ElasticDAO(daoAddress).initialize(
       ecosystemModelAddress,
       proxy.owner(),

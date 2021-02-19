@@ -8,9 +8,9 @@ import '../libraries/SafeMath.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
-import '../services/ReentryProtection.sol';
 
 import '../services/Configurator.sol';
+import '../services/ReentryProtection.sol';
 
 contract ElasticDAO is ReentryProtection {
   address public deployer;
