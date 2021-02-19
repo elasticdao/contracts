@@ -79,6 +79,7 @@ describe('ElasticDAO: Factory', () => {
     const tx = await sdk.elasticDAOFactory.contract.updateElasticDAOImplementationAddress(
       elasticDAO.address,
     );
+
     const logs = await tx.wait(1);
 
     expect(logs.events[0].event).to.equal('ElasticDAOImplementationAddressUpdated');

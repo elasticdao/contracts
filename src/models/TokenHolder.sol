@@ -46,13 +46,13 @@ contract TokenHolder is EternalModel, ReentryProtection {
 
   /**
    * @dev serializes Instance struct
-   * @param record Instance
+   * @param _record Instance
    */
-  function serialize(Instance memory record) external preventReentry {
-    require(msg.sender == record.token.uuid, 'ElasticDAO: Unauthorized');
+  function serialize(Instance memory _record) external preventReentry {
+    require(msg.sender == _record.token.uuid, 'ElasticDAO: Unauthorized');
 
-    setUint(keccak256(abi.encode(record.token.uuid, record.account, 'lambda')), record.lambda);
-    setBool(keccak256(abi.encode(record.token.uuid, record.account, 'exists')), true);
+    setUint(keccak256(abi.encode(_record.token.uuid, _record.account, 'lambda')), _record.lambda);
+    setBool(keccak256(abi.encode(_record.token.uuid, _record.account, 'exists')), true);
   }
 
   function _exists(address _account, Token.Instance memory _token) internal view returns (bool) {

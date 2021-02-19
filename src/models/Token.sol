@@ -65,33 +65,33 @@ contract Token is EternalModel, ReentryProtection {
 
   /**
    * @dev serializes Instance struct
-   * @param record Instance
+   * @param _record Instance
    */
-  function serialize(Instance memory record) external preventReentry {
+  function serialize(Instance memory _record) external preventReentry {
     require(
-      msg.sender == record.uuid ||
-        msg.sender == record.ecosystem.daoAddress ||
-        (msg.sender == record.ecosystem.configuratorAddress && !_exists(record.uuid)),
+      msg.sender == _record.uuid ||
+        msg.sender == _record.ecosystem.daoAddress ||
+        (msg.sender == _record.ecosystem.configuratorAddress && !_exists(_record.uuid)),
       'ElasticDAO: Unauthorized'
     );
 
-    setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
-    setString(keccak256(abi.encode(record.uuid, 'symbol')), record.symbol);
-    setUint(keccak256(abi.encode(record.uuid, 'eByL')), record.eByL);
-    setUint(keccak256(abi.encode(record.uuid, 'elasticity')), record.elasticity);
-    setUint(keccak256(abi.encode(record.uuid, 'k')), record.k);
-    setUint(keccak256(abi.encode(record.uuid, 'lambda')), record.lambda);
-    setUint(keccak256(abi.encode(record.uuid, 'm')), record.m);
-    setUint(keccak256(abi.encode(record.uuid, 'maxLambdaPurchase')), record.maxLambdaPurchase);
+    setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);
+    setString(keccak256(abi.encode(_record.uuid, 'symbol')), _record.symbol);
+    setUint(keccak256(abi.encode(_record.uuid, 'eByL')), _record.eByL);
+    setUint(keccak256(abi.encode(_record.uuid, 'elasticity')), _record.elasticity);
+    setUint(keccak256(abi.encode(_record.uuid, 'k')), _record.k);
+    setUint(keccak256(abi.encode(_record.uuid, 'lambda')), _record.lambda);
+    setUint(keccak256(abi.encode(_record.uuid, 'm')), _record.m);
+    setUint(keccak256(abi.encode(_record.uuid, 'maxLambdaPurchase')), _record.maxLambdaPurchase);
 
-    setBool(keccak256(abi.encode(record.uuid, 'exists')), true);
+    setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
   }
 
-  function updateNumberOfTokenHolders(Instance memory record, uint256 numberOfTokenHolders)
+  function updateNumberOfTokenHolders(Instance memory _record, uint256 numberOfTokenHolders)
     external
     preventReentry
   {
-    setUint(keccak256(abi.encode(record.uuid, 'numberOfTokenHolders')), numberOfTokenHolders);
+    setUint(keccak256(abi.encode(_record.uuid, 'numberOfTokenHolders')), numberOfTokenHolders);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

@@ -70,27 +70,27 @@ contract DAO is EternalModel, ReentryProtection {
 
   /**
    * @dev serializes Instance struct
-   * @param record Instance
+   * @param _record Instance
    */
-  function serialize(Instance memory record) external preventReentry {
+  function serialize(Instance memory _record) external preventReentry {
     require(
-      msg.sender == record.uuid || msg.sender == record.ecosystem.configuratorAddress,
+      msg.sender == _record.uuid || msg.sender == _record.ecosystem.configuratorAddress,
       'ElasticDAO: Unauthorized'
     );
 
-    setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
-    setBool(keccak256(abi.encode(record.uuid, 'summoned')), record.summoned);
+    setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);
+    setBool(keccak256(abi.encode(_record.uuid, 'summoned')), _record.summoned);
 
-    if (record.summoners.length > 0) {
-      record.numberOfSummoners = record.summoners.length;
-      setUint(keccak256(abi.encode(record.uuid, 'numberOfSummoners')), record.numberOfSummoners);
-      for (uint256 i = 0; i < record.numberOfSummoners; i += 1) {
-        setBool(keccak256(abi.encode(record.uuid, 'summoner', record.summoners[i])), true);
-        setAddress(keccak256(abi.encode(record.uuid, 'summoners', i)), record.summoners[i]);
+    if (_record.summoners.length > 0) {
+      _record.numberOfSummoners = _record.summoners.length;
+      setUint(keccak256(abi.encode(_record.uuid, 'numberOfSummoners')), _record.numberOfSummoners);
+      for (uint256 i = 0; i < _record.numberOfSummoners; i += 1) {
+        setBool(keccak256(abi.encode(_record.uuid, 'summoner', _record.summoners[i])), true);
+        setAddress(keccak256(abi.encode(_record.uuid, 'summoners', i)), _record.summoners[i]);
       }
     }
 
-    setBool(keccak256(abi.encode(record.uuid, 'exists')), true);
+    setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

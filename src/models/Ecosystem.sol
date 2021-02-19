@@ -68,37 +68,40 @@ contract Ecosystem is EternalModel, ReentryProtection {
 
   /**
    * @dev serializes Instance struct
-   * @param record Instance
+   * @param _record Instance
    */
-  function serialize(Instance memory record) external preventReentry {
-    bool recordExists = _exists(record.daoAddress);
+  function serialize(Instance memory _record) external preventReentry {
+    bool recordExists = _exists(_record.daoAddress);
 
     require(
-      msg.sender == record.daoAddress ||
-        msg.sender == record.configuratorAddress ||
-        (record.daoAddress == address(0) && !recordExists),
+      msg.sender == _record.daoAddress ||
+        msg.sender == _record.configuratorAddress ||
+        (_record.daoAddress == address(0) && !recordExists),
       'ElasticDAO: Unauthorized'
     );
 
     setAddress(
-      keccak256(abi.encode(record.daoAddress, 'configuratorAddress')),
-      record.configuratorAddress
-    );
-    setAddress(keccak256(abi.encode(record.daoAddress, 'daoModelAddress')), record.daoModelAddress);
-    setAddress(
-      keccak256(abi.encode(record.daoAddress, 'governanceTokenAddress')),
-      record.governanceTokenAddress
+      keccak256(abi.encode(_record.daoAddress, 'configuratorAddress')),
+      _record.configuratorAddress
     );
     setAddress(
-      keccak256(abi.encode(record.daoAddress, 'tokenHolderModelAddress')),
-      record.tokenHolderModelAddress
+      keccak256(abi.encode(_record.daoAddress, 'daoModelAddress')),
+      _record.daoModelAddress
     );
     setAddress(
-      keccak256(abi.encode(record.daoAddress, 'tokenModelAddress')),
-      record.tokenModelAddress
+      keccak256(abi.encode(_record.daoAddress, 'governanceTokenAddress')),
+      _record.governanceTokenAddress
+    );
+    setAddress(
+      keccak256(abi.encode(_record.daoAddress, 'tokenHolderModelAddress')),
+      _record.tokenHolderModelAddress
+    );
+    setAddress(
+      keccak256(abi.encode(_record.daoAddress, 'tokenModelAddress')),
+      _record.tokenModelAddress
     );
 
-    setBool(keccak256(abi.encode(record.daoAddress, 'exists')), true);
+    setBool(keccak256(abi.encode(_record.daoAddress, 'exists')), true);
   }
 
   function _exists(address _daoAddress) internal view returns (bool recordExists) {
