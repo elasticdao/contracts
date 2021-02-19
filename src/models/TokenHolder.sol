@@ -8,11 +8,14 @@ import './Token.sol';
 import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for storing token data
-/// @dev ElasticDAO network contracts can read/write from this contract
-// Serialize -> Translation of data from the concerned struct to key-value pairs
-/// Deserialize -> Translation of data from the key-value pairs to a struct
+/**
+ * @title a data storage for Token holders
+ * @author ElasticDAO - https://ElasticDAO.org
+ * @notice This contract is used for storing token data
+ * @dev ElasticDAO network contracts can read/write from this contract
+ * Serialize - Translation of data from the concerned struct to key-value pairs
+ * Deserialize - Translation of data from the key-value pairs to a struct
+ */
 contract TokenHolder is EternalModel, ReentryProtection {
   struct Instance {
     address account;

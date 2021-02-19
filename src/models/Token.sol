@@ -8,11 +8,14 @@ import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 import '../tokens/ElasticGovernanceToken.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for storing token data
-/// @dev ElasticDAO network contracts can read/write from this contract
-/// Serialize -> Translation of data from the concerned struct to key-value pairs
-/// Deserialize -> Translation of data from the key-value pairs to a struct
+/**
+ * @title A data storage for EGT (Elastic Governance Token)
+ * @notice More info about EGT could be found in ./tokens/ElasticGovernanceToken.sol
+ * @notice This contract is used for storing token data
+ * @dev ElasticDAO network contracts can read/write from this contract
+ * Serialize - Translation of data from the concerned struct to key-value pairs
+ * Deserialize - Translation of data from the key-value pairs to a struct
+ */
 contract Token is EternalModel, ReentryProtection {
   struct Instance {
     address uuid;

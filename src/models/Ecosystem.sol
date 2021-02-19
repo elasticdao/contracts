@@ -6,11 +6,14 @@ import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for storing core dao data
-/// @dev ElasticDAO network contracts can read/write from this contract
-/// Serialize -> Translation of data from the concerned struct to key-value pairs
-/// Deserialize -> Translation of data from the key-value pairs to a struct
+/**
+ * @title ElasticDAO ecosystem
+ * @author ElasticDAO - https://ElasticDAO.org
+ * @notice This contract is used for storing core dao data
+ * @dev ElasticDAO network contracts can read/write from this contract
+ * @dev Serialize - Translation of data from the concerned struct to key-value pairs
+ * @dev Deserialize - Translation of data from the key-value pairs to a struct
+ */
 contract Ecosystem is EternalModel, ReentryProtection {
   struct Instance {
     address daoAddress;

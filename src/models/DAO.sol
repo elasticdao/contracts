@@ -7,9 +7,12 @@ import './EternalModel.sol';
 import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for storing core dao data
-/// @dev ElasticDAO network contracts can read/write from this contract
+/**
+ * @title Aecentralised Autonomous Organisation
+ * @author ElasticDAO - https://ElasticDAO.org
+ * @notice This contract is used for storing core DAO data
+ * @dev ElasticDAO network contracts can read/write from this contract
+ */
 contract DAO is EternalModel, ReentryProtection {
   struct Instance {
     address uuid;
