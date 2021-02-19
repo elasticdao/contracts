@@ -42,8 +42,6 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     _;
   }
 
-  constructor() IERC20() {}
-
   function initialize(address _daoAddress, address _ecosystemModelAddress)
     external
     preventReentry
