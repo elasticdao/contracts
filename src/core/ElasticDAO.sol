@@ -266,7 +266,7 @@ contract ElasticDAO is ReentryProtection {
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
 
-    for (uint256 i = 0; i < _addresses.length; i = SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < _addresses.length; i += 1) {
       tokenContract.burnShares(_addresses[i], _amounts[i]);
     }
   }
@@ -288,7 +288,7 @@ contract ElasticDAO is ReentryProtection {
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
 
-    for (uint256 i = 0; i < _addresses.length; i = SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < _addresses.length; i += 1) {
       tokenContract.mintShares(_addresses[i], _amounts[i]);
     }
   }
@@ -360,7 +360,7 @@ contract ElasticDAO is ReentryProtection {
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
 
     // number of summoners can not grow unboundly. it is fixed limit.
-    for (uint256 i = 0; i < dao.numberOfSummoners; i = SafeMath.add(i, 1)) {
+    for (uint256 i = 0; i < dao.numberOfSummoners; i += 1) {
       tokenContract.mintShares(daoContract.getSummoner(dao, i), _deltaLambda);
     }
     dao.summoned = true;
