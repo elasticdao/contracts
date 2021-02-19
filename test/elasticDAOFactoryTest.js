@@ -1,3 +1,4 @@
+const { deployments } = require('hardhat');
 const { ethers } = require('ethers');
 const { expect } = require('chai');
 
@@ -65,6 +66,40 @@ describe('ElasticDAO: Factory', () => {
     ).to.be.revertedWith('ElasticDAO: A fee is required to deploy a DAO');
   });
 
+  it('Should updateElasticDAOImplementationAddress', async () => {
+    const { agent } = await signers();
+
+    const elasticDAO = await deployments.deploy('ElasticDAO', {
+      from: agent.address,
+      args: [],
+    });
+
+    sdk.changeSigner(agent);
+
+    const tx = await sdk.elasticDAOFactory.contract.updateElasticDAOImplementationAddress(
+      elasticDAO.address,
+    );
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('ElasticDAOImplementationAddressUpdated');
+    expect(logs.events[0].args.elasticDAOImplementationAddress).to.equal(elasticDAO.address);
+  });
+
+  it('Should not updateElasticDAOImplementationAddress when caller is not the manager', async () => {
+    const { agent, summoner2 } = await signers();
+
+    const elasticDAO = await deployments.deploy('ElasticDAO', {
+      from: agent.address,
+      args: [],
+    });
+
+    sdk.changeSigner(summoner2);
+
+    await expect(
+      sdk.elasticDAOFactory.contract.updateElasticDAOImplementationAddress(elasticDAO.address),
+    ).to.be.revertedWith('ElasticDAO: Only manager');
+  });
+
   it('Should updateFeeAddress', async () => {
     const { agent, summoner2 } = await signers();
 
@@ -113,7 +148,7 @@ describe('ElasticDAO: Factory', () => {
     ).to.be.revertedWith('ElasticDAO: Only manager');
   });
 
-  it('Should collectFees to the feeAddress', async () => {
+  it('Should collect fees to the feeAddress', async () => {
     const { agent } = await signers();
 
     sdk.changeSigner(agent);
@@ -126,7 +161,7 @@ describe('ElasticDAO: Factory', () => {
     const logs = await tx.wait(1);
 
     expect(logs.events[0].event).to.equal('FeesCollected');
-    expect(logs.events[0].args.treasuryAddress).to.equal(agent.address);
+    expect(logs.events[0].args.feeAddress).to.equal(agent.address);
     expect(logs.events[0].args.amount).to.equal(feeAmountToCollect);
   });
 });

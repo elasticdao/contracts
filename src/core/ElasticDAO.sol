@@ -15,7 +15,7 @@ import '../services/ReentryProtection.sol';
 /**
  * @dev The ElasticDAO contract outlines and defines all the functionality
  * such as initialize, Join, exit, etc for an elasticDAO.
- * 
+ *
  * It also serves as the vault for ElasticDAO.
  */
 contract ElasticDAO is ReentryProtection {

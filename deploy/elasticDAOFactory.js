@@ -6,6 +6,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { agent } = await getNamedAccounts();
 
   const Ecosystem = await deployments.get('Ecosystem');
+  const ElasticDAO = await deployments.get('ElasticDAO');
 
   const elasticDAOFactory = await deploy('ElasticDAOFactory', {
     from: agent,
@@ -20,7 +21,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     elasticDAOFactory.abi,
     hre.provider.getSigner(agent),
   );
-  await factory.initialize(Ecosystem.address);
+  await factory.initialize(Ecosystem.address, ElasticDAO.address);
 
   if (elasticDAOFactory.newlyDeployed) {
     log(`##### ElasticDAO: ElasticDAOFactory has been deployed: ${elasticDAOFactory.address}`);

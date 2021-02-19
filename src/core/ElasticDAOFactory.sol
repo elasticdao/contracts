@@ -16,6 +16,7 @@ import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
  */
 contract ElasticDAOFactory is ReentryProtection {
   address public ecosystemModelAddress;
+  address public elasticDAOImplementationAddress;
   address public manager;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
@@ -24,8 +25,9 @@ contract ElasticDAOFactory is ReentryProtection {
   bool public initialized = false;
 
   event DeployedDAO(address indexed daoAddress);
+  event ElasticDAOImplementationAddressUpdated(address indexed elasticDAOImplementationAddress);
   event FeeAddressUpdated(address indexed feeReceiver);
-  event FeesCollected(address treasuryAddress, uint256 amount);
+  event FeesCollected(address indexed feeAddress, uint256 amount);
   event FeeUpdated(uint256 amount);
   event ManagerUpdated(address indexed newManager);
 
@@ -43,15 +45,22 @@ contract ElasticDAOFactory is ReentryProtection {
    * - The factory cannot already be initialized
    * - The ecosystem model address cannot be the zero address
    */
-  function initialize(address _ecosystemModelAddress) external preventReentry {
+  function initialize(address _ecosystemModelAddress, address _elasticDAOImplementationAddress)
+    external
+    preventReentry
+  {
     require(initialized == false, 'ElasticDAO: Factory already initialized');
-    require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
+    require(
+      _ecosystemModelAddress != address(0) && _elasticDAOImplementationAddress != address(0),
+      'ElasticDAO: Address Zero'
+    );
 
+    deployedDAOCount = 0;
+    ecosystemModelAddress = _ecosystemModelAddress;
+    elasticDAOImplementationAddress = _elasticDAOImplementationAddress;
+    fee = 250000000000000000;
     initialized = true;
     manager = msg.sender;
-    deployedDAOCount = 0;
-    fee = 250000000000000000;
-    ecosystemModelAddress = _ecosystemModelAddress;
   }
 
   /**
@@ -101,25 +110,27 @@ contract ElasticDAOFactory is ReentryProtection {
     require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
     bytes32 salt = keccak256(abi.encode(msg.sender, deployedDAOCount));
 
-    // compute deployed DAO address
-    address payable daoAddress =
-      address(uint160(Create2.computeAddress(salt, keccak256(type(ElasticDAO).creationCode))));
-
-    // deploy proxy with the computed dao address
+    // deploy proxy with the elasticDAO implementation address
     EIP173ProxyWithReceive proxy =
-      new EIP173ProxyWithReceive(daoAddress, type(ElasticDAO).creationCode, msg.sender);
+      new EIP173ProxyWithReceive(
+        elasticDAOImplementationAddress,
+        type(ElasticDAO).creationCode,
+        msg.sender
+      );
+
+    address payable daoAddress = address(proxy);
 
     // deploy DAO with computed address and initialize
     Create2.deploy(0, salt, type(ElasticDAO).creationCode);
     ElasticDAO(daoAddress).initialize(
       ecosystemModelAddress,
-      proxy.owner(),
+      msg.sender,
       _summoners,
       _nameOfDAO,
       _maxVotingLambda
     );
 
-    deployedDAOAddresses.push(address(daoAddress));
+    deployedDAOAddresses.push(daoAddress);
     deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
 
     // initialize the token
@@ -132,7 +143,25 @@ contract ElasticDAOFactory is ReentryProtection {
       _maxLambdaPurchase,
       salt
     );
-    emit DeployedDAO(address(daoAddress));
+    emit DeployedDAO(daoAddress);
+  }
+
+  /**
+   * @notice updates the address of the elasticDAO implementation
+   * @param _elasticDAOImplementationAddress - the new address of the fee reciever
+   * @dev emits ElasticDAOImplementationAddressUpdated event
+   * @dev Requirement:
+   * - The elasticDAO implementation address cannot be zero address
+   */
+  function updateElasticDAOImplementationAddress(address _elasticDAOImplementationAddress)
+    external
+    onlyManager
+    preventReentry
+  {
+    require(_elasticDAOImplementationAddress != address(0), 'ElasticDAO: Address Zero');
+
+    elasticDAOImplementationAddress = _elasticDAOImplementationAddress;
+    emit ElasticDAOImplementationAddressUpdated(_elasticDAOImplementationAddress);
   }
 
   /**
