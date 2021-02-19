@@ -9,7 +9,9 @@ import '../services/ReentryProtection.sol';
 import '@openzeppelin/contracts/utils/Create2.sol';
 import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
 
-// This contract is the facory contract for ElasticDAO
+/**
+  @title This contract is the facory contract for ElasticDAO
+ */ 
 contract ElasticDAOFactory is ReentryProtection {
   address public ecosystemModelAddress;
   address public manager;
@@ -30,6 +32,10 @@ contract ElasticDAOFactory is ReentryProtection {
     _;
   }
 
+  /**
+    @notice Initializes the ElasticDAO factory 
+    @param _ecosystemModelAddress - the address of the ecosystem model
+   */
   function initialize(address _ecosystemModelAddress) external preventReentry {
     require(initialized == false, 'ElasticDAO: Factory already initialized');
     require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
@@ -41,6 +47,10 @@ contract ElasticDAOFactory is ReentryProtection {
     ecosystemModelAddress = _ecosystemModelAddress;
   }
 
+  /**
+    @notice collects the fees sent to this contract
+    @dev emits FeesCollected event
+   */
   function collectFees() external preventReentry {
     uint256 amount = address(this).balance;
 
@@ -50,8 +60,16 @@ contract ElasticDAOFactory is ReentryProtection {
   }
 
   /**
-   * @dev deploys DAO and initializes token
-   * and stores the address of the deployed DAO
+   * @notice deploys DAO and initializes token and stores the address of the deployed DAO
+   * @param _summoners - an array containing address of summoners
+   * @param _nameOfDAO - the name of the DAO
+   * @param _nameOfToken - the name of the token
+   * @param _eByL - the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO 
+   * @param _elasticity - the value by which the cost of entering the  DAO increases ( on every join )
+   * @param _k - is the constant token multiplier - it increases the number of tokens that each member of the DAO has with respect to their lambda 
+   * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
+   * @param _maxVotingLambda - is the maximum amount of lambda that can be used to vote
+   * @dev emits DeployedDAO event  
    */
   function deployDAOAndToken(
     address[] memory _summoners,
@@ -101,11 +119,21 @@ contract ElasticDAOFactory is ReentryProtection {
     emit DeployedDAO(address(daoAddress));
   }
 
-  function updateFee(uint256 amount) external onlyManager preventReentry {
-    fee = amount;
+  /**
+  * @notice updates the fee required to deploy a DAQ
+  * @param _amount - the new amount of the fees
+  * @dev emits FeeUpdated event
+  */
+  function updateFee(uint256 _amount) external onlyManager preventReentry {
+    fee = _amount;
     emit FeeUpdated(fee);
   }
 
+  /**
+  * @notice updates the address of the fee reciever
+  * @param _feeReceiver - the new address of the fee reciever
+  * @dev emits FeeUpdated event
+  */
   function updateFeeAddress(address _feeReceiver) external onlyManager preventReentry {
     require(_feeReceiver != address(0), 'ElasticDAO: Address Zero');
 
@@ -113,8 +141,13 @@ contract ElasticDAOFactory is ReentryProtection {
     emit FeeAddressUpdated(_feeReceiver);
   }
 
-  function updateManager(address newManager) external onlyManager preventReentry {
-    manager = newManager;
+  /**
+  * @notice updates the manager address
+  * @param _newManager - the address of the new manager
+  * @dev emits ManagerUpdated event
+  */
+  function updateManager(address _newManager) external onlyManager preventReentry {
+    manager = _newManager;
     emit ManagerUpdated(manager);
   }
 
