@@ -13,9 +13,10 @@ import '../services/Configurator.sol';
 import '../services/ReentryProtection.sol';
 
 /**
- * @dev The ElasticDAO contract,
- * Serves as a blueprint for all the parameters and permissions
- * required by an ElasticDAO
+ * @dev The ElasticDAO contract outlines and defines all the functionality
+ * such as initialize, Join, exit, etc for an elasticDAO.
+ * 
+ * It also serves as the vault for ElasticDAO.
  */
 contract ElasticDAO is ReentryProtection {
   address public deployer;
@@ -375,7 +376,7 @@ contract ElasticDAO is ReentryProtection {
   /**
    * @notice seeds the DAO,
    * Essentially transferring of ETH by a summoner address, in return for lambda is seeding the DAO,
-   * The lambda recieved is given by:
+   * The lambda receieved is given by:
    * Lambda = Eth  / eByL
    *
    * @dev seeding of the DAO occurs after the DAO has been initialized,
