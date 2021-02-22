@@ -8,7 +8,6 @@ import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
 /**
- * @title Aecentralised Autonomous Organisation
  * @author ElasticDAO - https://ElasticDAO.org
  * @notice This contract is used for storing core DAO data
  * @dev ElasticDAO network contracts can read/write from this contract
@@ -22,6 +21,8 @@ contract DAO is EternalModel, ReentryProtection {
     uint256 numberOfSummoners;
     Ecosystem.Instance ecosystem;
   }
+
+  event Serialized(address indexed uuid);
 
   /**
    * @dev deserializes Instance struct
@@ -91,6 +92,8 @@ contract DAO is EternalModel, ReentryProtection {
     }
 
     setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
+
+    emit Serialized(_record.uuid);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

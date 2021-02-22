@@ -39,10 +39,12 @@ library ElasticMath {
    * @dev calculates the value of deltaE; the amount of ETH required to mint deltaLambda
    * @param deltaLambda = lambdaDash - lambda
    * @param capitalDeltaValue the ETH/token ratio; see capitalDelta(uint256, uint256)
-   * @param k a constant, initially set by the DAO
-   * @param elasticity the percentage by which capitalDelta should increase
+   * @param k constant token multiplier - it increases the number of tokens
+   *  that each member of the DAO has with respect to their lambda
+   * @param elasticity the percentage by which capitalDelta (cost of entering the  DAO)
+   * should increase on every join
    * @param lambda outstanding shares
-   * @param m share modifier
+   * @param m - lambda modifier - it's value increases every time someone joins the DAO
    *
    * lambdaDash = deltaLambda + lambda
    * mDash = ( lambdaDash / lambda ) * m
@@ -72,10 +74,11 @@ library ElasticMath {
   /**
    * @dev calculates the lambda value given t, k, & m
    * @param tokens t value; number of tokens for which lambda should be calculated
-   * @param k a constant, initially set by the DAO
-   * @param m share modifier
+   * @param k constant token multiplier - it increases the number of tokens
+   *  that each member of the DAO has with respect to their lambda
+   * @param m - lambda modifier - it's value increases every time someone joins the DAO
    *
-   * lambda = k * m / t
+   * lambda = t / ( m * k)
    * @return uint256
    */
   function lambdaFromT(

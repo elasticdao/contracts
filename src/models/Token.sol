@@ -31,6 +31,8 @@ contract Token is EternalModel, ReentryProtection {
     Ecosystem.Instance ecosystem;
   }
 
+  event Serialized(address indexed uuid);
+
   /**
    * @dev deserializes Instance struct
    * @param _uuid - address of the unique user ID
@@ -85,6 +87,8 @@ contract Token is EternalModel, ReentryProtection {
     setUint(keccak256(abi.encode(_record.uuid, 'maxLambdaPurchase')), _record.maxLambdaPurchase);
 
     setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
+
+    emit Serialized(_record.uuid);
   }
 
   function updateNumberOfTokenHolders(Instance memory _record, uint256 numberOfTokenHolders)

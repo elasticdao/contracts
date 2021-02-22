@@ -28,6 +28,8 @@ contract Ecosystem is EternalModel, ReentryProtection {
     address governanceTokenAddress;
   }
 
+  event Serialized(address indexed _daoAddress);
+
   /**
    * @dev deserializes Instance struct
    * @param _daoAddress - address of the unique user ID
@@ -102,6 +104,8 @@ contract Ecosystem is EternalModel, ReentryProtection {
     );
 
     setBool(keccak256(abi.encode(_record.daoAddress, 'exists')), true);
+
+    emit Serialized(_record.daoAddress);
   }
 
   function _exists(address _daoAddress) internal view returns (bool recordExists) {

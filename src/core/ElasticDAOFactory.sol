@@ -198,9 +198,13 @@ contract ElasticDAOFactory is ReentryProtection {
    *
    * @param _newManager - the address of the new manager
    *
+   * @dev Requirement
+   * - Address of the manager cannot be zero
    * @dev emits ManagerUpdated event
    */
   function updateManager(address _newManager) external onlyManager preventReentry {
+    require(_newManager != address(0), 'ElasticDAO: Address Zero');
+
     manager = _newManager;
     emit ManagerUpdated(manager);
   }
