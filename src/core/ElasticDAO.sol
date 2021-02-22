@@ -12,6 +12,8 @@ import '../models/Token.sol';
 import '../services/Configurator.sol';
 import '../services/ReentryProtection.sol';
 
+import '@pie-dao/proxy/contracts/PProxy.sol';
+
 /**
  * @dev The ElasticDAO contract outlines and defines all the functionality
  * such as initialize, Join, exit, etc for an elasticDAO.
@@ -23,7 +25,6 @@ contract ElasticDAO is ReentryProtection {
   address public ecosystemModelAddress;
   address public controller;
   address[] public summoners;
-  uint256 public maxVotingLambda;
   bool public initialized;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
@@ -88,10 +89,10 @@ contract ElasticDAO is ReentryProtection {
    * all the required parameters into the configurator
    *
    * @param _ecosystemModelAddress - the address of the ecosystem model
-   * @param _controller - the address of the controller
+   * @param _controller the address which can control the core DAO functions
    * @param _summoners - an array containing the addresses of the summoners
    * @param _name - the name of the DAO
-   * @param _maxVotingLambda -the maximum amount of lambda that can be used to vote in the DAO
+   * @param _maxVotingLambda - the maximum amount of lambda that can be used to vote in the DAO
    *
    * @dev
    * Requirements:
@@ -108,24 +109,70 @@ contract ElasticDAO is ReentryProtection {
     uint256 _maxVotingLambda
   ) external preventReentry {
     require(initialized == false, 'ElasticDAO: Already initialized');
-
     require(
       _ecosystemModelAddress != address(0) || _controller != address(0),
       'ElasticDAO: Address Zero'
     );
     require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');
-    ecosystemModelAddress = _ecosystemModelAddress;
+
+    Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
+    Configurator configurator = Configurator(defaults.configuratorAddress);
+    Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(controller, defaults);
+    ecosystemModelAddress = ecosystem.ecosystemModelAddress;
+
     controller = _controller;
     deployer = msg.sender;
-    Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
-    maxVotingLambda = _maxVotingLambda;
     summoners = _summoners;
 
-    Configurator configurator = Configurator(defaults.configuratorAddress);
-    Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(defaults);
-    bool success = configurator.buildDAO(_summoners, _name, ecosystem);
+    bool success = configurator.buildDAO(_summoners, _name, _maxVotingLambda, ecosystem);
     initialized = true;
     require(success, 'ElasticDAO: Build DAO Failed');
+  }
+
+  /**
+   * @notice initializes the token of the DAO, using the Configurator
+   *
+   * @param _name - name of the token
+   * @param _symbol - symbol of the token
+   * @param _eByL -the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO
+   * @param _elasticity the value by which the cost of entering the  DAO increases ( on every join )
+   * @param _k - is the constant token multiplier
+   * it increases the number of tokens that each member of the DAO has with respect to their lambda
+   * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
+   *
+   * @dev refer https://docs.openzeppelin.com/cli/2.8/deploying-with-create2#create2
+   * for further understanding of Create2 and salt
+   * @dev emits ElasticGovernanceTokenDeployed event
+   * @dev
+   * Requirements:
+   * - Only the deployer of the DAO can initialize the Token
+   * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
+   * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
+   */
+  function initializeToken(
+    string memory _name,
+    string memory _symbol,
+    uint256 _eByL,
+    uint256 _elasticity,
+    uint256 _k,
+    uint256 _maxLambdaPurchase
+  ) external onlyBeforeSummoning onlyDeployer preventReentry {
+    require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+
+    Token.Instance memory token =
+      Configurator(ecosystem.configuratorAddress).buildToken(
+        controller,
+        _name,
+        _symbol,
+        _eByL,
+        _elasticity,
+        _k,
+        _maxLambdaPurchase,
+        ecosystem
+      );
+
+    emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
   /**
@@ -155,61 +202,6 @@ contract ElasticDAO is ReentryProtection {
     (bool success, ) = msg.sender.call{ value: ethToBeTransfered }('');
     require(success, 'ElasticDAO: Exit Failed');
     emit ExitDAO(address(this), msg.sender, _deltaLambda, ethToBeTransfered);
-  }
-
-  /**
-   * @notice initializes the token of the DAO, using the Configurator
-   *
-   * @param _name - name of the token
-   * @param _symbol - symbol of the token
-   * @param _eByL -the amount of lambda a summoner gets(per ETH) during the seeding phase of the DAO
-   * @param _elasticity the value by which the cost of entering the  DAO increases ( on every join )
-   * @param _k - is the constant token multiplier
-   * it increases the number of tokens that each member of the DAO has with respect to their lambda
-   * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
-   * @param _salt-an arbitary value provided by the function caller
-   * (to follow the Create2 pattern of generating opcodes)
-   *
-   * @dev refer https://docs.openzeppelin.com/cli/2.8/deploying-with-create2#create2
-   * for further understanding of Create2 and salt
-   * @dev emits ElasticGovernanceTokenDeployed event
-   * @dev
-   * Requirements:
-   * - Only the deployer of the DAO can initialize the Token
-   * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
-   * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
-   */
-  function initializeToken(
-    string memory _name,
-    string memory _symbol,
-    uint256 _eByL,
-    uint256 _elasticity,
-    uint256 _k,
-    uint256 _maxLambdaPurchase,
-    bytes32 _salt
-  ) external onlyBeforeSummoning onlyDeployer preventReentry {
-    require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-
-    Token.Instance memory token =
-      Configurator(ecosystem.configuratorAddress).buildToken(
-        _name,
-        _symbol,
-        _eByL,
-        _elasticity,
-        _k,
-        _maxLambdaPurchase,
-        _salt,
-        ecosystem
-      );
-
-    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
-    bool success = tokenContract.setBurner(controller);
-    require(success, 'ElasticDAO: Set Burner failed during initialize token');
-    success = tokenContract.setMinter(controller);
-    require(success, 'ElasticDAO: Set Minter failed during initialize token');
-
-    emit ElasticGovernanceTokenDeployed(token.uuid);
   }
 
   /**
@@ -345,7 +337,7 @@ contract ElasticDAO is ReentryProtection {
    *
    * @dev emits ControllerChanged event
    * @dev Requirements:
-   * - Each address must have a corresponding amount to be penalized with
+   * - The controller must not be the 0 address
    * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
    * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
    */
@@ -353,6 +345,8 @@ contract ElasticDAO is ReentryProtection {
     require(_controller != address(0), 'ElasticDAO: Address Zero');
 
     controller = _controller;
+
+    // Update minter / burner
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
     bool success = tokenContract.setBurner(controller);
     require(success, 'ElasticDAO: Set Burner failed during setController');
@@ -368,7 +362,11 @@ contract ElasticDAO is ReentryProtection {
    * @dev emits MaxVotingLambda event
    */
   function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController preventReentry {
-    maxVotingLambda = _maxVotingLambda;
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    DAO daoStorage = DAO(ecosystem.daoModelAddress);
+    DAO.Instance memory dao = daoStorage.deserialize(address(this), ecosystem);
+    dao.maxVotingLambda = _maxVotingLambda;
+    daoStorage.serialize(dao);
 
     emit MaxVotingLambdaChanged(address(this), 'setMaxVotingLambda', _maxVotingLambda);
   }

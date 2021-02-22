@@ -4,7 +4,7 @@
   "description": "Elastic DAO Contracts",
   "main": "index.js",
   "repository": "git@github.com:elasticdao/contracts.git",
-  "author": "alleycatdev <alleycatdev@protonmail.com>",
+  "author": "ElasticDAO Core <elasticdao@protonmail.com>",
   "license": "GPLv3",
   "type": "module",
   "scripts": {
@@ -30,6 +30,7 @@
     "@nomiclabs/hardhat-etherscan": "2.1.1",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@openzeppelin/contracts": "3.4.0",
+    "@pie-dao/proxy": "^1.0.0",
     "bignumber.js": "9.0.1",
     "dotenv": "8.2.0",
     "ethereum-waffle": "3.2.1",

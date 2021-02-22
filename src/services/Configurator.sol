@@ -7,8 +7,8 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
 import '../tokens/ElasticGovernanceToken.sol';
-import 'hardhat-deploy/solc_0.7/proxy/EIP173Proxy.sol';
-import '@openzeppelin/contracts/utils/Create2.sol';
+
+import '@pie-dao/proxy/contracts/PProxy.sol';
 
 /**
  * @notice This contract is used for configuring ElasticDAOs
@@ -20,11 +20,13 @@ contract Configurator {
    * @param _summoners addresses of the summoners
    * @param _name name of the DAO
    * @param _ecosystem instance of Ecosystem the DAO uses
+   * @param _maxVotingLambda - the maximum amount of lambda that can be used to vote in the DAO
    * @return bool true
    */
   function buildDAO(
     address[] memory _summoners,
     string memory _name,
+    uint256 _maxVotingLambda,
     Ecosystem.Instance memory _ecosystem
   ) external returns (bool) {
     DAO daoStorage = DAO(_ecosystem.daoModelAddress);
@@ -32,6 +34,7 @@ contract Configurator {
 
     dao.uuid = msg.sender;
     dao.ecosystem = _ecosystem;
+    dao.maxVotingLambda = _maxVotingLambda;
     dao.name = _name;
     dao.summoned = false;
     dao.summoners = _summoners;
@@ -43,32 +46,32 @@ contract Configurator {
   /**
    * @dev duplicates the ecosystem contract address defaults so that each
    * deployed DAO has it's own ecosystem configuration
-   * @param defaults instance of Ecosystem
+   * @param _controller the address which can control the core DAO functions
+   * @param _defaults instance of Ecosystem with the implementation addresses
    * @return ecosystem Ecosystem.Instance
    */
-  function buildEcosystem(Ecosystem.Instance memory defaults)
+  function buildEcosystem(address _controller, Ecosystem.Instance memory _defaults)
     external
     returns (Ecosystem.Instance memory ecosystem)
   {
-    Ecosystem ecosystemStorage = Ecosystem(defaults.ecosystemModelAddress);
-
+    ecosystem.configuratorAddress = _defaults.configuratorAddress;
     ecosystem.daoAddress = msg.sender;
+    ecosystem.daoModelAddress = _deployProxy(_defaults.daoModelAddress, _controller);
+    ecosystem.ecosystemModelAddress = _deployProxy(_defaults.ecosystemModelAddress, _controller);
+    ecosystem.governanceTokenAddress = _deployProxy(_defaults.governanceTokenAddress, _controller);
+    ecosystem.tokenHolderModelAddress = _deployProxy(
+      _defaults.tokenHolderModelAddress,
+      _controller
+    );
+    ecosystem.tokenModelAddress = _deployProxy(_defaults.tokenModelAddress, _controller);
 
-    // Models
-    ecosystem.daoModelAddress = defaults.daoModelAddress;
-    ecosystem.ecosystemModelAddress = defaults.ecosystemModelAddress;
-    ecosystem.tokenHolderModelAddress = defaults.tokenHolderModelAddress;
-    ecosystem.tokenModelAddress = defaults.tokenModelAddress;
-
-    // Services
-    ecosystem.configuratorAddress = defaults.configuratorAddress;
-
-    ecosystemStorage.serialize(ecosystem);
+    Ecosystem(ecosystem.ecosystemModelAddress).serialize(ecosystem);
     return ecosystem;
   }
 
   /**
-   * @dev creates a governance token proxy, implementation, and Token instance (storage)
+   * @dev creates a governance token proxy and Token instance (storage)
+   * @param _controller the address which can control the core DAO functions
    * @param _name name of the token
    * @param _symbol symbol of the token
    * @param _eByL initial ETH/token ratio
@@ -76,18 +79,17 @@ contract Configurator {
    * @param _k a constant, initially set by the DAO
    * @param _maxLambdaPurchase maximum amount of lambda (shares) that can be
    * minted on each call to the join function in ElasticDAO.sol
-   * @param _salt unique identifier for use with create2
    * @param _ecosystem the DAO's ecosystem instance
    * @return token Token.Instance
    */
   function buildToken(
+    address _controller,
     string memory _name,
     string memory _symbol,
     uint256 _eByL,
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase,
-    bytes32 _salt,
     Ecosystem.Instance memory _ecosystem
   ) external returns (Token.Instance memory token) {
     Token tokenStorage = Token(_ecosystem.tokenModelAddress);
@@ -100,31 +102,27 @@ contract Configurator {
     token.maxLambdaPurchase = _maxLambdaPurchase;
     token.name = _name;
     token.symbol = _symbol;
+    token.uuid = _ecosystem.governanceTokenAddress;
 
-    // deploy new token with create2 and set the computed address as uuid
-    address tokenAddress =
-      Create2.computeAddress(_salt, keccak256(type(ElasticGovernanceToken).creationCode));
-    // set token uuid to computed address
-    token.uuid = tokenAddress;
-    // create upgradeable ERC20 proxy
-    EIP173Proxy proxy =
-      new EIP173Proxy(
-        tokenAddress,
-        type(ElasticGovernanceToken).creationCode,
-        _ecosystem.daoAddress
-      );
-    // deploy the new elastic governance token
-    Create2.deploy(0, _salt, type(ElasticGovernanceToken).creationCode);
     // initialize the token within the ecosystem
-    ElasticGovernanceToken(tokenAddress).initialize(
-      proxy.owner(),
-      _ecosystem.ecosystemModelAddress
+    ElasticGovernanceToken(token.uuid).initialize(
+      _controller,
+      _ecosystem.daoAddress,
+      _ecosystem.ecosystemModelAddress,
+      _controller
     );
-    _ecosystem.governanceTokenAddress = token.uuid;
-    // serialize ecosystem
+
+    // serialize ecosystem and token
     Ecosystem(_ecosystem.ecosystemModelAddress).serialize(_ecosystem);
     tokenStorage.serialize(token);
 
     return token;
+  }
+
+  function _deployProxy(address _implementationAddress, address _owner) internal returns (address) {
+    PProxy proxy = new PProxy();
+    proxy.setImplementation(_implementationAddress);
+    proxy.setProxyOwner(_owner);
+    return address(proxy);
   }
 }

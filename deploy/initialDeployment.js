@@ -13,6 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     Ecosystem.abi,
     hre.provider.getSigner(agent),
   );
+  const ElasticGovernanceToken = await deployments.get('ElasticGovernanceToken');
   const Token = await deployments.get('Token');
   const TokenHolder = await deployments.get('TokenHolder');
 
@@ -26,7 +27,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     // Services
     Configurator.address,
     // Tokens
-    ethers.constants.AddressZero,
+    ElasticGovernanceToken.address,
   ];
 
   await ecosystemStorage.functions.serialize(ecosystemStructArray);
@@ -39,7 +40,7 @@ module.exports.dependencies = [
   'DAO',
   'Ecosystem',
   'ElasticDAOFactory',
-  'ReentryProtection',
+  'ElasticGovernanceToken',
   'Token',
   'TokenHolder',
 ];

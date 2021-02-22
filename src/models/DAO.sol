@@ -18,6 +18,7 @@ contract DAO is EternalModel, ReentryProtection {
     address[] summoners;
     bool summoned;
     string name;
+    uint256 maxVotingLambda;
     uint256 numberOfSummoners;
     Ecosystem.Instance ecosystem;
   }
@@ -38,6 +39,7 @@ contract DAO is EternalModel, ReentryProtection {
     record.ecosystem = _ecosystem;
 
     if (_exists(_uuid)) {
+      record.maxVotingLambda = getUint(keccak256(abi.encode(_uuid, 'maxVotingLambda')));
       record.name = getString(keccak256(abi.encode(_uuid, 'name')));
       record.numberOfSummoners = getUint(keccak256(abi.encode(_uuid, 'numberOfSummoners')));
       record.summoned = getBool(keccak256(abi.encode(_uuid, 'summoned')));
@@ -79,6 +81,7 @@ contract DAO is EternalModel, ReentryProtection {
       'ElasticDAO: Unauthorized'
     );
 
+    setUint(keccak256(abi.encode(_record.uuid, 'maxVotingLambda')), _record.maxVotingLambda);
     setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);
     setBool(keccak256(abi.encode(_record.uuid, 'summoned')), _record.summoned);
 

@@ -6,15 +6,18 @@ const { ethBalance, SDK, signers, summoners, summonedDAO } = require('./helpers'
 
 describe('ElasticDAO: Core', () => {
   let dao;
-  let salt;
-  let mockDeployedDAOCount = 0;
 
   describe('before summoning', () => {
+    let sdk;
+
     beforeEach(async () => {
-      const sdk = await SDK();
+      sdk = await SDK();
       const { summoner1 } = await signers();
+
+      const Ecosystem = await deployments.get('Ecosystem');
+
       const args = [
-        sdk.env.elasticDAO.ecosystemModelAddress,
+        Ecosystem.address,
         summoner1.address,
         await summoners(),
         'ElasticDAO',
@@ -23,14 +26,13 @@ describe('ElasticDAO: Core', () => {
 
       const ElasticDAO = await hre.getContractFactory('ElasticDAO');
       const elasticDAO = await ElasticDAO.deploy();
-      mockDeployedDAOCount += 1;
-      salt = ethers.utils.solidityKeccak256(
-        ['address', 'uint'],
-        [summoner1.address, mockDeployedDAOCount],
-      );
       await elasticDAO.initialize(...args);
 
       dao = await sdk.models.DAO.deserialize(elasticDAO.address);
+    });
+
+    it('Should see that the model exists', async () => {
+      expect(await sdk.models.DAO.exists(dao.uuid)).to.equal(true);
     });
 
     it('Should allow a token to be initialized', async () => {
@@ -41,7 +43,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
-        salt,
       );
 
       await dao.ecosystem.refresh();
@@ -61,7 +62,6 @@ describe('ElasticDAO: Core', () => {
           dao.toEthersBigNumber(0.02, 18),
           dao.toEthersBigNumber(100, 18),
           ethers.constants.WeiPerEther,
-          salt,
         ),
       ).to.be.revertedWith('ElasticDAO: Only deployer');
     });
@@ -74,7 +74,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
-        salt,
       );
 
       const { summoner1 } = await signers();
@@ -94,7 +93,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther, // lambda
-        salt,
       );
 
       const { summoner1 } = await signers();
@@ -133,7 +131,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther, // lambda
-        salt,
       );
 
       await expect(
@@ -149,7 +146,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
-        salt,
       );
 
       const { agent, summoner1 } = await signers();
@@ -170,7 +166,6 @@ describe('ElasticDAO: Core', () => {
         dao.toEthersBigNumber(0.02, 18),
         dao.toEthersBigNumber(100, 18),
         ethers.constants.WeiPerEther,
-        salt,
       );
 
       const { summoner1, summoner2, summoner3 } = await signers();
@@ -201,21 +196,6 @@ describe('ElasticDAO: Core', () => {
 
       expect(getEcosystem.daoAddress.toLowerCase()).to.equal(dao.id);
     });
-
-    it('Should check to see if a instance record exists by daoAddress', async () => {
-      const { agent } = await signers();
-      const DAOModel = await deployments.get('DAO');
-      const DAOModelStorage = new ethers.Contract(DAOModel.address, DAOModel.abi, agent);
-      const ecosystem = await dao.elasticDAO.contract.getEcosystem();
-      const recordDoesntExist = await DAOModelStorage.exists(
-        ethers.constants.AddressZero,
-        ecosystem,
-      );
-      const recordExists = await DAOModelStorage.exists(dao.uuid, ecosystem);
-
-      expect(recordDoesntExist).to.equal(false);
-      expect(recordExists).to.equal(true);
-    });
   });
 
   describe('after summoning', () => {
@@ -232,7 +212,6 @@ describe('ElasticDAO: Core', () => {
           dao.toEthersBigNumber(0.02, 18),
           dao.toEthersBigNumber(100, 18),
           ethers.constants.WeiPerEther,
-          salt,
         ),
       ).to.be.revertedWith('ElasticDAO: DAO must not be summoned');
     });
@@ -262,8 +241,8 @@ describe('ElasticDAO: Core', () => {
 
       await dao.elasticDAO.contract.setMaxVotingLambda(dao.toEthersBigNumber(5, 18));
 
-      const maxVotingLambda = await dao.elasticDAO.getMaxVotingLambda();
-      expect(maxVotingLambda).to.equal(dao.toEthersBigNumber(5, 18));
+      await dao.refresh();
+      expect(dao.maxVotingLambda.toNumber()).to.equal(5);
     });
 
     it('Should not allow the caller to setMaxVotingLambda if not controller', async () => {

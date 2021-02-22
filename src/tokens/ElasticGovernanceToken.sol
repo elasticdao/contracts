@@ -46,30 +46,37 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   /**
    * @notice initializes the ElasticGovernanceToken
    *
+   * @param _burner - the address which can burn tokens
    * @param _daoAddress - the address of the deployed ElasticDAO
    * @param _ecosystemModelAddress - the address of the ecosystem model
+   * @param _minter - the address which can mint tokens
    *
    * @dev Requirements:
    * - The token should not already be initialized
+   * - The address of the burner cannot be zero
    * - The address of the deployed ElasticDAO cannot be zero
    * - The address of the ecosystemModelAddress cannot be zero
+   * - The address of the minter cannot be zero
    *
    * @return bool
    */
-  function initialize(address _daoAddress, address _ecosystemModelAddress)
-    external
-    preventReentry
-    returns (bool)
-  {
+  function initialize(
+    address _burner,
+    address _daoAddress,
+    address _ecosystemModelAddress,
+    address _minter
+  ) external preventReentry returns (bool) {
     require(initialized == false, 'ElasticDAO: Already initialized');
+    require(_burner != address(0), 'ElasticDAO: Address Zero');
     require(_daoAddress != address(0), 'ElasticDAO: Address Zero');
     require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
+    require(_minter != address(0), 'ElasticDAO: Address Zero');
 
     initialized = true;
-    burner = _daoAddress;
+    burner = _burner;
     daoAddress = _daoAddress;
     ecosystemModelAddress = _ecosystemModelAddress;
-    minter = _daoAddress;
+    minter = _minter;
 
     return true;
   }
@@ -168,8 +175,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   function balanceOfVoting(address _account) external view returns (uint256 balance) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    ElasticDAO elasticDAO = ElasticDAO(payable(daoAddress));
-    uint256 maxVotingLambda = elasticDAO.maxVotingLambda();
+    uint256 maxVotingLambda = _getDAO().maxVotingLambda;
 
     if (tokenHolder.lambda > maxVotingLambda) {
       return ElasticMath.t(maxVotingLambda, token.k, token.m);
@@ -559,6 +565,11 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   }
 
   // Private Getters
+
+  function _getDAO() internal view returns (DAO.Instance memory) {
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    return DAO(ecosystem.daoModelAddress).deserialize(daoAddress, ecosystem);
+  }
 
   function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
     return Ecosystem(ecosystemModelAddress).deserialize(daoAddress);

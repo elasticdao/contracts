@@ -5,7 +5,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const daoModel = await deploy('DAO', {
     from: agent,
     args: [],
-    proxy: true,
   });
 
   if (daoModel.newlyDeployed) {

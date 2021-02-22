@@ -11,9 +11,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const elasticDAOFactory = await deploy('ElasticDAOFactory', {
     from: agent,
     args: [],
-    proxy: {
-      proxyContract: 'EIP173ProxyWithReceive',
-    },
   });
 
   const factory = new ethers.Contract(
@@ -28,4 +25,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   }
 };
 module.exports.tags = ['ElasticDAOFactory'];
-module.exports.dependencies = ['Ecosystem'];
+module.exports.dependencies = ['Ecosystem', 'ElasticDAO', 'ElasticGovernanceToken'];

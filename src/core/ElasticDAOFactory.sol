@@ -6,8 +6,8 @@ import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
 import '../services/ReentryProtection.sol';
-import '@openzeppelin/contracts/utils/Create2.sol';
-import 'hardhat-deploy/solc_0.7/proxy/EIP173ProxyWithReceive.sol';
+
+import '@pie-dao/proxy/contracts/PProxy.sol';
 
 /**
  * @dev The factory contract for ElasticDAO
@@ -108,20 +108,15 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _maxVotingLambda
   ) external payable preventReentry {
     require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
-    bytes32 salt = keccak256(abi.encode(msg.sender, deployedDAOCount));
 
-    // deploy proxy with the elasticDAO implementation address
-    EIP173ProxyWithReceive proxy =
-      new EIP173ProxyWithReceive(
-        elasticDAOImplementationAddress,
-        type(ElasticDAO).creationCode,
-        msg.sender
-      );
+    // Deploy the DAO behind PProxy
+    PProxy proxy = new PProxy();
+    proxy.setImplementation(elasticDAOImplementationAddress);
+    proxy.setProxyOwner(msg.sender);
 
     address payable daoAddress = address(proxy);
 
-    // deploy DAO with computed address and initialize
-    Create2.deploy(0, salt, type(ElasticDAO).creationCode);
+    // initialize the DAO
     ElasticDAO(daoAddress).initialize(
       ecosystemModelAddress,
       msg.sender,
@@ -140,15 +135,14 @@ contract ElasticDAOFactory is ReentryProtection {
       _eByL,
       _elasticity,
       _k,
-      _maxLambdaPurchase,
-      salt
+      _maxLambdaPurchase
     );
     emit DeployedDAO(daoAddress);
   }
 
   /**
    * @notice updates the address of the elasticDAO implementation
-   * @param _elasticDAOImplementationAddress - the new address of the fee reciever
+   * @param _elasticDAOImplementationAddress - the new address
    * @dev emits ElasticDAOImplementationAddressUpdated event
    * @dev Requirement:
    * - The elasticDAO implementation address cannot be zero address
