@@ -56,7 +56,7 @@ contract TokenHolder is EternalModel, ReentryProtection {
     setUint(keccak256(abi.encode(_record.token.uuid, _record.account, 'lambda')), _record.lambda);
     setBool(keccak256(abi.encode(_record.token.uuid, _record.account, 'exists')), true);
 
-    emit Serialized(_record.account, _token.uuid);
+    emit Serialized(_record.account, _record.token.uuid);
   }
 
   function _exists(address _account, Token.Instance memory _token) internal view returns (bool) {
