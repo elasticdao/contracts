@@ -44,8 +44,8 @@ contract Configurator {
   }
 
   /**
-   * @dev duplicates the ecosystem contract address defaults so that each
-   * deployed DAO has it's own ecosystem configuration
+   * @dev Deploys proxies leveraging the implementation contracts found on the
+   * default Ecosystem.Instance record.
    * @param _controller the address which can control the core DAO functions
    * @param _defaults instance of Ecosystem with the implementation addresses
    * @return ecosystem Ecosystem.Instance
@@ -70,7 +70,7 @@ contract Configurator {
   }
 
   /**
-   * @dev creates a governance token proxy and Token instance (storage)
+   * @dev creates a Token.Instance record and initializes the ElasticGovernanceToken.
    * @param _controller the address which can control the core DAO functions
    * @param _name name of the token
    * @param _symbol symbol of the token

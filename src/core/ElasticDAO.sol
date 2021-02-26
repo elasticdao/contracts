@@ -140,14 +140,10 @@ contract ElasticDAO is ReentryProtection {
    * it increases the number of tokens that each member of the DAO has with respect to their lambda
    * @param _maxLambdaPurchase - is the maximum amount of lambda that can be purchased per wallet
    *
-   * @dev refer https://docs.openzeppelin.com/cli/2.8/deploying-with-create2#create2
-   * for further understanding of Create2 and salt
    * @dev emits ElasticGovernanceTokenDeployed event
    * @dev
    * Requirements:
    * - Only the deployer of the DAO can initialize the Token
-   * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
-   * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
    */
   function initializeToken(
     string memory _name,
@@ -186,7 +182,7 @@ contract ElasticDAO is ReentryProtection {
    * @param _deltaLambda - the amount of lambda the address exits with
    *
    * Requirement:
-   * - Should be able to successfully exit the DAO
+   * - ETH transfer must be successful
    * @dev emits ExitDAO event
    */
   function exit(uint256 _deltaLambda) external onlyAfterSummoning preventReentry {
@@ -211,14 +207,14 @@ contract ElasticDAO is ReentryProtection {
    * Based on the current state of the DAO, capitalDelta, deltaE, mDash are calulated,
    * after which  _deltaLambda is minted for the address calling the function.
    *
-   * @param _deltaLambda - the amount of lambda the address joins with
+   * @param _deltaLambda - the amount of lambda minted to the address
    *
    * @dev documentation and further math regarding capitalDelta, deltaE,
    * mDash can be found at ../libraries/ElasticMath.sol
    * @dev emits the JoinDAO event
    *
    * @dev Requirements:
-   * The amount of shares being purchased has to be lower than maxLambdaPurchase
+   * The amount of shares being purchased has to be lower than or equal to maxLambdaPurchase
    * (The value of maxLambdaPurchase is set during the initialzing of the DAO)
    * The correct value of ETH, calculated via deltaE,
    * must be sent in the transaction by the calling address
@@ -277,7 +273,7 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice penalizes @param _addresess with @param _amounts respectively
+   * @notice penalizes @param _addresses with @param _amounts respectively
    *
    * @param _addresses - an array of addresses
    * @param _amounts - an array containing the amounts each address has to be penalized respectively
@@ -403,7 +399,7 @@ contract ElasticDAO is ReentryProtection {
    * Summoning the DAO results in all summoners getting _deltaLambda
    * after which people can enter the DAO using the join function
    *
-   * @param _deltaLambda - the amount of lambda each summoner address receieves
+   * @param _deltaLambda - the amount of lambda each summoner address receives
    *
    * @dev emits SummonedDAO event
    * @dev Requirement:
