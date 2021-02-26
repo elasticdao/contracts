@@ -22,6 +22,7 @@
     "prettier:es6": "prettier --write ./*.js --write deploy/*.js --write deploy/**/*.js",
     "prettier:solidity": "prettier --write src/**/*.sol --write src/**/**/*.sol --write src/**/**/**/*.sol",
     "prettier:tests": "yarn compile && prettier --write test/**/*.js test/*.js",
+    "seed": "npx hardhat seed --network localhost --account",
     "test": "yarn run prettier:tests && yarn run lint:tests && npx hardhat test --deploy-fixture"
   },
   "dependencies": {
