@@ -165,4 +165,14 @@ describe('ElasticDAO: Factory', () => {
     expect(logs.events[0].args.feeAddress).to.equal(agent.address);
     expect(logs.events[0].args.amount).to.equal(feeAmountToCollect);
   });
+
+  it('Should not collect fees to the feeAddress if feeAddress is not set', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+
+    await expect(sdk.elasticDAOFactory.collectFees()).to.be.revertedWith(
+      'ElasticDAO: No feeAddress set',
+    );
+  });
 });

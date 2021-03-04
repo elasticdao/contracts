@@ -71,6 +71,8 @@ contract ElasticDAOFactory is ReentryProtection {
    * - The fee collection transaction should be successful
    */
   function collectFees() external preventReentry {
+    require(feeAddress != address(0), 'ElasticDAO: No feeAddress set');
+
     uint256 amount = address(this).balance;
 
     (bool success, ) = feeAddress.call{ value: amount }('');
