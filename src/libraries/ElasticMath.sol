@@ -144,7 +144,11 @@ library ElasticMath {
    * @return uint256
    */
   function wmul(uint256 a, uint256 b) internal pure returns (uint256) {
-    return SafeMath.add(SafeMath.mul(a, b), 1000000000000000000 / 2) / 1000000000000000000;
+    return
+      SafeMath.div(
+        SafeMath.add(SafeMath.mul(a, b), SafeMath.div(1000000000000000000, 2)),
+        1000000000000000000
+      );
   }
 
   /**
@@ -156,6 +160,6 @@ library ElasticMath {
    * @return uint256
    */
   function wdiv(uint256 a, uint256 b) internal pure returns (uint256) {
-    return SafeMath.add(SafeMath.mul(a, 1000000000000000000), b / 2) / b;
+    return SafeMath.div(SafeMath.add(SafeMath.mul(a, 1000000000000000000), SafeMath.div(b, 2)), b);
   }
 }

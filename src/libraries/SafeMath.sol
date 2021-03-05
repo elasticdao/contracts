@@ -91,4 +91,26 @@ library SafeMath {
       return z;
     }
   }
+
+  /**
+   * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
+   * division by zero. The result is rounded towards zero.
+   *
+   * Counterpart to Solidity's `/` operator. Note: this function uses a
+   * `revert` opcode (which leaves remaining gas untouched) while Solidity
+   * uses an invalid opcode to revert (consuming all remaining gas).
+   *
+   * Requirements:
+   * - The divisor cannot be zero.
+   */
+  function div(
+    uint256 a,
+    uint256 b
+  ) internal pure returns (uint256) {
+    // Solidity only automatically asserts when dividing by 0
+    uint256 c = a / b;
+    require(c > 0, 'SafeMath: division by zero');
+
+    return c;
+  }
 }
