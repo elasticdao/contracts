@@ -328,7 +328,7 @@ describe('ElasticDAO: Core', () => {
       }
     });
 
-    it.only('Should allow multiple addresses to be penalized even if one tries to front run', async () => {
+    it('Should allow multiple addresses to be penalized even if one tries to front run', async () => {
       const { agent } = await signers();
       const addresses = await summoners();
       const amount = 0.01;
