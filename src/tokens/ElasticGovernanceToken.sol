@@ -546,7 +546,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     if (_isIncreasing) {
       _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
     } else {
-        _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
+      _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
 
     return _tokenHolder;

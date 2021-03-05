@@ -240,7 +240,7 @@ contract ElasticDAO is ReentryProtection {
       ElasticMath.capitalDelta(
         // the current totalBalance of the DAO is inclusive of msg.value,
         // capitalDelta is to be calculated without the msg.value
-        SafeMath.sub(address(this).balance,msg.value),
+        SafeMath.sub(address(this).balance, msg.value),
         tokenContract.totalSupply()
       );
     uint256 deltaE =
@@ -297,8 +297,8 @@ contract ElasticDAO is ReentryProtection {
     for (uint256 i = 0; i < _addresses.length; i += 1) {
       uint256 lambda = tokenContract.balanceOfInShares(_addresses[i]);
 
-      if(lambda < _amounts[i]) {
-        if(lambda != 0) {
+      if (lambda < _amounts[i]) {
+        if (lambda != 0) {
           tokenContract.burnShares(_addresses[i], lambda);
         }
 
@@ -538,12 +538,8 @@ contract ElasticDAO is ReentryProtection {
     token.uuid = _ecosystem.governanceTokenAddress;
 
     // initialize the token within the ecosystem
-    return ElasticGovernanceToken(token.uuid).initialize(
-      _controller,
-      _controller,
-      _ecosystem,
-      token
-    );
+    return
+      ElasticGovernanceToken(token.uuid).initialize(_controller, _controller, _ecosystem, token);
   }
 
   function _deployProxy(address _implementationAddress, address _owner) internal returns (address) {
