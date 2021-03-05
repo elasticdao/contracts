@@ -240,7 +240,7 @@ contract ElasticDAO is ReentryProtection {
       ElasticMath.capitalDelta(
         // the current totalBalance of the DAO is inclusive of msg.value,
         // capitalDelta is to be calculated without the msg.value
-        address(this).balance - msg.value,
+        SafeMath.sub(address(this).balance,msg.value),
         tokenContract.totalSupply()
       );
     uint256 deltaE =
