@@ -112,7 +112,7 @@ contract ElasticDAO is ReentryProtection {
   ) external preventReentry {
     require(initialized == false, 'ElasticDAO: Already initialized');
     require(
-      _ecosystemModelAddress != address(0) || _controller != address(0),
+      _ecosystemModelAddress != address(0) && _controller != address(0),
       'ElasticDAO: Address Zero'
     );
     require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');

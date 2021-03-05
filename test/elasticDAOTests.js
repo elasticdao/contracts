@@ -7,6 +7,45 @@ const { ethBalance, SDK, signers, summoners, summonedDAO } = require('./helpers'
 describe('ElasticDAO: Core', () => {
   let dao;
 
+  describe('before initialize', () => {
+    it('should revert if ecosystem model address is 0', async () => {
+      const sdk = await SDK();
+      const { summoner1 } = await signers();
+
+      const args = [
+        ethers.constants.AddressZero,
+        summoner1.address,
+        await summoners(),
+        'ElasticDAO',
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+      ];
+
+      const ElasticDAO = await hre.getContractFactory('ElasticDAO');
+      const elasticDAO = await ElasticDAO.deploy();
+
+      await expect(elasticDAO.initialize(...args)).to.be.revertedWith('ElasticDAO: Address Zero');
+    });
+
+    it('should revert if controller address is 0', async () => {
+      const sdk = await SDK();
+
+      const Ecosystem = await deployments.get('Ecosystem');
+
+      const args = [
+        Ecosystem.address,
+        ethers.constants.AddressZero,
+        await summoners(),
+        'ElasticDAO',
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+      ];
+
+      const ElasticDAO = await hre.getContractFactory('ElasticDAO');
+      const elasticDAO = await ElasticDAO.deploy();
+
+      await expect(elasticDAO.initialize(...args)).to.be.revertedWith('ElasticDAO: Address Zero');
+    });
+  });
+
   describe('before summoning', () => {
     let sdk;
 
