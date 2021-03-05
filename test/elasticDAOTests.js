@@ -269,7 +269,7 @@ describe('ElasticDAO: Core', () => {
 
     it('Should not allow exit with too many shares', async () => {
       const totalShares = await dao.elasticGovernanceToken.totalSupplyInShares();
-      await expect(dao.elasticDAO.exit(totalShares)).to.be.revertedWith(
+      await expect(dao.elasticDAO.exit(totalShares + 1)).to.be.revertedWith(
         'SafeMath: subtraction overflow',
       );
     });
@@ -305,7 +305,7 @@ describe('ElasticDAO: Core', () => {
       const { agent } = await signers();
       const addresses = await summoners();
       const amount = 0.01;
-      const rewards = addresses.map(() => dao.elasticDAO.toEthersBigNumber(amount, 18));
+      const penalties = addresses.map(() => dao.elasticDAO.toEthersBigNumber(amount, 18));
 
       const balances = await Promise.all(
         addresses.map((address) => dao.elasticGovernanceToken.balanceOfInShares(address)),
@@ -314,7 +314,7 @@ describe('ElasticDAO: Core', () => {
 
       dao.sdk.changeSigner(agent);
 
-      await dao.elasticDAO.contract.penalize(addresses, rewards);
+      await dao.elasticDAO.contract.penalize(addresses, penalties);
 
       const newBalances = await Promise.all(
         addresses.map(async (address) => {
@@ -325,6 +325,39 @@ describe('ElasticDAO: Core', () => {
 
       for (let i = 0; i < expectedBalances.length; i += 1) {
         expect(expectedBalances[i]).to.equal(newBalances[i]);
+      }
+    });
+
+    it('Should allow multiple addresses to be penalized even if one tries to front run', async () => {
+      const { agent } = await signers();
+      const addresses = await summoners();
+      const amount = 0.01;
+      const penalties = addresses.map(() => dao.elasticDAO.toEthersBigNumber(amount, 18));
+
+      const balances = await Promise.all(
+        addresses.map((address) => dao.elasticGovernanceToken.balanceOfInShares(address)),
+      );
+      const expectedBalances = balances.map((balance) => balance.minus(amount).toNumber());
+
+      // attempt to front run the penalty
+      await dao.elasticDAO.exit(10.09);
+
+      dao.sdk.changeSigner(agent);
+      await dao.elasticDAO.contract.penalize(addresses, penalties);
+
+      const newBalances = await Promise.all(
+        addresses.map(async (address) => {
+          const balance = await dao.elasticGovernanceToken.balanceOfInShares(address);
+          return balance.toNumber();
+        }),
+      );
+
+      for (let i = 0; i < expectedBalances.length; i += 1) {
+        if (i === 0) {
+          expect(newBalances[i]).to.equal(0);
+        } else {
+          expect(expectedBalances[i]).to.equal(newBalances[i]);
+        }
       }
     });
   });
