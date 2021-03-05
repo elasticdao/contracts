@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import '../interfaces/IElasticToken.sol';
 
-import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
 
 import '../core/ElasticDAO.sol';

@@ -3,7 +3,6 @@ pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 import '../libraries/ElasticMath.sol';
-import '../libraries/SafeMath.sol';
 
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
