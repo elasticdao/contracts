@@ -22,8 +22,6 @@ contract Ecosystem is EternalModel, ReentryProtection {
     address ecosystemModelAddress;
     address tokenHolderModelAddress;
     address tokenModelAddress;
-    // Services
-    address configuratorAddress;
     // Tokens
     address governanceTokenAddress;
   }
@@ -38,9 +36,6 @@ contract Ecosystem is EternalModel, ReentryProtection {
   function deserialize(address _daoAddress) external view returns (Instance memory record) {
     if (_exists(_daoAddress)) {
       record.daoAddress = _daoAddress;
-      record.configuratorAddress = getAddress(
-        keccak256(abi.encode(record.daoAddress, 'configuratorAddress'))
-      );
       record.daoModelAddress = getAddress(
         keccak256(abi.encode(record.daoAddress, 'daoModelAddress'))
       );
@@ -76,16 +71,10 @@ contract Ecosystem is EternalModel, ReentryProtection {
     bool recordExists = _exists(_record.daoAddress);
 
     require(
-      msg.sender == _record.daoAddress ||
-        msg.sender == _record.configuratorAddress ||
-        (_record.daoAddress == address(0) && !recordExists),
+      msg.sender == _record.daoAddress || (_record.daoAddress == address(0) && !recordExists),
       'ElasticDAO: Unauthorized'
     );
 
-    setAddress(
-      keccak256(abi.encode(_record.daoAddress, 'configuratorAddress')),
-      _record.configuratorAddress
-    );
     setAddress(
       keccak256(abi.encode(_record.daoAddress, 'daoModelAddress')),
       _record.daoModelAddress

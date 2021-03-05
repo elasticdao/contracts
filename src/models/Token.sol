@@ -46,23 +46,35 @@ contract Token is EternalModel, ReentryProtection {
     record.uuid = _uuid;
     record.ecosystem = _ecosystem;
 
-    if (_exists(_uuid)) {
-      record.eByL = getUint(keccak256(abi.encode(_uuid, 'eByL')));
-      record.elasticity = getUint(keccak256(abi.encode(_uuid, 'elasticity')));
-      record.k = getUint(keccak256(abi.encode(_uuid, 'k')));
-      record.lambda = getUint(keccak256(abi.encode(_uuid, 'lambda')));
-      record.m = getUint(keccak256(abi.encode(_uuid, 'm')));
-      record.maxLambdaPurchase = getUint(keccak256(abi.encode(_uuid, 'maxLambdaPurchase')));
-      record.name = getString(keccak256(abi.encode(_uuid, 'name')));
-      record.numberOfTokenHolders = getUint(keccak256(abi.encode(_uuid, 'numberOfTokenHolders')));
-      record.symbol = getString(keccak256(abi.encode(_uuid, 'symbol')));
+    if (_exists(_uuid, _ecosystem.daoAddress)) {
+      record.eByL = getUint(keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'eByL')));
+      record.elasticity = getUint(
+        keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'elasticity'))
+      );
+      record.k = getUint(keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'k')));
+      record.lambda = getUint(keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'lambda')));
+      record.m = getUint(keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'm')));
+      record.maxLambdaPurchase = getUint(
+        keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'maxLambdaPurchase'))
+      );
+      record.name = getString(keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'name')));
+      record.numberOfTokenHolders = getUint(
+        keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'numberOfTokenHolders'))
+      );
+      record.symbol = getString(
+        keccak256(abi.encode(_uuid, record.ecosystem.daoAddress, 'symbol'))
+      );
     }
 
     return record;
   }
 
-  function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
-    return _exists(_uuid);
+  function exists(address _uuid, Ecosystem.Instance memory _ecosystem)
+    external
+    view
+    returns (bool)
+  {
+    return _exists(_uuid, _ecosystem.daoAddress);
   }
 
   /**
@@ -72,21 +84,39 @@ contract Token is EternalModel, ReentryProtection {
   function serialize(Instance memory _record) external preventReentry {
     require(
       msg.sender == _record.uuid ||
-        msg.sender == _record.ecosystem.daoAddress ||
-        (msg.sender == _record.ecosystem.configuratorAddress && !_exists(_record.uuid)),
+        (msg.sender == _record.ecosystem.daoAddress &&
+          _exists(_record.uuid, _record.ecosystem.daoAddress)),
       'ElasticDAO: Unauthorized'
     );
 
-    setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);
-    setString(keccak256(abi.encode(_record.uuid, 'symbol')), _record.symbol);
-    setUint(keccak256(abi.encode(_record.uuid, 'eByL')), _record.eByL);
-    setUint(keccak256(abi.encode(_record.uuid, 'elasticity')), _record.elasticity);
-    setUint(keccak256(abi.encode(_record.uuid, 'k')), _record.k);
-    setUint(keccak256(abi.encode(_record.uuid, 'lambda')), _record.lambda);
-    setUint(keccak256(abi.encode(_record.uuid, 'm')), _record.m);
-    setUint(keccak256(abi.encode(_record.uuid, 'maxLambdaPurchase')), _record.maxLambdaPurchase);
+    setString(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'name')),
+      _record.name
+    );
+    setString(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'symbol')),
+      _record.symbol
+    );
+    setUint(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'eByL')),
+      _record.eByL
+    );
+    setUint(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'elasticity')),
+      _record.elasticity
+    );
+    setUint(keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'k')), _record.k);
+    setUint(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'lambda')),
+      _record.lambda
+    );
+    setUint(keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'm')), _record.m);
+    setUint(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'maxLambdaPurchase')),
+      _record.maxLambdaPurchase
+    );
 
-    setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
+    setBool(keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'exists')), true);
 
     emit Serialized(_record.uuid);
   }
@@ -95,10 +125,13 @@ contract Token is EternalModel, ReentryProtection {
     external
     preventReentry
   {
-    setUint(keccak256(abi.encode(_record.uuid, 'numberOfTokenHolders')), numberOfTokenHolders);
+    setUint(
+      keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'numberOfTokenHolders')),
+      numberOfTokenHolders
+    );
   }
 
-  function _exists(address _uuid) internal view returns (bool) {
-    return getBool(keccak256(abi.encode(_uuid, 'exists')));
+  function _exists(address _uuid, address _daoAddress) internal view returns (bool) {
+    return getBool(keccak256(abi.encode(_uuid, _daoAddress, 'exists')));
   }
 }

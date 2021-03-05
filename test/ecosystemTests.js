@@ -17,7 +17,6 @@ describe('ElasticDAO: Ecosystem Model', () => {
   });
 
   it('Should look up and return ecosystem instance record by uuid address', async () => {
-    const Configurator = await deployments.get('Configurator');
     const DAO = await deployments.get('DAO');
     const ElasticGovernanceToken = await deployments.get('ElasticGovernanceToken');
     const TokenHolder = await deployments.get('TokenHolder');
@@ -25,7 +24,6 @@ describe('ElasticDAO: Ecosystem Model', () => {
 
     const record = await ecosystemStorage.deserialize(ethers.constants.AddressZero);
 
-    expect(record.configuratorAddress).to.equal(Configurator.address);
     expect(record.daoAddress).to.equal(ethers.constants.AddressZero);
     expect(record.daoModelAddress).to.equal(DAO.address);
     expect(record.ecosystemModelAddress).to.equal(Ecosystem.address);
