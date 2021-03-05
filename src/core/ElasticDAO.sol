@@ -35,6 +35,11 @@ contract ElasticDAO is ReentryProtection {
     uint256 shareAmount,
     uint256 ethAmount
   );
+  event FailedToFullyPenalize(
+    address indexed memberAddress,
+    uint256 attemptedAmount,
+    uint256 actualAmount
+  );
   event JoinDAO(
     address indexed daoAddress,
     address indexed memberAddress,
@@ -290,7 +295,17 @@ contract ElasticDAO is ReentryProtection {
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
 
     for (uint256 i = 0; i < _addresses.length; i += 1) {
-      tokenContract.burnShares(_addresses[i], _amounts[i]);
+      uint256 lambda = tokenContract.balanceOfInShares(_addresses[i]);
+
+      if(lambda < _amounts[i]) {
+        if(lambda != 0) {
+          tokenContract.burnShares(_addresses[i], lambda);
+        }
+
+        FailedToFullyPenalize(_addresses[i], _amounts[i], lambda);
+      } else {
+        tokenContract.burnShares(_addresses[i], _amounts[i]);
+      }
     }
   }
 

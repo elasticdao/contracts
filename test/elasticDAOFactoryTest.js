@@ -101,18 +101,6 @@ describe('ElasticDAO: Factory', () => {
     ).to.be.revertedWith('ElasticDAO: Only manager');
   });
 
-  it('Should updateFeeAddress', async () => {
-    const { agent, summoner2 } = await signers();
-
-    sdk.changeSigner(agent);
-
-    const tx = await sdk.elasticDAOFactory.contract.updateFeeAddress(summoner2.address);
-    const logs = await tx.wait(1);
-
-    expect(logs.events[0].event).to.equal('FeeAddressUpdated');
-    expect(logs.events[0].args.feeReceiver).to.equal(summoner2.address);
-  });
-
   it('Should not updateFeeAddress when caller is not the manager', async () => {
     const { summoner2 } = await signers();
 
@@ -149,6 +137,27 @@ describe('ElasticDAO: Factory', () => {
     ).to.be.revertedWith('ElasticDAO: Only manager');
   });
 
+  it('Should not collect fees to the feeAddress if feeAddress is not set', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+    await expect(sdk.elasticDAOFactory.collectFees()).to.be.revertedWith(
+      'ElasticDAO: No feeAddress set',
+    );
+  });
+
+  it('Should updateFeeAddress', async () => {
+    const { agent, summoner2 } = await signers();
+
+    sdk.changeSigner(agent);
+
+    const tx = await sdk.elasticDAOFactory.contract.updateFeeAddress(summoner2.address);
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('FeeAddressUpdated');
+    expect(logs.events[0].args.feeReceiver).to.equal(summoner2.address);
+  });
+
   it('Should collect fees to the feeAddress', async () => {
     const { agent } = await signers();
 
@@ -164,15 +173,5 @@ describe('ElasticDAO: Factory', () => {
     expect(logs.events[0].event).to.equal('FeesCollected');
     expect(logs.events[0].args.feeAddress).to.equal(agent.address);
     expect(logs.events[0].args.amount).to.equal(feeAmountToCollect);
-  });
-
-  it('Should not collect fees to the feeAddress if feeAddress is not set', async () => {
-    const { agent } = await signers();
-
-    sdk.changeSigner(agent);
-
-    await expect(sdk.elasticDAOFactory.collectFees()).to.be.revertedWith(
-      'ElasticDAO: No feeAddress set',
-    );
   });
 });
