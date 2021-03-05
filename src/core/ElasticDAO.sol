@@ -9,7 +9,6 @@ import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
-import '../services/Configurator.sol';
 import '../services/ReentryProtection.sol';
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
@@ -85,8 +84,7 @@ contract ElasticDAO is ReentryProtection {
   }
 
   /**
-   * @notice Initializes and builds the ElasticDAO struct by passing and initializing
-   * all the required parameters into the configurator
+   * @notice Initializes and builds the ElasticDAO struct
    *
    * @param _ecosystemModelAddress - the address of the ecosystem model
    * @param _controller the address which can control the core DAO functions
@@ -99,7 +97,6 @@ contract ElasticDAO is ReentryProtection {
    * - The DAO cannot already be initialized
    * - The ecosystem model address cannot be the zero address
    * - The DAO must have atleast one summoner to summon the DAO
-   * - The configurator should be able to successfully build the DAO
    */
   function initialize(
     address _ecosystemModelAddress,
@@ -116,21 +113,20 @@ contract ElasticDAO is ReentryProtection {
     require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');
 
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
-    Configurator configurator = Configurator(defaults.configuratorAddress);
-    Ecosystem.Instance memory ecosystem = configurator.buildEcosystem(controller, defaults);
+    Ecosystem.Instance memory ecosystem = _buildEcosystem(controller, defaults);
     ecosystemModelAddress = ecosystem.ecosystemModelAddress;
 
     controller = _controller;
     deployer = msg.sender;
     summoners = _summoners;
 
-    bool success = configurator.buildDAO(_summoners, _name, _maxVotingLambda, ecosystem);
+    bool success = _buildDAO(_summoners, _name, _maxVotingLambda, ecosystem);
     initialized = true;
     require(success, 'ElasticDAO: Build DAO Failed');
   }
 
   /**
-   * @notice initializes the token of the DAO, using the Configurator
+   * @notice initializes the token of the DAO
    *
    * @param _name - name of the token
    * @param _symbol - symbol of the token
@@ -157,7 +153,7 @@ contract ElasticDAO is ReentryProtection {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
     Token.Instance memory token =
-      Configurator(ecosystem.configuratorAddress).buildToken(
+      _buildToken(
         controller,
         _name,
         _symbol,
@@ -437,6 +433,109 @@ contract ElasticDAO is ReentryProtection {
 
   function getEcosystem() external view returns (Ecosystem.Instance memory) {
     return _getEcosystem();
+  }
+
+  /**
+   * @dev creates DAO.Instance record
+   * @param _summoners addresses of the summoners
+   * @param _name name of the DAO
+   * @param _ecosystem instance of Ecosystem the DAO uses
+   * @param _maxVotingLambda - the maximum amount of lambda that can be used to vote in the DAO
+   * @return bool true
+   */
+  function _buildDAO(
+    address[] memory _summoners,
+    string memory _name,
+    uint256 _maxVotingLambda,
+    Ecosystem.Instance memory _ecosystem
+  ) internal returns (bool) {
+    DAO daoStorage = DAO(_ecosystem.daoModelAddress);
+    DAO.Instance memory dao;
+
+    dao.uuid = address(this);
+    dao.ecosystem = _ecosystem;
+    dao.maxVotingLambda = _maxVotingLambda;
+    dao.name = _name;
+    dao.summoned = false;
+    dao.summoners = _summoners;
+    daoStorage.serialize(dao);
+
+    return true;
+  }
+
+  /**
+   * @dev Deploys proxies leveraging the implementation contracts found on the
+   * default Ecosystem.Instance record.
+   * @param _controller the address which can control the core DAO functions
+   * @param _defaults instance of Ecosystem with the implementation addresses
+   * @return ecosystem Ecosystem.Instance
+   */
+  function _buildEcosystem(address _controller, Ecosystem.Instance memory _defaults)
+    internal
+    returns (Ecosystem.Instance memory ecosystem)
+  {
+    ecosystem.daoAddress = address(this);
+    ecosystem.daoModelAddress = _deployProxy(_defaults.daoModelAddress, _controller);
+    ecosystem.ecosystemModelAddress = _deployProxy(_defaults.ecosystemModelAddress, _controller);
+    ecosystem.governanceTokenAddress = _deployProxy(_defaults.governanceTokenAddress, _controller);
+    ecosystem.tokenHolderModelAddress = _deployProxy(
+      _defaults.tokenHolderModelAddress,
+      _controller
+    );
+    ecosystem.tokenModelAddress = _deployProxy(_defaults.tokenModelAddress, _controller);
+
+    Ecosystem(ecosystem.ecosystemModelAddress).serialize(ecosystem);
+    return ecosystem;
+  }
+
+  /**
+   * @dev creates a Token.Instance record and initializes the ElasticGovernanceToken.
+   * @param _controller the address which can control the core DAO functions
+   * @param _name name of the token
+   * @param _symbol symbol of the token
+   * @param _eByL initial ETH/token ratio
+   * @param _elasticity the percentage by which capitalDelta should increase
+   * @param _k a constant, initially set by the DAO
+   * @param _maxLambdaPurchase maximum amount of lambda (shares) that can be
+   * minted on each call to the join function in ElasticDAO.sol
+   * @param _ecosystem the DAO's ecosystem instance
+   * @return token Token.Instance
+   */
+  function _buildToken(
+    address _controller,
+    string memory _name,
+    string memory _symbol,
+    uint256 _eByL,
+    uint256 _elasticity,
+    uint256 _k,
+    uint256 _maxLambdaPurchase,
+    Ecosystem.Instance memory _ecosystem
+  ) internal returns (Token.Instance memory token) {
+    token.eByL = _eByL;
+    token.ecosystem = _ecosystem;
+    token.elasticity = _elasticity;
+    token.k = _k;
+    token.lambda = 0;
+    token.m = 1000000000000000000;
+    token.maxLambdaPurchase = _maxLambdaPurchase;
+    token.name = _name;
+    token.symbol = _symbol;
+    token.uuid = _ecosystem.governanceTokenAddress;
+
+    // initialize the token within the ecosystem
+    return ElasticGovernanceToken(token.uuid).initialize(
+      _controller,
+      _controller,
+      _ecosystem,
+      token
+    );
+  }
+
+  function _deployProxy(address _implementationAddress, address _owner) internal returns (address) {
+    PProxy proxy = new PProxy();
+    proxy.setImplementation(_implementationAddress);
+    proxy.setProxyOwner(_owner);
+    return address(proxy);
   }
 
   // Private

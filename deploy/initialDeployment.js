@@ -5,7 +5,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { log } = deployments;
   const { agent } = await getNamedAccounts();
 
-  const Configurator = await deployments.get('Configurator');
   const Dao = await deployments.get('DAO');
   const Ecosystem = await deployments.get('Ecosystem');
   const ecosystemStorage = new ethers.Contract(
@@ -24,8 +23,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     Ecosystem.address,
     TokenHolder.address,
     Token.address,
-    // Services
-    Configurator.address,
     // Tokens
     ElasticGovernanceToken.address,
   ];
@@ -36,7 +33,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 };
 module.exports.tags = ['initialDeployment'];
 module.exports.dependencies = [
-  'Configurator',
   'DAO',
   'Ecosystem',
   'ElasticDAOFactory',

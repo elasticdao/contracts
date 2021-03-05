@@ -76,10 +76,7 @@ contract DAO is EternalModel, ReentryProtection {
    * @param _record Instance
    */
   function serialize(Instance memory _record) external preventReentry {
-    require(
-      msg.sender == _record.uuid || msg.sender == _record.ecosystem.configuratorAddress,
-      'ElasticDAO: Unauthorized'
-    );
+    require(msg.sender == _record.uuid, 'ElasticDAO: Unauthorized');
 
     setUint(keccak256(abi.encode(_record.uuid, 'maxVotingLambda')), _record.maxVotingLambda);
     setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);

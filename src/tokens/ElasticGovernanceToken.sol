@@ -47,9 +47,9 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * @notice initializes the ElasticGovernanceToken
    *
    * @param _burner - the address which can burn tokens
-   * @param _daoAddress - the address of the deployed ElasticDAO
-   * @param _ecosystemModelAddress - the address of the ecosystem model
    * @param _minter - the address which can mint tokens
+   * @param _ecosystem - Ecosystem Instance
+   * @param _token - Token Instance
    *
    * @dev Requirements:
    * - The token should not already be initialized
@@ -62,23 +62,26 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    */
   function initialize(
     address _burner,
-    address _daoAddress,
-    address _ecosystemModelAddress,
-    address _minter
-  ) external preventReentry returns (bool) {
+    address _minter,
+    Ecosystem.Instance memory _ecosystem,
+    Token.Instance memory _token
+  ) external preventReentry returns (Token.Instance memory) {
     require(initialized == false, 'ElasticDAO: Already initialized');
     require(_burner != address(0), 'ElasticDAO: Address Zero');
-    require(_daoAddress != address(0), 'ElasticDAO: Address Zero');
-    require(_ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
+    require(_ecosystem.daoAddress != address(0), 'ElasticDAO: Address Zero');
+    require(_ecosystem.ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
     require(_minter != address(0), 'ElasticDAO: Address Zero');
 
     initialized = true;
     burner = _burner;
-    daoAddress = _daoAddress;
-    ecosystemModelAddress = _ecosystemModelAddress;
+    daoAddress = _ecosystem.daoAddress;
+    ecosystemModelAddress = _ecosystem.ecosystemModelAddress;
     minter = _minter;
 
-    return true;
+    Token tokenStorage = Token(_ecosystem.tokenModelAddress);
+    tokenStorage.serialize(_token);
+
+    return _token;
   }
 
   /**
