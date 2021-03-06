@@ -479,7 +479,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
     _updateNumberOfTokenHolders(alreadyTokenHolder, token, tokenHolder, tokenStorage);
-    emit Transfer(_account, address(0), _deltaLambda);
+    emit Transfer(_account, address(0), ElasticMath.t(_deltaLambda, token.k, token.m));
   }
 
   function _mint(address _account, uint256 _deltaT) internal {
