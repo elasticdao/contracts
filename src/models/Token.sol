@@ -125,6 +125,11 @@ contract Token is EternalModel, ReentryProtection {
     external
     preventReentry
   {
+    require(
+      msg.sender == _record.uuid && _exists(_record.uuid, _record.ecosystem.daoAddress),
+      'ElasticDAO: Unauthorized'
+    );
+
     setUint(
       keccak256(abi.encode(_record.uuid, _record.ecosystem.daoAddress, 'numberOfTokenHolders')),
       numberOfTokenHolders
