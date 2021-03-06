@@ -29,7 +29,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   mapping(address => mapping(address => uint256)) private _allowances;
 
   modifier onlyDAO() {
-    require(msg.sender == daoAddress || msg.sender == minter, 'ElasticDAO: Not authorized');
+    require(msg.sender == daoAddress, 'ElasticDAO: Not authorized');
     _;
   }
 
