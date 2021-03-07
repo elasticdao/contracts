@@ -142,8 +142,8 @@ contract ElasticDAOFactory is ReentryProtection {
   /**
    * @notice returns deployed DAO count
    */
-  function deployedDAOCount() external view returns (uint) {
-     return deployedDAOAddresses.length;
+  function deployedDAOCount() external view returns (uint256) {
+    return deployedDAOAddresses.length;
   }
 
   /**

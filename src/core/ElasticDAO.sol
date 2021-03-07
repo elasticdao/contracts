@@ -28,21 +28,13 @@ contract ElasticDAO is ReentryProtection {
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
   event MaxVotingLambdaChanged(bytes32 settingName, uint256 value);
   event ControllerChanged(bytes32 settingName, address value);
-  event ExitDAO(
-    address indexed memberAddress,
-    uint256 shareAmount,
-    uint256 ethAmount
-  );
+  event ExitDAO(address indexed memberAddress, uint256 shareAmount, uint256 ethAmount);
   event FailedToFullyPenalize(
     address indexed memberAddress,
     uint256 attemptedAmount,
     uint256 actualAmount
   );
-  event JoinDAO(
-    address indexed memberAddress,
-    uint256 shareAmount,
-    uint256 ethAmount
-  );
+  event JoinDAO(address indexed memberAddress, uint256 shareAmount, uint256 ethAmount);
   event SeedDAO(address indexed summonerAddress, uint256 amount);
   event SummonedDAO(address indexed summonedBy);
 
@@ -54,7 +46,10 @@ contract ElasticDAO is ReentryProtection {
   modifier onlyAfterTokenInitialized() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     bool tokenInitialized =
-      Token(ecosystem.tokenModelAddress).exists(ecosystem.governanceTokenAddress, ecosystem);
+      Token(_getEcosystem().tokenModelAddress).exists(
+        ecosystem.governanceTokenAddress,
+        ecosystem.daoAddress
+      );
     require(tokenInitialized, 'ElasticDAO: Please call initializeToken first');
     _;
   }
