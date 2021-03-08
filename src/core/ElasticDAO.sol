@@ -238,9 +238,7 @@ contract ElasticDAO is ReentryProtection {
         token.m
       );
 
-    if (deltaE != msg.value) {
-      revert('ElasticDAO: Incorrect ETH amount');
-    }
+    require(msg.value >= deltaE, 'ElasticDAO: Incorrect ETH amount');
 
     // mdash
     uint256 lambdaDash = SafeMath.add(token.maxLambdaPurchase, token.lambda);
@@ -255,6 +253,13 @@ contract ElasticDAO is ReentryProtection {
     // tokencontract mint shares
     bool success = tokenContract.mintShares(msg.sender, token.maxLambdaPurchase);
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
+
+    // return extra ETH
+    if(success && msg.value > deltaE) {
+      (success, ) = msg.sender.call{ value: SafeMath.sub(msg.value, deltaE) }('');
+      require(success, 'ElasticDAO: TransactionFailed');
+    }
+
     emit JoinDAO(msg.sender, token.maxLambdaPurchase, msg.value);
   }
 

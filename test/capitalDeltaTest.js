@@ -68,9 +68,10 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
       token.lambda,
       token.m,
     );
+
     const mD = mDash(lambdaDash, token.lambda, token.m);
 
-    // send that value of deltaE to joinDAO to buy ONE_TENTH shares
+    // send that value of deltaE to joinDAO to buy ONE share
     await dao.elasticDAO.join({ value: dE });
     await token.refresh();
 
