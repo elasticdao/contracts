@@ -1,7 +1,6 @@
 const { expect } = require('chai');
 
 const { capitalDelta, deltaE, mDash } = require('@elastic-dao/sdk');
-const BigNumber = require('bignumber.js');
 
 const { ONE } = require('./constants');
 const { ethBalance, signers, summonedDAO } = require('./helpers');
@@ -30,10 +29,17 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
 
     // calculate deltaE using capital Delta to buy ONE_TENTH shares
     // deltaE = capitalDelta * k  * ( (lambdaDash*mDash*revamp) - (lambda*m) )
-    const dE = deltaE(0.1, cDelta, token.k, token.elasticity, token.lambda, token.m);
+    const dE = deltaE(
+      token.maxLambdaPurchase,
+      cDelta,
+      token.k,
+      token.elasticity,
+      token.lambda,
+      token.m,
+    );
 
     // send that value of deltaE to joinDAO to buy ONE_TENTH shares
-    const tx = dao.elasticDAO.join(0.1, { value: dE });
+    const tx = dao.elasticDAO.join({ value: dE });
 
     // transaction reverts with 'ElasticDAO: Incorrect ETH amount'
     await expect(tx).to.be.revertedWith('ElasticDAO: Incorrect ETH amount');
@@ -53,13 +59,19 @@ describe('ElasticDAO: CapitalDelta value of a token', () => {
 
     // calculate deltaE using capital Delta to buy ONE_TENTH shares
     // deltaE = capitalDelta * k  * ( (lambdaDash*mDash*revamp) - (lambda*m) )
-    const deltaLambda = BigNumber(0.1);
-    const lambdaDash = token.lambda.plus(deltaLambda);
-    const dE = deltaE(deltaLambda, cDelta, token.k, token.elasticity, token.lambda, token.m);
+    const lambdaDash = token.lambda.plus(token.maxLambdaPurchase);
+    const dE = deltaE(
+      token.maxLambdaPurchase,
+      cDelta,
+      token.k,
+      token.elasticity,
+      token.lambda,
+      token.m,
+    );
     const mD = mDash(lambdaDash, token.lambda, token.m);
 
     // send that value of deltaE to joinDAO to buy ONE_TENTH shares
-    await dao.elasticDAO.join(deltaLambda, { value: dE });
+    await dao.elasticDAO.join({ value: dE });
     await token.refresh();
 
     // post join check the following values:
