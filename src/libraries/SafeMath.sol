@@ -73,26 +73,6 @@ library SafeMath {
   }
 
   /**
-   * @dev Returns one unsigned integer to the power of another, reverting on
-   * a multiplication overflow.
-   *
-   * Counterpart to Solidity's `**` operator.
-   */
-  function pow(uint256 base, uint256 exponent) internal pure returns (uint256) {
-    if (exponent == 0) {
-      return 1;
-    } else if (exponent == 1) {
-      return base;
-    } else if (base == 0 && exponent != 0) {
-      return 0;
-    } else {
-      uint256 z = base;
-      for (uint256 i = 1; i < exponent; i += 1) z = mul(z, base);
-      return z;
-    }
-  }
-
-  /**
    * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
    * division by zero. The result is rounded towards zero.
    *
