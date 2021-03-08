@@ -199,8 +199,6 @@ contract ElasticDAO is ReentryProtection {
    * Based on the current state of the DAO, capitalDelta, deltaE, mDash are calulated,
    * after which  _deltaLambda is minted for the address calling the function.
    *
-   * @param _deltaLambda - the amount of lambda minted to the address
-   *
    * @dev documentation and further math regarding capitalDelta, deltaE,
    * mDash can be found at ../libraries/ElasticMath.sol
    * @dev emits the JoinDAO event
@@ -212,7 +210,7 @@ contract ElasticDAO is ReentryProtection {
    * must be sent in the transaction by the calling address
    * The token contract should be successfully be able to mint  _deltaLambda
    */
-  function join(uint256 _deltaLambda)
+  function join()
     external
     payable
     onlyAfterSummoning
@@ -221,10 +219,6 @@ contract ElasticDAO is ReentryProtection {
   {
     Token.Instance memory token = _getToken();
 
-    require(
-      _deltaLambda <= token.maxLambdaPurchase,
-      'ElasticDAO: Cannot purchase those many lambda at once'
-    );
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
     uint256 capitalDelta =
@@ -236,7 +230,7 @@ contract ElasticDAO is ReentryProtection {
       );
     uint256 deltaE =
       ElasticMath.deltaE(
-        _deltaLambda,
+        token.maxLambdaPurchase,
         capitalDelta,
         token.k,
         token.elasticity,
@@ -249,7 +243,7 @@ contract ElasticDAO is ReentryProtection {
     }
 
     // mdash
-    uint256 lambdaDash = SafeMath.add(_deltaLambda, token.lambda);
+    uint256 lambdaDash = SafeMath.add(token.maxLambdaPurchase, token.lambda);
     uint256 mDash = ElasticMath.mDash(lambdaDash, token.lambda, token.m);
 
     // serialize the token
@@ -259,9 +253,9 @@ contract ElasticDAO is ReentryProtection {
     tokenStorage.serialize(token);
 
     // tokencontract mint shares
-    bool success = tokenContract.mintShares(msg.sender, _deltaLambda);
+    bool success = tokenContract.mintShares(msg.sender, token.maxLambdaPurchase);
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
-    emit JoinDAO(msg.sender, _deltaLambda, msg.value);
+    emit JoinDAO(msg.sender, token.maxLambdaPurchase, msg.value);
   }
 
   /**
