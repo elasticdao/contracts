@@ -66,6 +66,25 @@ describe('ElasticDAO: Elastic Governance Token', () => {
     expect(allowance.toFixed()).to.equal('1');
   });
 
+  it('Should decrease allowance to 0', async () => {
+    const { summoner1, summoner2 } = await signers();
+    const spenderAmount = 10;
+    await dao.elasticGovernanceToken.approve(summoner2.address, spenderAmount);
+
+    await dao.elasticGovernanceToken.allowance(summoner1.address, summoner2.address);
+
+    await dao.elasticGovernanceToken.decreaseAllowance(summoner2.address, spenderAmount);
+
+    const newAllowance = await dao.elasticGovernanceToken.allowance(
+      summoner1.address,
+      summoner2.address,
+    );
+
+    console.log(newAllowance.toString());
+
+    expect(newAllowance.toString()).to.equal('0');
+  });
+
   it('Should mint tokens', async () => {
     const { agent, summoner1 } = await signers();
     dao.sdk.changeSigner(agent);
