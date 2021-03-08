@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const { ethers } = require('ethers');
+const { capitalDelta, deltaE, mDash } = require('@elastic-dao/sdk');
 const { deployments } = require('hardhat');
 const hre = require('hardhat').ethers;
 const { ethBalance, SDK, signers, summoners, summonedDAO } = require('./helpers');
@@ -398,6 +399,50 @@ describe('ElasticDAO: Core', () => {
           expect(expectedBalances[i]).to.equal(newBalances[i]);
         }
       }
+    });
+
+    it('Should allow a new member to join as long as they send more ETH than deltaE', async () => {
+      dao = await summonedDAO();
+      const token = await dao.token();
+      // get the eth balance of elasticDAO
+      const ethBalanceElasticDAOBeforeJoin = await ethBalance(dao.uuid);
+
+      // get the T value of the token
+      const totalSupplyOfToken = await dao.elasticGovernanceToken.totalSupply();
+
+      // calculate capital Delta
+      const cDelta = capitalDelta(ethBalanceElasticDAOBeforeJoin, totalSupplyOfToken);
+
+      // calculate deltaE using capital Delta to buy ONE_TENTH shares
+      // deltaE = capitalDelta * k  * ( (lambdaDash*mDash*revamp) - (lambda*m) )
+      const lambdaDash = token.lambda.plus(token.maxLambdaPurchase);
+      const dE = deltaE(
+        token.maxLambdaPurchase,
+        cDelta,
+        token.k,
+        token.elasticity,
+        token.lambda,
+        token.m,
+      );
+
+      const mD = mDash(lambdaDash, token.lambda, token.m);
+
+      // send that value of deltaE to joinDAO to buy ONE share + 1
+      await dao.elasticDAO.join({ value: dE.plus(1) });
+      await token.refresh();
+
+      // post join check the following values:
+      // check the m value- after join,previous mDash should be current m
+      await expect(token.m.toString()).to.equal(mD.toString());
+      await expect(token.lambda.toString()).to.equal(lambdaDash.toString());
+
+      // check the the total eth - which should be initial eth, plus delta e
+      const ethBalanceElasticDAOAfterJoin = await ethBalance(dao.uuid);
+
+      const expectedEthInElasticDAOAfterJoin = ethBalanceElasticDAOBeforeJoin.plus(dE);
+      await expect(ethBalanceElasticDAOAfterJoin.toString()).to.equal(
+        expectedEthInElasticDAOAfterJoin.toString(),
+      );
     });
   });
 });
