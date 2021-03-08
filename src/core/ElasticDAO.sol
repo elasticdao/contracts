@@ -151,7 +151,6 @@ contract ElasticDAO is ReentryProtection {
     uint256 _k,
     uint256 _maxLambdaPurchase
   ) external onlyBeforeSummoning onlyDeployer preventReentry {
-    require(msg.sender == deployer, 'ElasticDAO: Only deployer can initialize the Token');
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
     Token.Instance memory token =
