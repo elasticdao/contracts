@@ -53,7 +53,7 @@ contract DAO is EternalModel, ReentryProtection {
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
+  function exists(address _uuid) external view returns (bool) {
     return _exists(_uuid);
   }
 

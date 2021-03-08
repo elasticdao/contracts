@@ -69,12 +69,8 @@ contract Token is EternalModel, ReentryProtection {
     return record;
   }
 
-  function exists(address _uuid, Ecosystem.Instance memory _ecosystem)
-    external
-    view
-    returns (bool)
-  {
-    return _exists(_uuid, _ecosystem.daoAddress);
+  function exists(address _uuid, address _daoAddress) external view returns (bool) {
+    return _exists(_uuid, _daoAddress);
   }
 
   /**

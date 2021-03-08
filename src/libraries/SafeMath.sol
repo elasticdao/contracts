@@ -103,10 +103,7 @@ library SafeMath {
    * Requirements:
    * - The divisor cannot be zero.
    */
-  function div(
-    uint256 a,
-    uint256 b
-  ) internal pure returns (uint256) {
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
     // Solidity only automatically asserts when dividing by 0
     uint256 c = a / b;
     require(c > 0, 'SafeMath: division by zero');
