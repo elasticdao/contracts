@@ -20,7 +20,6 @@ contract ElasticDAOFactory is ReentryProtection {
   address public manager;
   address payable feeAddress;
   address[] public deployedDAOAddresses;
-  uint256 public deployedDAOCount;
   uint256 public fee;
   bool public initialized = false;
 
@@ -55,7 +54,6 @@ contract ElasticDAOFactory is ReentryProtection {
       'ElasticDAO: Address Zero'
     );
 
-    deployedDAOCount = 0;
     ecosystemModelAddress = _ecosystemModelAddress;
     elasticDAOImplementationAddress = _elasticDAOImplementationAddress;
     fee = 250000000000000000;
@@ -128,7 +126,6 @@ contract ElasticDAOFactory is ReentryProtection {
     );
 
     deployedDAOAddresses.push(daoAddress);
-    deployedDAOCount = SafeMath.add(deployedDAOCount, 1);
 
     // initialize the token
     ElasticDAO(daoAddress).initializeToken(
@@ -140,6 +137,13 @@ contract ElasticDAOFactory is ReentryProtection {
       _maxLambdaPurchase
     );
     emit DeployedDAO(daoAddress);
+  }
+
+  /**
+   * @notice returns deployed DAO count
+   */
+  function deployedDAOCount() external view returns (uint) {
+     return deployedDAOAddresses.length;
   }
 
   /**
