@@ -401,7 +401,7 @@ describe('ElasticDAO: Core', () => {
       }
     });
 
-    it.only('Should allow a new member to join as long as they send more ETH than deltaE', async () => {
+    it('Should allow a new member to join as long as they send more ETH than deltaE', async () => {
       dao = await summonedDAO();
       const token = await dao.token();
       // get the eth balance of elasticDAO
