@@ -26,10 +26,9 @@ contract ElasticDAO is ReentryProtection {
   bool public initialized;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
-  event MaxVotingLambdaChanged(address indexed daoAddress, bytes32 settingName, uint256 value);
-  event ControllerChanged(address indexed daoAddress, bytes32 settingName, address value);
+  event MaxVotingLambdaChanged(bytes32 settingName, uint256 value);
+  event ControllerChanged(bytes32 settingName, address value);
   event ExitDAO(
-    address indexed daoAddress,
     address indexed memberAddress,
     uint256 shareAmount,
     uint256 ethAmount
@@ -40,13 +39,12 @@ contract ElasticDAO is ReentryProtection {
     uint256 actualAmount
   );
   event JoinDAO(
-    address indexed daoAddress,
     address indexed memberAddress,
     uint256 shareAmount,
     uint256 ethAmount
   );
-  event SeedDAO(address indexed daoAddress, address indexed summonerAddress, uint256 amount);
-  event SummonedDAO(address indexed daoAddress, address indexed summonedBy);
+  event SeedDAO(address indexed summonerAddress, uint256 amount);
+  event SummonedDAO(address indexed summonedBy);
 
   modifier onlyAfterSummoning() {
     DAO.Instance memory dao = _getDAO();
@@ -197,7 +195,7 @@ contract ElasticDAO is ReentryProtection {
     tokenContract.burnShares(msg.sender, _deltaLambda);
     (bool success, ) = msg.sender.call{ value: ethToBeTransfered }('');
     require(success, 'ElasticDAO: Exit Failed');
-    emit ExitDAO(address(this), msg.sender, _deltaLambda, ethToBeTransfered);
+    emit ExitDAO(msg.sender, _deltaLambda, ethToBeTransfered);
   }
 
   /**
@@ -269,7 +267,7 @@ contract ElasticDAO is ReentryProtection {
     // tokencontract mint shares
     bool success = tokenContract.mintShares(msg.sender, _deltaLambda);
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
-    emit JoinDAO(address(this), msg.sender, _deltaLambda, msg.value);
+    emit JoinDAO(msg.sender, _deltaLambda, msg.value);
   }
 
   /**
@@ -359,7 +357,7 @@ contract ElasticDAO is ReentryProtection {
     success = tokenContract.setMinter(controller);
     require(success, 'ElasticDAO: Set Minter failed during setController');
 
-    emit ControllerChanged(address(this), 'setController', controller);
+    emit ControllerChanged('setController', controller);
   }
 
   /**
@@ -374,7 +372,7 @@ contract ElasticDAO is ReentryProtection {
     dao.maxVotingLambda = _maxVotingLambda;
     daoStorage.serialize(dao);
 
-    emit MaxVotingLambdaChanged(address(this), 'setMaxVotingLambda', _maxVotingLambda);
+    emit MaxVotingLambdaChanged('setMaxVotingLambda', _maxVotingLambda);
   }
 
   /**
@@ -401,7 +399,7 @@ contract ElasticDAO is ReentryProtection {
     uint256 deltaLambda = ElasticMath.wdiv(deltaE, token.eByL);
     ElasticGovernanceToken(token.uuid).mintShares(msg.sender, deltaLambda);
 
-    emit SeedDAO(address(this), msg.sender, deltaLambda);
+    emit SeedDAO(msg.sender, deltaLambda);
   }
 
   /**
@@ -436,7 +434,7 @@ contract ElasticDAO is ReentryProtection {
     dao.summoned = true;
     daoContract.serialize(dao);
 
-    emit SummonedDAO(address(this), msg.sender);
+    emit SummonedDAO(msg.sender);
   }
 
   // Getters
