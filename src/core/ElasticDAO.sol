@@ -57,7 +57,7 @@ contract ElasticDAO is ReentryProtection {
   modifier onlyAfterTokenInitialized() {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     bool tokenInitialized =
-      Token(_getEcosystem().tokenModelAddress).exists(ecosystem.governanceTokenAddress, ecosystem);
+      Token(ecosystem.tokenModelAddress).exists(ecosystem.governanceTokenAddress, ecosystem);
     require(tokenInitialized, 'ElasticDAO: Please call initializeToken first');
     _;
   }
