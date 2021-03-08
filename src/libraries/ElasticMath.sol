@@ -115,7 +115,7 @@ library ElasticMath {
    * @return uint256
    */
   function revamp(uint256 elasticity) internal pure returns (uint256) {
-    return SafeMath.add(elasticity, SafeMath.pow(10, 18));
+    return SafeMath.add(elasticity, 1000000000000000000);
   }
 
   /**
