@@ -225,7 +225,7 @@ describe('ElasticDAO: Core', () => {
       expect(summoner3balance.toNumber()).to.equal(100);
     });
 
-    it.only('Should not allow the DAO to be summoned if summoner address is zero address', async () => {
+    it('Should not allow the DAO to be summoned if summoner address is zero address', async () => {
       const { agent } = await signers();
 
       sdk.changeSigner(agent);
