@@ -110,6 +110,12 @@ contract ElasticDAO is ReentryProtection {
     );
     require(_summoners.length > 0, 'ElasticDAO: At least 1 summoner required');
 
+    for (uint256 i = 0; i < _summoners.length; i += 1) {
+      if (_summoners[i] == address(0)) {
+        revert('ElasticDAO: Summoner address can not be zero address');
+      }
+    }
+
     Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
     Ecosystem.Instance memory ecosystem = _buildEcosystem(controller, defaults);
     ecosystemModelAddress = ecosystem.ecosystemModelAddress;
