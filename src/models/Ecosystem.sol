@@ -3,7 +3,6 @@ pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
 import './EternalModel.sol';
-import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
 /**

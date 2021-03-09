@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import './Ecosystem.sol';
 import './EternalModel.sol';
-import '../libraries/SafeMath.sol';
 import '../services/ReentryProtection.sol';
 
 /**
