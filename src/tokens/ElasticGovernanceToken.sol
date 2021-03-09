@@ -435,7 +435,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
 
     if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {
       _allowances[_from][msg.sender] = SafeMath.sub(_allowances[_from][msg.sender], _amount);
-      emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);
+      emit Approval(_from, msg.sender, _allowances[_from][msg.sender]);
     }
 
     _transfer(_from, _to, _amount);
