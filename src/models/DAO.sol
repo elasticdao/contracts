@@ -2,16 +2,17 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 import './Ecosystem.sol';
 import './EternalModel.sol';
-import '../services/ReentryProtection.sol';
 
 /**
  * @author ElasticDAO - https://ElasticDAO.org
  * @notice This contract is used for storing core DAO data
  * @dev ElasticDAO network contracts can read/write from this contract
  */
-contract DAO is EternalModel, ReentryProtection {
+contract DAO is EternalModel, ReentrancyGuard {
   struct Instance {
     address uuid;
     address[] summoners;
@@ -74,7 +75,7 @@ contract DAO is EternalModel, ReentryProtection {
    * @dev serializes Instance struct
    * @param _record Instance
    */
-  function serialize(Instance memory _record) external preventReentry {
+  function serialize(Instance memory _record) external nonReentrant {
     require(msg.sender == _record.uuid, 'ElasticDAO: Unauthorized');
 
     setUint(keccak256(abi.encode(_record.uuid, 'maxVotingLambda')), _record.maxVotingLambda);

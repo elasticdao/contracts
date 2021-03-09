@@ -12,13 +12,13 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
-import '../services/ReentryProtection.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @dev ElasticGovernanceToken contract outlines and defines all the functionality
  * of an ElasticGovernanceToken and also serves as it's storage
  */
-contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
+contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
   address public burner;
   address public daoAddress;
   address public ecosystemModelAddress;
@@ -64,7 +64,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     address _minter,
     Ecosystem.Instance memory _ecosystem,
     Token.Instance memory _token
-  ) external preventReentry returns (Token.Instance memory) {
+  ) external nonReentrant returns (Token.Instance memory) {
     require(initialized == false, 'ElasticDAO: Already initialized');
     require(_burner != address(0), 'ElasticDAO: Address Zero');
     require(_ecosystem.daoAddress != address(0), 'ElasticDAO: Address Zero');
@@ -119,7 +119,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   function approve(address _spender, uint256 _amount)
     external
     override
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _approve(msg.sender, _spender, _amount);
@@ -199,7 +199,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     external
     override
     onlyDAOorBurner
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _burn(_account, _amount);
@@ -219,7 +219,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     external
     override
     onlyDAOorBurner
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _burnShares(_account, _amount);
@@ -248,7 +248,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    */
   function decreaseAllowance(address _spender, uint256 _subtractedValue)
     external
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
@@ -269,7 +269,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    */
   function increaseAllowance(address _spender, uint256 _addedValue)
     external
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
@@ -285,7 +285,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
   function mint(address _account, uint256 _amount)
     external
     onlyDAOorMinter
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _mint(_account, _amount);
@@ -303,7 +303,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     external
     override
     onlyDAOorMinter
-    preventReentry
+    nonReentrant
     returns (bool)
   {
     _mintShares(_account, _amount);
@@ -338,7 +338,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    *
    * @return bool
    */
-  function setBurner(address _burner) external onlyDAO preventReentry returns (bool) {
+  function setBurner(address _burner) external onlyDAO nonReentrant returns (bool) {
     require(_burner != address(0), 'ElasticDAO: Address Zero');
 
     burner = _burner;
@@ -357,7 +357,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    *
    * @return bool
    */
-  function setMinter(address _minter) external onlyDAO preventReentry returns (bool) {
+  function setMinter(address _minter) external onlyDAO nonReentrant returns (bool) {
     require(_minter != address(0), 'ElasticDAO: Address Zero');
 
     minter = _minter;
@@ -411,7 +411,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
    * Emits a {Transfer} event
    * @return bool
    */
-  function transfer(address _to, uint256 _amount) external override preventReentry returns (bool) {
+  function transfer(address _to, uint256 _amount) external override nonReentrant returns (bool) {
     _transfer(msg.sender, _to, _amount);
     return true;
   }
@@ -430,7 +430,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentryProtection {
     address _from,
     address _to,
     uint256 _amount
-  ) external override preventReentry returns (bool) {
+  ) external override nonReentrant returns (bool) {
     require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
 
     if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {

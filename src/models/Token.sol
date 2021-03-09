@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import './Ecosystem.sol';
 import './EternalModel.sol';
-import '../services/ReentryProtection.sol';
 import '../tokens/ElasticGovernanceToken.sol';
 
 /**
@@ -15,7 +15,7 @@ import '../tokens/ElasticGovernanceToken.sol';
  * Serialize - Translation of data from the concerned struct to key-value pairs
  * Deserialize - Translation of data from the key-value pairs to a struct
  */
-contract Token is EternalModel, ReentryProtection {
+contract Token is EternalModel, ReentrancyGuard {
   struct Instance {
     address uuid;
     string name;
@@ -76,7 +76,7 @@ contract Token is EternalModel, ReentryProtection {
    * @dev serializes Instance struct
    * @param _record Instance
    */
-  function serialize(Instance memory _record) external preventReentry {
+  function serialize(Instance memory _record) external nonReentrant {
     require(
       msg.sender == _record.uuid ||
         (msg.sender == _record.ecosystem.daoAddress &&
@@ -118,7 +118,7 @@ contract Token is EternalModel, ReentryProtection {
 
   function updateNumberOfTokenHolders(Instance memory _record, uint256 numberOfTokenHolders)
     external
-    preventReentry
+    nonReentrant
   {
     require(
       msg.sender == _record.uuid && _exists(_record.uuid, _record.ecosystem.daoAddress),

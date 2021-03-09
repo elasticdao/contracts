@@ -2,10 +2,11 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 import './Ecosystem.sol';
 import './EternalModel.sol';
 import './Token.sol';
-import '../services/ReentryProtection.sol';
 
 /**
  * @title a data storage for Token holders
@@ -15,7 +16,7 @@ import '../services/ReentryProtection.sol';
  * Serialize - Translation of data from the concerned struct to key-value pairs
  * Deserialize - Translation of data from the key-value pairs to a struct
  */
-contract TokenHolder is EternalModel, ReentryProtection {
+contract TokenHolder is EternalModel, ReentrancyGuard {
   struct Instance {
     address account;
     uint256 lambda;
@@ -49,7 +50,7 @@ contract TokenHolder is EternalModel, ReentryProtection {
    * @dev serializes Instance struct
    * @param _record Instance
    */
-  function serialize(Instance memory _record) external preventReentry {
+  function serialize(Instance memory _record) external nonReentrant {
     require(msg.sender == _record.token.uuid, 'ElasticDAO: Unauthorized');
 
     setUint(keccak256(abi.encode(_record.token.uuid, _record.account, 'lambda')), _record.lambda);
