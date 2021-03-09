@@ -225,6 +225,27 @@ describe('ElasticDAO: Core', () => {
       expect(summoner3balance.toNumber()).to.equal(100);
     });
 
+    it('Should not allow the DAO to be summoned if summoner address is zero address', async () => {
+      const { agent } = await signers();
+
+      sdk.changeSigner(agent);
+
+      await expect(
+        sdk.elasticDAOFactory.contract.deployDAOAndToken(
+          [ethers.constants.AddressZero],
+          'Elastic DAO',
+          'Elastic Governance Token',
+          'EGT',
+          sdk.elasticDAOFactory.toEthersBigNumber(0.1, 18),
+          sdk.elasticDAOFactory.toEthersBigNumber(0.02, 18),
+          sdk.elasticDAOFactory.toEthersBigNumber(100, 18),
+          sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+          sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+          { value: sdk.elasticDAOFactory.toEthersBigNumber(0.25, 18) },
+        ),
+      ).to.be.revertedWith('ElasticDAO: Summoner address can not be zero address');
+    });
+
     it('Should getDAO', async () => {
       const getDAO = await dao.elasticDAO.contract.getDAO();
 
