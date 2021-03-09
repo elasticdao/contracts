@@ -356,7 +356,7 @@ contract ElasticDAO is ReentryProtection {
   /**
    * @notice sets the max voting lambda value for the DAO
    * @param _maxVotingLambda - the value of the maximum amount of lambda that can be used for voting
-   * @dev emits MaxVotingLambda event
+   * @dev emits MaxVotingLambdaChanged event
    */
   function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController preventReentry {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
