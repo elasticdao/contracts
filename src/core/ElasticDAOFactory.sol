@@ -181,7 +181,7 @@ contract ElasticDAOFactory is ReentryProtection {
    *
    * @param _feeReceiver - the new address of the fee reciever
    *
-   * @dev emits FeeUpdated event
+   * @dev emits FeeAddressUpdated event
    * @dev
    * Requirement:
    * - The fee receiver address cannot be zero address
