@@ -197,18 +197,17 @@ contract ElasticDAO is ReentryProtection {
    * Joining the DAO is syntactically equal to minting _deltaLambda for the function caller.
    *
    * Based on the current state of the DAO, capitalDelta, deltaE, mDash are calulated,
-   * after which  _deltaLambda is minted for the address calling the function.
+   * after which  maxTokenLambda is minted for the address calling the function.
    *
    * @dev documentation and further math regarding capitalDelta, deltaE,
    * mDash can be found at ../libraries/ElasticMath.sol
    * @dev emits the JoinDAO event
    *
    * @dev Requirements:
-   * The amount of shares being purchased has to be lower than or equal to maxLambdaPurchase
    * (The value of maxLambdaPurchase is set during the initialzing of the DAO)
    * The correct value of ETH, calculated via deltaE,
    * must be sent in the transaction by the calling address
-   * The token contract should be successfully be able to mint  _deltaLambda
+   * The token contract should be successfully be able to mint token.makxLambdaPurchase
    */
   function join()
     external
