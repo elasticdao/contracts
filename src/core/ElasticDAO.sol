@@ -209,15 +209,8 @@ contract ElasticDAO is ReentryProtection {
    * must be sent in the transaction by the calling address
    * The token contract should be successfully be able to mint token.makxLambdaPurchase
    */
-  function join()
-    external
-    payable
-    onlyAfterSummoning
-    onlyWhenOpen
-    preventReentry
-  {
+  function join() external payable onlyAfterSummoning onlyWhenOpen preventReentry {
     Token.Instance memory token = _getToken();
-
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
     uint256 capitalDelta =
@@ -254,7 +247,7 @@ contract ElasticDAO is ReentryProtection {
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
 
     // return extra ETH
-    if(success && msg.value > deltaE) {
+    if (success && msg.value > deltaE) {
       (success, ) = msg.sender.call{ value: SafeMath.sub(msg.value, deltaE) }('');
       require(success, 'ElasticDAO: TransactionFailed');
     }
