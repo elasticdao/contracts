@@ -16,7 +16,7 @@ contract ReentryProtection {
   //   Protected functions must have only one point of exit.
   //   Protected functions cannot use the `return` keyword
   //   Protected functions return values must be through return parameters.
-  modifier preventReentry() {
+  modifier nonReentrant() {
     require(!mutex, 'ElasticDAO: Reentry Detected');
 
     mutex = true;

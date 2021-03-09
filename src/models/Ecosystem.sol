@@ -2,8 +2,9 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
 import './EternalModel.sol';
-import '../services/ReentryProtection.sol';
 
 /**
  * @title ElasticDAO ecosystem
@@ -13,7 +14,7 @@ import '../services/ReentryProtection.sol';
  * @dev Serialize - Translation of data from the concerned struct to key-value pairs
  * @dev Deserialize - Translation of data from the key-value pairs to a struct
  */
-contract Ecosystem is EternalModel, ReentryProtection {
+contract Ecosystem is EternalModel, ReentrancyGuard {
   struct Instance {
     address daoAddress;
     // Models
@@ -66,7 +67,7 @@ contract Ecosystem is EternalModel, ReentryProtection {
    * @dev serializes Instance struct
    * @param _record Instance
    */
-  function serialize(Instance memory _record) external preventReentry {
+  function serialize(Instance memory _record) external nonReentrant {
     bool recordExists = _exists(_record.daoAddress);
 
     require(

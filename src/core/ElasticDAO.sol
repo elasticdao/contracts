@@ -8,7 +8,7 @@ import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
-import '../services/ReentryProtection.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
 
@@ -18,7 +18,7 @@ import '@pie-dao/proxy/contracts/PProxy.sol';
  *
  * It also serves as the vault for ElasticDAO.
  */
-contract ElasticDAO is ReentryProtection {
+contract ElasticDAO is ReentrancyGuard {
   address public deployer;
   address public ecosystemModelAddress;
   address public controller;
@@ -102,7 +102,7 @@ contract ElasticDAO is ReentryProtection {
     address[] memory _summoners,
     string memory _name,
     uint256 _maxVotingLambda
-  ) external preventReentry {
+  ) external nonReentrant {
     require(initialized == false, 'ElasticDAO: Already initialized');
     require(
       _ecosystemModelAddress != address(0) && _controller != address(0),
@@ -152,7 +152,7 @@ contract ElasticDAO is ReentryProtection {
     uint256 _elasticity,
     uint256 _k,
     uint256 _maxLambdaPurchase
-  ) external onlyBeforeSummoning onlyDeployer preventReentry {
+  ) external onlyBeforeSummoning onlyDeployer nonReentrant {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
 
     Token.Instance memory token =
@@ -184,7 +184,7 @@ contract ElasticDAO is ReentryProtection {
    * - ETH transfer must be successful
    * @dev emits ExitDAO event
    */
-  function exit(uint256 _deltaLambda) external onlyAfterSummoning preventReentry {
+  function exit(uint256 _deltaLambda) external onlyAfterSummoning nonReentrant {
     // burn the shares
     Token.Instance memory token = _getToken();
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
@@ -216,7 +216,7 @@ contract ElasticDAO is ReentryProtection {
    * must be sent in the transaction by the calling address
    * The token contract should be successfully be able to mint token.makxLambdaPurchase
    */
-  function join() external payable onlyAfterSummoning onlyWhenOpen preventReentry {
+  function join() external payable onlyAfterSummoning onlyWhenOpen nonReentrant {
     Token.Instance memory token = _getToken();
 
     ElasticGovernanceToken tokenContract = ElasticGovernanceToken(token.uuid);
@@ -274,7 +274,7 @@ contract ElasticDAO is ReentryProtection {
   function penalize(address[] memory _addresses, uint256[] memory _amounts)
     external
     onlyController
-    preventReentry
+    nonReentrant
   {
     require(
       _addresses.length == _amounts.length,
@@ -310,7 +310,7 @@ contract ElasticDAO is ReentryProtection {
   function reward(address[] memory _addresses, uint256[] memory _amounts)
     external
     onlyController
-    preventReentry
+    nonReentrant
   {
     require(
       _addresses.length == _amounts.length,
@@ -337,7 +337,7 @@ contract ElasticDAO is ReentryProtection {
    * - The controller of the DAO should successfully be set as the burner of the tokens of the DAO
    * - The controller of the DAO should successfully be set as the minter of the tokens of the DAO
    */
-  function setController(address _controller) external onlyController preventReentry {
+  function setController(address _controller) external onlyController nonReentrant {
     require(_controller != address(0), 'ElasticDAO: Address Zero');
 
     controller = _controller;
@@ -357,7 +357,7 @@ contract ElasticDAO is ReentryProtection {
    * @param _maxVotingLambda - the value of the maximum amount of lambda that can be used for voting
    * @dev emits MaxVotingLambdaChanged event
    */
-  function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController preventReentry {
+  function setMaxVotingLambda(uint256 _maxVotingLambda) external onlyController nonReentrant {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     DAO daoStorage = DAO(ecosystem.daoModelAddress);
     DAO.Instance memory dao = daoStorage.deserialize(address(this), ecosystem);
@@ -383,7 +383,7 @@ contract ElasticDAO is ReentryProtection {
     onlyBeforeSummoning
     onlySummoners
     onlyAfterTokenInitialized
-    preventReentry
+    nonReentrant
   {
     Token.Instance memory token = _getToken();
 
@@ -409,7 +409,7 @@ contract ElasticDAO is ReentryProtection {
    * @dev documentation and further math regarding capitalDelta
    * can be found at ../libraries/ElasticMath.sol
    */
-  function summon(uint256 _deltaLambda) external onlyBeforeSummoning onlySummoners preventReentry {
+  function summon(uint256 _deltaLambda) external onlyBeforeSummoning onlySummoners nonReentrant {
     require(address(this).balance > 0, 'ElasticDAO: Please seed DAO with ETH to set ETH:EGT ratio');
 
     Ecosystem.Instance memory ecosystem = _getEcosystem();

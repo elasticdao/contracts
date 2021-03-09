@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
-import '../services/ReentryProtection.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
 
@@ -14,7 +14,7 @@ import '@pie-dao/proxy/contracts/PProxy.sol';
  * Deploys ElasticDAO's and also sets all the required parameters and permissions,
  * Collects a fee which is later used by ELasticDAO for further development of the project.
  */
-contract ElasticDAOFactory is ReentryProtection {
+contract ElasticDAOFactory is ReentrancyGuard {
   address public ecosystemModelAddress;
   address public elasticDAOImplementationAddress;
   address public manager;
@@ -46,7 +46,7 @@ contract ElasticDAOFactory is ReentryProtection {
    */
   function initialize(address _ecosystemModelAddress, address _elasticDAOImplementationAddress)
     external
-    preventReentry
+    nonReentrant
   {
     require(initialized == false, 'ElasticDAO: Factory already initialized');
     require(
@@ -68,7 +68,7 @@ contract ElasticDAOFactory is ReentryProtection {
    * Requirement:
    * - The fee collection transaction should be successful
    */
-  function collectFees() external preventReentry {
+  function collectFees() external nonReentrant {
     require(feeAddress != address(0), 'ElasticDAO: No feeAddress set');
 
     uint256 amount = address(this).balance;
@@ -106,7 +106,7 @@ contract ElasticDAOFactory is ReentryProtection {
     uint256 _k,
     uint256 _maxLambdaPurchase,
     uint256 _maxVotingLambda
-  ) external payable preventReentry {
+  ) external payable nonReentrant {
     require(fee == msg.value, 'ElasticDAO: A fee is required to deploy a DAO');
 
     // Deploy the DAO behind PProxy
@@ -156,7 +156,7 @@ contract ElasticDAOFactory is ReentryProtection {
   function updateElasticDAOImplementationAddress(address _elasticDAOImplementationAddress)
     external
     onlyManager
-    preventReentry
+    nonReentrant
   {
     require(_elasticDAOImplementationAddress != address(0), 'ElasticDAO: Address Zero');
 
@@ -171,7 +171,7 @@ contract ElasticDAOFactory is ReentryProtection {
    *
    * @dev emits FeeUpdated event
    */
-  function updateFee(uint256 _amount) external onlyManager preventReentry {
+  function updateFee(uint256 _amount) external onlyManager nonReentrant {
     fee = _amount;
     emit FeeUpdated(fee);
   }
@@ -186,7 +186,7 @@ contract ElasticDAOFactory is ReentryProtection {
    * Requirement:
    * - The fee receiver address cannot be zero address
    */
-  function updateFeeAddress(address _feeReceiver) external onlyManager preventReentry {
+  function updateFeeAddress(address _feeReceiver) external onlyManager nonReentrant {
     require(_feeReceiver != address(0), 'ElasticDAO: Address Zero');
 
     feeAddress = payable(_feeReceiver);
@@ -202,7 +202,7 @@ contract ElasticDAOFactory is ReentryProtection {
    * - Address of the manager cannot be zero
    * @dev emits ManagerUpdated event
    */
-  function updateManager(address _newManager) external onlyManager preventReentry {
+  function updateManager(address _newManager) external onlyManager nonReentrant {
     require(_newManager != address(0), 'ElasticDAO: Address Zero');
 
     manager = _newManager;
