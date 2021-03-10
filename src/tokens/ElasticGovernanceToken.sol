@@ -252,9 +252,6 @@ contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
     returns (bool)
   {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
-
-    require(newAllowance >= 0, 'ElasticDAO: Allowance decrease less than 0');
-
     _approve(msg.sender, _spender, newAllowance);
     return true;
   }
