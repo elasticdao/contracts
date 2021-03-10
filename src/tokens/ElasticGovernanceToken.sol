@@ -470,6 +470,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
+    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
+
     tokenHolder = _updateBalance(tokenHolder, false, _deltaLambda);
 
     token.lambda = SafeMath.sub(token.lambda, _deltaLambda);
@@ -478,7 +480,7 @@ contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
     _updateNumberOfTokenHolders(alreadyTokenHolder, token, tokenHolder, tokenStorage);
-    emit Transfer(_account, address(0), ElasticMath.t(_deltaLambda, token.k, token.m));
+    emit Transfer(_account, address(0), deltaT);
   }
 
   function _mint(address _account, uint256 _deltaT) internal {
