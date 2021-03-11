@@ -28,6 +28,14 @@ interface IElasticToken is IERC20 {
   function burnShares(address _account, uint256 _amount) external returns (bool);
 
   /**
+   * @dev mints @param _amount tokens for @param _account
+   * @param _account - the address of the account for whom the token have to be minted to
+   * @param _amount - the amount of tokens to be minted
+   * @return bool
+   */
+  function mint(address _account, uint256 _amount) external returns (bool);
+
+  /**
    * @dev mints @param _amount of shares for @param _account
    * @param _account address of the account
    * @param _amount - the amount of shares to be minted

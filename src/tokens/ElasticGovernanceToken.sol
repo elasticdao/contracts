@@ -275,12 +275,13 @@ contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
 
   /**
    * @dev mints @param _amount tokens for @param _account
-   * @param _amount - the amount of tokens to be minted
    * @param _account - the address of the account for whom the token have to be minted to
+   * @param _amount - the amount of tokens to be minted
    * @return bool
    */
   function mint(address _account, uint256 _amount)
     external
+    override
     onlyDAOorMinter
     nonReentrant
     returns (bool)
