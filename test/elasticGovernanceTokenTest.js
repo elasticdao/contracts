@@ -80,8 +80,6 @@ describe('ElasticDAO: Elastic Governance Token', () => {
       summoner2.address,
     );
 
-    console.log(newAllowance.toString());
-
     expect(newAllowance.toString()).to.equal('0');
   });
 
