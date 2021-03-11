@@ -26,8 +26,8 @@ contract ElasticDAO is ReentrancyGuard {
   bool public initialized;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
-  event MaxVotingLambdaChanged(bytes32 settingName, uint256 value);
-  event ControllerChanged(bytes32 settingName, address value);
+  event MaxVotingLambdaChanged(uint256 value);
+  event ControllerChanged(address value);
   event ExitDAO(address indexed memberAddress, uint256 shareAmount, uint256 ethAmount);
   event FailedToFullyPenalize(
     address indexed memberAddress,
@@ -349,7 +349,7 @@ contract ElasticDAO is ReentrancyGuard {
     success = tokenContract.setMinter(controller);
     require(success, 'ElasticDAO: Set Minter failed during setController');
 
-    emit ControllerChanged('setController', controller);
+    emit ControllerChanged(controller);
   }
 
   /**
@@ -364,7 +364,7 @@ contract ElasticDAO is ReentrancyGuard {
     dao.maxVotingLambda = _maxVotingLambda;
     daoStorage.serialize(dao);
 
-    emit MaxVotingLambdaChanged('setMaxVotingLambda', _maxVotingLambda);
+    emit MaxVotingLambdaChanged(_maxVotingLambda);
   }
 
   /**
