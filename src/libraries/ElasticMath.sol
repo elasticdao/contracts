@@ -131,7 +131,11 @@ library ElasticMath {
     uint256 lambda,
     uint256 k,
     uint256 m
-  ) internal pure returns (uint256) {
+  ) internal view returns (uint256) {
+    if (lambda == 0) {
+      return 0;
+    }
+
     return wmul(wmul(lambda, k), m);
   }
 
