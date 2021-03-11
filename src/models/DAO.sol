@@ -2,7 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import './Ecosystem.sol';
 import './EternalModel.sol';

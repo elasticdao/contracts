@@ -8,7 +8,7 @@ import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
 

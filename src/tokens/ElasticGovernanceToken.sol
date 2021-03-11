@@ -12,7 +12,7 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 /**
  * @dev ElasticGovernanceToken contract outlines and defines all the functionality
