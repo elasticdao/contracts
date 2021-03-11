@@ -296,6 +296,31 @@ describe('ElasticDAO: Core', () => {
       expect(controller).to.equal(summoner1.address);
     });
 
+    it('Should allow the controller to add a liquidity pool', async () => {
+      const { agent } = await signers();
+      dao.sdk.changeSigner(agent);
+
+      await dao.elasticDAO.contract.addLiquidityPool('0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F');
+
+      const liquidityPoolsCount = await dao.elasticDAO.contract.getLiquidityPoolCount();
+      expect(liquidityPoolsCount).to.equal(1);
+    });
+
+    it('Should allow the controller to remove a liquidity pool', async () => {
+      const { agent } = await signers();
+      dao.sdk.changeSigner(agent);
+
+      await dao.elasticDAO.contract.addLiquidityPool('0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F');
+      let liquidityPoolsCount = await dao.elasticDAO.contract.getLiquidityPoolCount();
+      expect(liquidityPoolsCount).to.equal(1);
+
+      await dao.elasticDAO.contract.removeLiquidityPool(
+        '0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F',
+      );
+      liquidityPoolsCount = await dao.elasticDAO.contract.getLiquidityPoolCount();
+      expect(liquidityPoolsCount).to.equal(0);
+    });
+
     it('Should allow the controller to setMaxVotingLambda', async () => {
       const { agent } = await signers();
       dao.sdk.changeSigner(agent);

@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import './ElasticDAO.sol';
 
 import '../models/Ecosystem.sol';
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
 

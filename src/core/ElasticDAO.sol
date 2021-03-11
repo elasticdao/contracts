@@ -2,13 +2,15 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import '../interfaces/IUniswapV2Pair.sol';
+
 import '../libraries/ElasticMath.sol';
 
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
 
@@ -23,6 +25,7 @@ contract ElasticDAO is ReentrancyGuard {
   address public ecosystemModelAddress;
   address public controller;
   address[] public summoners;
+  address[] public liquidityPools;
   bool public initialized;
 
   event ElasticGovernanceTokenDeployed(address indexed tokenAddress);
@@ -35,6 +38,8 @@ contract ElasticDAO is ReentrancyGuard {
     uint256 actualAmount
   );
   event JoinDAO(address indexed memberAddress, uint256 shareAmount, uint256 ethAmount);
+  event LiquidityPoolAdded(address indexed poolAddress);
+  event LiquidityPoolRemoved(address indexed poolAddress);
   event SeedDAO(address indexed summonerAddress, uint256 amount);
   event SummonedDAO(address indexed summonedBy);
 
@@ -129,6 +134,17 @@ contract ElasticDAO is ReentrancyGuard {
     require(success, 'ElasticDAO: Build DAO Failed');
   }
 
+  function addLiquidityPool(address _poolAddress)
+    external
+    onlyController
+    nonReentrant
+    returns (bool)
+  {
+    liquidityPools.push(_poolAddress);
+
+    emit LiquidityPoolAdded(_poolAddress);
+  }
+
   /**
    * @notice initializes the token of the DAO
    *
@@ -200,6 +216,14 @@ contract ElasticDAO is ReentrancyGuard {
   }
 
   /**
+   * @notice this function returns the length of the liquidity pools array
+   *
+   */
+  function getLiquidityPoolCount() public view returns (uint256) {
+    return liquidityPools.length;
+  }
+
+  /**
    * @notice this function is used to join the DAO after it has been summoned
    * Joining the DAO is syntactically equal to minting _deltaLambda for the function caller.
    *
@@ -253,6 +277,10 @@ contract ElasticDAO is ReentrancyGuard {
     bool success = tokenContract.mintShares(msg.sender, token.maxLambdaPurchase);
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
 
+    for (uint256 i = 0; i < liquidityPools.length; i += 1) {
+      IUniswapV2Pair(liquidityPools[i]).sync();
+    }
+
     // return extra ETH
     if (success && msg.value > deltaE) {
       (success, ) = msg.sender.call{ value: SafeMath.sub(msg.value, deltaE) }('');
@@ -296,6 +324,22 @@ contract ElasticDAO is ReentrancyGuard {
         tokenContract.burnShares(_addresses[i], _amounts[i]);
       }
     }
+  }
+
+  function removeLiquidityPool(address _poolAddress)
+    external
+    onlyController
+    nonReentrant
+    returns (bool)
+  {
+    for (uint256 i = 0; i < liquidityPools.length; i += 1) {
+      if (liquidityPools[i] == _poolAddress) {
+        liquidityPools[i] = liquidityPools[liquidityPools.length - 1];
+        liquidityPools.pop();
+      }
+    }
+
+    emit LiquidityPoolRemoved(_poolAddress);
   }
 
   /**
