@@ -286,7 +286,7 @@ describe('ElasticDAO: Core', () => {
       );
     });
 
-    it('Should allow the controller to setController', async () => {
+    it.only('Should allow the controller to setController', async () => {
       const { summoner1, agent } = await signers();
       dao.sdk.changeSigner(agent);
 

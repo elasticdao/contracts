@@ -2,7 +2,7 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
-import '../interfaces/IUniswapV2Pair.sol';
+import '../interfaces/IAMMPair.sol';
 
 import '../libraries/ElasticMath.sol';
 
@@ -13,6 +13,7 @@ import '../models/Token.sol';
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
 import '@pie-dao/proxy/contracts/PProxy.sol';
+import 'hardhat/console.sol';
 
 /**
  * @dev The ElasticDAO contract outlines and defines all the functionality
@@ -140,6 +141,8 @@ contract ElasticDAO is ReentrancyGuard {
     nonReentrant
     returns (bool)
   {
+    IAMMPair(_poolAddress).sync();
+
     liquidityPools.push(_poolAddress);
 
     emit LiquidityPoolAdded(_poolAddress);
@@ -278,7 +281,7 @@ contract ElasticDAO is ReentrancyGuard {
     require(success, 'ElasticDAO: Mint Shares Failed during Join');
 
     for (uint256 i = 0; i < liquidityPools.length; i += 1) {
-      IUniswapV2Pair(liquidityPools[i]).sync();
+      IAMMPair(liquidityPools[i]).sync();
     }
 
     // return extra ETH
