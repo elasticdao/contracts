@@ -141,8 +141,6 @@ contract ElasticDAO is ReentrancyGuard {
     nonReentrant
     returns (bool)
   {
-    IUniswapV2Pair(_poolAddress).sync();
-
     liquidityPools.push(_poolAddress);
 
     emit LiquidityPoolAdded(_poolAddress);
