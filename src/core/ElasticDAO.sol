@@ -122,13 +122,13 @@ contract ElasticDAO is ReentrancyGuard {
       }
     }
 
-    Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
-    Ecosystem.Instance memory ecosystem = _buildEcosystem(controller, defaults);
-    ecosystemModelAddress = ecosystem.ecosystemModelAddress;
-
     controller = _controller;
     deployer = msg.sender;
     summoners = _summoners;
+
+    Ecosystem.Instance memory defaults = Ecosystem(_ecosystemModelAddress).deserialize(address(0));
+    Ecosystem.Instance memory ecosystem = _buildEcosystem(controller, defaults);
+    ecosystemModelAddress = ecosystem.ecosystemModelAddress;
 
     bool success = _buildDAO(_summoners, _name, _maxVotingLambda, ecosystem);
     initialized = true;
