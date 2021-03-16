@@ -34,6 +34,7 @@
     "@pie-dao/proxy": "^1.0.0",
     "bignumber.js": "9.0.1",
     "dotenv": "8.2.0",
+    "env": "^0.0.2",
     "ethereum-waffle": "3.2.1",
     "ethers": "5.0.26",
     "hardhat": "2.0.8",

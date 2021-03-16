@@ -15,6 +15,9 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
 const KOVAN_PRIVATE_KEY =
   process.env.KOVAN_PRIVATE_KEY ||
   '0000000000000000000000000000000000000000000000000000000000000000';
+const ROPSTEN_PRIVATE_KEY =
+  process.env.ROPSTEN_PRIVATE_KEY ||
+  '0000000000000000000000000000000000000000000000000000000000000000';
 const TESTNET_SEED = process.env.TESTNET_SEED || '';
 
 // Tasks
@@ -67,6 +70,11 @@ module.exports = {
       url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`,
       chainId: 42,
       accounts: [`0x${KOVAN_PRIVATE_KEY}`],
+    },
+    ropsten: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 3,
+      accounts: [`0x${ROPSTEN_PRIVATE_KEY}`],
     },
   },
   gasReporter: {
