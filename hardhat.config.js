@@ -9,7 +9,9 @@ require('hardhat-deploy');
 require('hardhat-contract-sizer');
 require('solidity-coverage');
 
+const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
+const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY || '';
 const TESTNET_SEED = process.env.TESTNET_SEED || '';
 
 // Tasks
@@ -57,6 +59,11 @@ module.exports = {
         mnemonic: TESTNET_SEED,
         count: 10,
       },
+    },
+    kovan: {
+      url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 42,
+      accounts: [`0x${KOVAN_PRIVATE_KEY}`],
     },
   },
   gasReporter: {
