@@ -1,4 +1,5 @@
 /* eslint no-undef: 0 */
+/* eslint operator-linebreak: 0 */
 require('dotenv').config();
 
 require('@nomiclabs/hardhat-waffle');
@@ -11,7 +12,9 @@ require('solidity-coverage');
 
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
-const KOVAN_PRIVATE_KEY = process.env.KOVAN_PRIVATE_KEY || '';
+const KOVAN_PRIVATE_KEY =
+  process.env.KOVAN_PRIVATE_KEY ||
+  '0000000000000000000000000000000000000000000000000000000000000000';
 const TESTNET_SEED = process.env.TESTNET_SEED || '';
 
 // Tasks
