@@ -71,6 +71,11 @@ module.exports = {
       chainId: 42,
       accounts: [`0x${KOVAN_PRIVATE_KEY}`],
     },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 1,
+      accounts: [`0x${MAINNET_PRIVATE_KEY}`],
+    },
     ropsten: {
       url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_KEY}`,
       chainId: 3,
