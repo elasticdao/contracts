@@ -183,13 +183,6 @@ contract ElasticMintingPool is ReentrancyGuard {
 
     controller = _controller;
 
-    // Update minter / burner
-    ElasticGovernanceToken tokenContract = ElasticGovernanceToken(_getToken().uuid);
-    bool success = tokenContract.setBurner(controller);
-    require(success, 'ElasticDAO: Set Burner failed during setController');
-    success = tokenContract.setMinter(controller);
-    require(success, 'ElasticDAO: Set Minter failed during setController');
-
     emit ControllerChanged(controller);
   }
 
