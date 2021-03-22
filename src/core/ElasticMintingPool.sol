@@ -10,8 +10,6 @@ import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
-import './ElasticDAO.sol';
-
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 import '@pie-dao/proxy/contracts/PProxy.sol';
 
@@ -76,7 +74,10 @@ contract ElasticMintingPool is ReentrancyGuard {
         token.m
       );
 
-    require(address(this).balance < deltaE, "ElasticDAO: Pool is full wait for next round or call mintVotingPower");
+    require(
+      address(this).balance < deltaE,
+      'ElasticDAO: Pool is full wait for next round or call mintVotingPower'
+    );
 
     uint256 currentPoolBalance = address(this).balance;
     uint256 newPoolBalance = SafeMath.add(currentPoolBalance, msg.value);
@@ -120,19 +121,19 @@ contract ElasticMintingPool is ReentrancyGuard {
 
     // mint new voting power
     address payable daoAddress = payable(dao.uuid);
-    ElasticDAO(daoAddress).join{ value: address(this).balance }();
+    IElasticDAO(daoAddress).join{ value: address(this).balance }();
     uint256 elasticTokenBalance = tokenContract.balanceOf(address(this));
 
     // send msg.sender mintReward
     tokenContract.transfer(msg.sender, mintReward);
 
     // divide up remaining tokens based on each persons deposit amount and send their voting power
-    for(uint256 i = 0; i < usersInRound[i].length; i += 1) {
+    for (uint256 i = 0; i < usersInRound[i].length; i += 1) {
       address user = usersInRound[round][i];
 
       uint256 depositAmount = rounds[round].deposits[user];
 
-      if(depositAmount > 0) {
+      if (depositAmount > 0) {
         uint256 percentageOfPool = SafeMath.div(depositAmount, deltaE);
         uint256 shareOfTokens = SafeMath.mul(elasticTokenBalance, percentageOfPool);
         tokenContract.transfer(user, shareOfTokens);
@@ -155,7 +156,7 @@ contract ElasticMintingPool is ReentrancyGuard {
     rounds[round].deposits[msg.sender] -= _amount;
     rounds[round].totalDeposited -= _amount;
 
-    if(rounds[round].deposits[msg.sender] == 0) {
+    if (rounds[round].deposits[msg.sender] == 0) {
       _removeUserFromRound();
     }
 
@@ -192,7 +193,7 @@ contract ElasticMintingPool is ReentrancyGuard {
 
   function _addUserToRound() internal {
     // only push when its not already added
-    if(!hasRoundDeposit[round][msg.sender]) {
+    if (!hasRoundDeposit[round][msg.sender]) {
       hasRoundDeposit[round][msg.sender] = true;
       usersInRound[round].push(msg.sender);
     }
@@ -214,11 +215,11 @@ contract ElasticMintingPool is ReentrancyGuard {
   }
 
   function _removeUserFromRound() internal {
-    if(hasRoundDeposit[round][msg.sender]) {
+    if (hasRoundDeposit[round][msg.sender]) {
       hasRoundDeposit[round][msg.sender] = false;
 
-      for(uint256 i = 0; i < usersInRound[round].length; i += 1) {
-        if(usersInRound[round][i] == msg.sender) {
+      for (uint256 i = 0; i < usersInRound[round].length; i += 1) {
+        if (usersInRound[round][i] == msg.sender) {
           usersInRound[round][i] = usersInRound[round][usersInRound[round].length - 1];
           usersInRound[round].pop();
         }
