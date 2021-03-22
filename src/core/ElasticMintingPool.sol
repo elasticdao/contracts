@@ -20,7 +20,7 @@ contract ElasticMintingPool is ReentrancyGuard {
   address public ecosystemModelAddress;
   uint256 public mintReward;
   uint256 public round = 0;
-  bool public minting = false;
+  bool public initialized = false;
 
   struct Round {
     uint256 totalDeposited;
@@ -33,7 +33,7 @@ contract ElasticMintingPool is ReentrancyGuard {
 
   event ControllerChanged(address indexed value);
   event Deposit(address indexed from, uint256 amount);
-  event PoolMinted(address indexed token, address indexed amount);
+  event PoolMinted(address indexed token, uint256 amount);
   event MintRewardChanged(uint256 value);
   event Withdraw(address indexed from, uint256 amount);
 
@@ -42,22 +42,23 @@ contract ElasticMintingPool is ReentrancyGuard {
     _;
   }
 
-  constructor(
+  function initialize(
     address _controller,
     address _ecosystemModelAddress,
     uint256 _mintReward
-  ) {
+  ) external nonReentrant {
+    require(!initialized, 'ElasticDAO: Already initialized');
     require(_controller != address(0), 'ElasticDAO: Address can not be Zero');
 
     controller = _controller;
     ecosystemModelAddress = _ecosystemModelAddress;
     mintReward = _mintReward;
+    initialized = true;
   }
 
   function deposit() external payable nonReentrant {
     // check msg.value is not zero
     require(msg.value > 100000000000000000, 'ElasticDAO: 0.1 ETH minimum');
-    require(!minting, 'ElasticDAO: Can not deposit while minting');
 
     Token.Instance memory token = _getToken();
     DAO.Instance memory dao = _getDAO();
@@ -74,6 +75,9 @@ contract ElasticMintingPool is ReentrancyGuard {
         token.lambda,
         token.m
       );
+
+    require(address(this).balance < deltaE, "ElasticDAO: Pool is full wait for next round or call mintVotingPower");
+
     uint256 currentPoolBalance = address(this).balance;
     uint256 newPoolBalance = SafeMath.add(currentPoolBalance, msg.value);
     uint256 overageAmount = SafeMath.sub(newPoolBalance, deltaE);
@@ -94,7 +98,7 @@ contract ElasticMintingPool is ReentrancyGuard {
     emit Deposit(msg.sender, SafeMath.sub(msg.value, overageAmount));
   }
 
-  function mintVotingPower() external nonReentrant {
+  function mint() external nonReentrant {
     // require that current pool value === deltaE required to mint current max votable tokens
     Token.Instance memory token = _getToken();
     DAO.Instance memory dao = _getDAO();
@@ -137,6 +141,8 @@ contract ElasticMintingPool is ReentrancyGuard {
 
     // start new round
     round += 1;
+
+    emit PoolMinted(token.uuid, ElasticMath.t(token.maxLambdaPurchase, token.k, token.m));
   }
 
   function withdraw(uint256 _amount) external payable nonReentrant {
@@ -199,19 +205,6 @@ contract ElasticMintingPool is ReentrancyGuard {
     }
   }
 
-  function _removeUserFromRound() internal {
-    if(hasRoundDeposit[round][msg.sender]) {
-      hasRoundDeposit[round][msg.sender] = false;
-
-      for(uint256 i = 0; i < usersInRound[round].length; i += 1) {
-        if(usersInRound[round][i] == msg.sender) {
-          usersInRound[round][i] = usersInRound[round][usersInRound[round].length - 1];
-          usersInRound[round].pop();
-        }
-      }
-    }
-  }
-
   function _getDAO() internal view returns (DAO.Instance memory) {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     return DAO(ecosystem.daoModelAddress).deserialize(address(this), ecosystem);
@@ -225,5 +218,18 @@ contract ElasticMintingPool is ReentrancyGuard {
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     return
       Token(ecosystem.tokenModelAddress).deserialize(ecosystem.governanceTokenAddress, ecosystem);
+  }
+
+  function _removeUserFromRound() internal {
+    if(hasRoundDeposit[round][msg.sender]) {
+      hasRoundDeposit[round][msg.sender] = false;
+
+      for(uint256 i = 0; i < usersInRound[round].length; i += 1) {
+        if(usersInRound[round][i] == msg.sender) {
+          usersInRound[round][i] = usersInRound[round][usersInRound[round].length - 1];
+          usersInRound[round].pop();
+        }
+      }
+    }
   }
 }
