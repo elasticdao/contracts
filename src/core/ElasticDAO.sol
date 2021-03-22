@@ -11,9 +11,7 @@ import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 
 import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
-
 import '@pie-dao/proxy/contracts/PProxy.sol';
-import 'hardhat/console.sol';
 
 /**
  * @dev The ElasticDAO contract outlines and defines all the functionality
