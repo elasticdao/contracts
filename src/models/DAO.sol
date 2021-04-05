@@ -2,22 +2,28 @@
 pragma solidity 0.7.2;
 pragma experimental ABIEncoderV2;
 
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
+
 import './Ecosystem.sol';
 import './EternalModel.sol';
-import '../libraries/SafeMath.sol';
 
-/// @author ElasticDAO - https://ElasticDAO.org
-/// @notice This contract is used for storing core dao data
-/// @dev ElasticDAO network contracts can read/write from this contract
-contract DAO is EternalModel {
+/**
+ * @author ElasticDAO - https://ElasticDAO.org
+ * @notice This contract is used for storing core DAO data
+ * @dev ElasticDAO network contracts can read/write from this contract
+ */
+contract DAO is EternalModel, ReentrancyGuard {
   struct Instance {
     address uuid;
     address[] summoners;
     bool summoned;
     string name;
+    uint256 maxVotingLambda;
     uint256 numberOfSummoners;
     Ecosystem.Instance ecosystem;
   }
+
+  event Serialized(address indexed uuid);
 
   /**
    * @dev deserializes Instance struct
@@ -33,6 +39,7 @@ contract DAO is EternalModel {
     record.ecosystem = _ecosystem;
 
     if (_exists(_uuid)) {
+      record.maxVotingLambda = getUint(keccak256(abi.encode(_uuid, 'maxVotingLambda')));
       record.name = getString(keccak256(abi.encode(_uuid, 'name')));
       record.numberOfSummoners = getUint(keccak256(abi.encode(_uuid, 'numberOfSummoners')));
       record.summoned = getBool(keccak256(abi.encode(_uuid, 'summoned')));
@@ -42,11 +49,11 @@ contract DAO is EternalModel {
   }
 
   /**
-   * @dev checks if @param _uuid and @param _name exist
+   * @dev checks if @param _uuid exists
    * @param _uuid - address of the unique user ID
    * @return recordExists bool
    */
-  function exists(address _uuid, Ecosystem.Instance memory) external view returns (bool) {
+  function exists(address _uuid) external view returns (bool) {
     return _exists(_uuid);
   }
 
@@ -66,21 +73,27 @@ contract DAO is EternalModel {
 
   /**
    * @dev serializes Instance struct
-   * @param record Instance
+   * @param _record Instance
    */
-  function serialize(Instance memory record) external {
-    setString(keccak256(abi.encode(record.uuid, 'name')), record.name);
-    setUint(keccak256(abi.encode(record.uuid, 'numberOfSummoners')), record.numberOfSummoners);
-    setBool(keccak256(abi.encode(record.uuid, 'summoned')), record.summoned);
+  function serialize(Instance memory _record) external nonReentrant {
+    require(msg.sender == _record.uuid, 'ElasticDAO: Unauthorized');
 
-    if (record.summoners.length == record.numberOfSummoners) {
-      for (uint256 i = 0; i < record.numberOfSummoners; i = SafeMath.add(i, 1)) {
-        setBool(keccak256(abi.encode(record.uuid, 'summoner', record.summoners[i])), true);
-        setAddress(keccak256(abi.encode(record.uuid, 'summoners', i)), record.summoners[i]);
+    setUint(keccak256(abi.encode(_record.uuid, 'maxVotingLambda')), _record.maxVotingLambda);
+    setString(keccak256(abi.encode(_record.uuid, 'name')), _record.name);
+    setBool(keccak256(abi.encode(_record.uuid, 'summoned')), _record.summoned);
+
+    if (_record.summoners.length > 0) {
+      _record.numberOfSummoners = _record.summoners.length;
+      setUint(keccak256(abi.encode(_record.uuid, 'numberOfSummoners')), _record.numberOfSummoners);
+      for (uint256 i = 0; i < _record.numberOfSummoners; i += 1) {
+        setBool(keccak256(abi.encode(_record.uuid, 'summoner', _record.summoners[i])), true);
+        setAddress(keccak256(abi.encode(_record.uuid, 'summoners', i)), _record.summoners[i]);
       }
     }
 
-    setBool(keccak256(abi.encode(record.uuid, 'exists')), true);
+    setBool(keccak256(abi.encode(_record.uuid, 'exists')), true);
+
+    emit Serialized(_record.uuid);
   }
 
   function _exists(address _uuid) internal view returns (bool) {

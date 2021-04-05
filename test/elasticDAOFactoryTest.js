@@ -1,42 +1,177 @@
+const { deployments } = require('hardhat');
+const { ethers } = require('ethers');
 const { expect } = require('chai');
-const ethers = require('ethers');
-const hre = require('hardhat').ethers;
-const SDK = require('@elastic-dao/sdk');
 
-const { ONE, ONE_HUNDRED, ONE_TENTH, TWO_HUNDREDTHS } = require('./constants');
-const env = require('./env');
+const { newDAO, SDK, signers, summoners } = require('./helpers');
 
 describe('ElasticDAO: Factory', () => {
-  let agent;
-  let summoner;
-  let summoner1;
-  let summoner2;
+  let sdk;
+
+  beforeEach(async () => {
+    sdk = await SDK();
+  });
 
   it('Should allow a DAO to be deployed using the factory', async () => {
-    [agent, summoner, summoner1, summoner2] = await hre.getSigners();
-    const { provider } = hre;
+    const dao = await newDAO();
+    const token = await dao.token();
 
-    const sdk = SDK({
-      account: agent.address,
-      contract: ({ abi, address }) => new ethers.Contract(address, abi, agent),
-      env: await env(),
-      provider,
-      signer: agent,
+    expect(token.symbol).to.equal('EGT');
+    expect(dao.ecosystem.governanceTokenAddress).to.not.equal(ethers.constants.AddressZero);
+  });
+
+  it('Should allow the fee to be updated by the manager', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+
+    const originalFee = await sdk.elasticDAOFactory.contract.fee();
+    const newFee = sdk.elasticDAOFactory.toEthersBigNumber(1, 18);
+    const tx = await sdk.elasticDAOFactory.contract.updateFee(newFee);
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('FeeUpdated');
+    expect(logs.events[0].args.amount.toString()).to.equal(newFee.toString());
+
+    await sdk.elasticDAOFactory.contract.updateFee(originalFee);
+  });
+
+  it('Should not allow the fee to be updated by a non-manager', async () => {
+    const { summoner2 } = await signers();
+
+    sdk.changeSigner(summoner2);
+
+    await expect(sdk.elasticDAOFactory.contract.updateFee(0)).to.be.revertedWith(
+      'ElasticDAO: Only manager',
+    );
+  });
+
+  it('Should not allow the DAO to be deployed without the correct fee', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+
+    await expect(
+      sdk.elasticDAOFactory.contract.deployDAOAndToken(
+        await summoners(),
+        'Elastic DAO',
+        'Elastic Governance Token',
+        'EGT',
+        sdk.elasticDAOFactory.toEthersBigNumber(0.1, 18),
+        sdk.elasticDAOFactory.toEthersBigNumber(0.02, 18),
+        sdk.elasticDAOFactory.toEthersBigNumber(100, 18),
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+        sdk.elasticDAOFactory.toEthersBigNumber(1, 18),
+        { value: 0 },
+      ),
+    ).to.be.revertedWith('ElasticDAO: A fee is required to deploy a DAO');
+  });
+
+  it('Should updateElasticDAOImplementationAddress', async () => {
+    const { agent } = await signers();
+
+    const elasticDAO = await deployments.deploy('ElasticDAO', {
+      from: agent.address,
+      args: [],
     });
 
-    const dao = await sdk.elasticDAOFactory.deployDAOAndToken(
-      [summoner.address, summoner1.address, summoner2.address],
-      'Elastic DAO',
-      3,
-      'Elastic Governance Token',
-      'EGT',
-      ONE_TENTH,
-      TWO_HUNDREDTHS,
-      ONE_HUNDRED,
-      ONE,
+    sdk.changeSigner(agent);
+
+    const tx = await sdk.elasticDAOFactory.contract.updateElasticDAOImplementationAddress(
+      elasticDAO.address,
     );
 
-    expect(dao.uuid).to.not.equal(undefined);
-    expect(dao.ecosystem.governanceTokenAddress).to.not.equal(undefined);
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('ElasticDAOImplementationAddressUpdated');
+    expect(logs.events[0].args.elasticDAOImplementationAddress).to.equal(elasticDAO.address);
+  });
+
+  it('Should not updateElasticDAOImplementationAddress when caller is not the manager', async () => {
+    const { agent, summoner2 } = await signers();
+
+    const elasticDAO = await deployments.deploy('ElasticDAO', {
+      from: agent.address,
+      args: [],
+    });
+
+    sdk.changeSigner(summoner2);
+
+    await expect(
+      sdk.elasticDAOFactory.contract.updateElasticDAOImplementationAddress(elasticDAO.address),
+    ).to.be.revertedWith('ElasticDAO: Only manager');
+  });
+
+  it('Should not updateFeeAddress when caller is not the manager', async () => {
+    const { summoner2 } = await signers();
+
+    sdk.changeSigner(summoner2);
+
+    await expect(
+      sdk.elasticDAOFactory.contract.updateFeeAddress(summoner2.address),
+    ).to.be.revertedWith('ElasticDAO: Only manager');
+  });
+
+  it('Should updateManager', async () => {
+    const { agent, summoner2 } = await signers();
+
+    sdk.changeSigner(agent);
+
+    const tx = await sdk.elasticDAOFactory.contract.updateManager(summoner2.address);
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('ManagerUpdated');
+    expect(logs.events[0].args.newManager).to.equal(summoner2.address);
+
+    sdk.changeSigner(summoner2);
+
+    await sdk.elasticDAOFactory.contract.updateManager(agent.address);
+  });
+
+  it('Should not updateManager when caller is not the manager', async () => {
+    const { summoner2 } = await signers();
+
+    sdk.changeSigner(summoner2);
+
+    await expect(
+      sdk.elasticDAOFactory.contract.updateManager(summoner2.address),
+    ).to.be.revertedWith('ElasticDAO: Only manager');
+  });
+
+  it('Should not collect fees to the feeAddress if feeAddress is not set', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+    await expect(sdk.elasticDAOFactory.collectFees()).to.be.revertedWith(
+      'ElasticDAO: No feeAddress set',
+    );
+  });
+
+  it('Should updateFeeAddress', async () => {
+    const { agent, summoner2 } = await signers();
+
+    sdk.changeSigner(agent);
+
+    const tx = await sdk.elasticDAOFactory.contract.updateFeeAddress(summoner2.address);
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('FeeAddressUpdated');
+    expect(logs.events[0].args.feeReceiver).to.equal(summoner2.address);
+  });
+
+  it('Should collect fees to the feeAddress', async () => {
+    const { agent } = await signers();
+
+    sdk.changeSigner(agent);
+
+    await sdk.elasticDAOFactory.contract.updateFeeAddress(agent.address);
+
+    const feeAmountToCollect = await agent.provider.getBalance(sdk.elasticDAOFactory.address);
+
+    const tx = await sdk.elasticDAOFactory.collectFees();
+    const logs = await tx.wait(1);
+
+    expect(logs.events[0].event).to.equal('FeesCollected');
+    expect(logs.events[0].args.feeAddress).to.equal(agent.address);
+    expect(logs.events[0].args.amount).to.equal(feeAmountToCollect);
   });
 });

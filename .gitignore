@@ -11,6 +11,11 @@ bin
 
 #coverage
 coverage
+coverage.json
 .coverage_cache
 .coverage_contracts
 .coverage_artifacts
+
+miner*.json
+.DS_Store
+.DS_Store?

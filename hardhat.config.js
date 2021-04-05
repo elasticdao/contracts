@@ -1,4 +1,5 @@
 /* eslint no-undef: 0 */
+/* eslint operator-linebreak: 0 */
 require('dotenv').config();
 
 require('@nomiclabs/hardhat-waffle');
@@ -7,8 +8,20 @@ require('hardhat-gas-reporter');
 require('@nomiclabs/hardhat-etherscan');
 require('hardhat-deploy');
 require('hardhat-contract-sizer');
+require('solidity-coverage');
 
+const ALCHEMY_KEY = process.env.ALCHEMY_KEY || '';
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN || '';
+const KOVAN_PRIVATE_KEY =
+  process.env.KOVAN_PRIVATE_KEY ||
+  '0000000000000000000000000000000000000000000000000000000000000000';
+const MAINNET_PRIVATE_KEY =
+  process.env.MAINNET_PRIVATE_KEY ||
+  '0000000000000000000000000000000000000000000000000000000000000000';
+const ROPSTEN_PRIVATE_KEY =
+  process.env.ROPSTEN_PRIVATE_KEY ||
+  '0000000000000000000000000000000000000000000000000000000000000000';
+const TESTNET_SEED = process.env.TESTNET_SEED || '';
 
 // Tasks
 task('seed', 'Seed account with Buidler ETH')
@@ -43,9 +56,33 @@ module.exports = {
     hardhat: {
       gasPrice: 0,
       blockGasLimit: 100000000,
+      allowUnlimitedContractSize: true,
     },
     coverage: {
       url: 'http://127.0.0.1:8555',
+    },
+    edaoTestnet: {
+      url: 'https://node.edao.app',
+      chainId: 420,
+      accounts: {
+        mnemonic: TESTNET_SEED,
+        count: 10,
+      },
+    },
+    kovan: {
+      url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 42,
+      accounts: [`0x${KOVAN_PRIVATE_KEY}`],
+    },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 1,
+      accounts: [`0x${MAINNET_PRIVATE_KEY}`],
+    },
+    ropsten: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_KEY}`,
+      chainId: 3,
+      accounts: [`0x${ROPSTEN_PRIVATE_KEY}`],
     },
   },
   gasReporter: {
@@ -72,13 +109,13 @@ module.exports = {
     agent: {
       default: 0,
     },
-    summoner: {
+    summoner1: {
       default: 1,
     },
-    summoner1: {
+    summoner2: {
       default: 2,
     },
-    summoner2: {
+    summoner3: {
       default: 3,
     },
   },

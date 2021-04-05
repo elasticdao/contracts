@@ -4,52 +4,107 @@ pragma experimental ABIEncoderV2;
 
 import '../interfaces/IElasticToken.sol';
 
-import '../libraries/SafeMath.sol';
 import '../libraries/ElasticMath.sol';
 
-import '../models/Balance.sol';
+import '../core/ElasticDAO.sol';
 import '../models/DAO.sol';
 import '../models/Ecosystem.sol';
 import '../models/Token.sol';
 import '../models/TokenHolder.sol';
 
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
+
 /**
- * @dev Implementation of the IERC20 interface
+ * @dev ElasticGovernanceToken contract outlines and defines all the functionality
+ * of an ElasticGovernanceToken and also serves as it's storage
  */
-contract ElasticGovernanceToken is IElasticToken {
-  address daoAddress;
-  address ecosystemModelAddress;
+contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
+  address public burner;
+  address public daoAddress;
+  address public ecosystemModelAddress;
+  address public minter;
+  bool public initialized;
 
   mapping(address => mapping(address => uint256)) private _allowances;
 
   modifier onlyDAO() {
-    require(msg.sender == daoAddress, 'ElasticDAO: Not authorized.');
+    require(msg.sender == daoAddress, 'ElasticDAO: Not authorized');
     _;
   }
 
-  constructor(address _daoAddress, address _ecosystemModelAddress) IERC20() {
-    daoAddress = _daoAddress;
-    ecosystemModelAddress = _ecosystemModelAddress;
+  modifier onlyDAOorBurner() {
+    require(msg.sender == daoAddress || msg.sender == burner, 'ElasticDAO: Not authorized');
+    _;
+  }
+
+  modifier onlyDAOorMinter() {
+    require(msg.sender == daoAddress || msg.sender == minter, 'ElasticDAO: Not authorized');
+    _;
   }
 
   /**
-   * @dev Returns the remaining number of tokens that @param _spender will be
+   * @notice initializes the ElasticGovernanceToken
+   *
+   * @param _burner - the address which can burn tokens
+   * @param _minter - the address which can mint tokens
+   * @param _ecosystem - Ecosystem Instance
+   * @param _token - Token Instance
+   *
+   * @dev Requirements:
+   * - The token should not already be initialized
+   * - The address of the burner cannot be zero
+   * - The address of the deployed ElasticDAO cannot be zero
+   * - The address of the ecosystemModelAddress cannot be zero
+   * - The address of the minter cannot be zero
+   *
+   * @return bool
+   */
+  function initialize(
+    address _burner,
+    address _minter,
+    Ecosystem.Instance memory _ecosystem,
+    Token.Instance memory _token
+  ) external nonReentrant returns (Token.Instance memory) {
+    require(initialized == false, 'ElasticDAO: Already initialized');
+    require(_burner != address(0), 'ElasticDAO: Address Zero');
+    require(_ecosystem.daoAddress != address(0), 'ElasticDAO: Address Zero');
+    require(_ecosystem.ecosystemModelAddress != address(0), 'ElasticDAO: Address Zero');
+    require(_minter != address(0), 'ElasticDAO: Address Zero');
+
+    initialized = true;
+    burner = _burner;
+    daoAddress = _ecosystem.daoAddress;
+    ecosystemModelAddress = _ecosystem.ecosystemModelAddress;
+    minter = _minter;
+
+    Token tokenStorage = Token(_ecosystem.tokenModelAddress);
+    tokenStorage.serialize(_token);
+
+    return _token;
+  }
+
+  /**
+   * @notice Returns the remaining number of tokens that @param _spender will be
    * allowed to spend on behalf of @param _owner through {transferFrom}. This is
    * zero by default
+   *
    * @param _spender - the address of the spender
    * @param _owner - the address of the owner
-   * This value changes when {approve} or {transferFrom} are called
+   *
+   * @dev This value changes when {approve} or {transferFrom} are called
+   *
    * @return uint256
    */
-  function allowance(address _owner, address _spender) external override view returns (uint256) {
+  function allowance(address _owner, address _spender) external view override returns (uint256) {
     return _allowances[_owner][_spender];
   }
 
   /**
-   * @dev Sets @param _amount as the allowance of @param _spender over the caller's tokens
-   * @param _spender - the address of the spender
-   * Returns a boolean value indicating whether the operation succeeded
+   * @notice Sets @param _amount as the allowance of @param _spender over the caller's tokens
    *
+   * @param _spender - the address of the spender
+   *
+   * @dev
    * IMPORTANT: Beware that changing an allowance with this method brings the risk
    * that someone may use both the old and the new allowance by unfortunate
    * transaction ordering. One possible solution to mitigate this race
@@ -57,20 +112,38 @@ contract ElasticGovernanceToken is IElasticToken {
    * desired value afterwards:
    * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
    *
-   * Emits an {Approval} event
+   * @dev Emits an {Approval} event
+   *
    * @return bool
    */
-  function approve(address _spender, uint256 _amount) external override returns (bool) {
+  function approve(address _spender, uint256 _amount)
+    external
+    override
+    nonReentrant
+    returns (bool)
+  {
     _approve(msg.sender, _spender, _amount);
     return true;
   }
 
   /**
-   * @dev Returns the amount of tokens owned by @param _account.
+   * @notice Returns the amount of tokens owned by @param _account using ElasticMath
+   *
    * @param _account - address of the account
+   *
+   * @dev the number of tokens is given by:
+   * t = lambda * m * k
+   *
+   * t - number of tokens
+   * m - lambda modifier - it's value increases every time someone joins the DAO
+   * k - constant token multiplier - it increases the number of tokens
+   *  that each member of the DAO has with respect to their lambda
+   *
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
    * @return uint256
    */
-  function balanceOf(address _account) external override view returns (uint256) {
+  function balanceOf(address _account) external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     uint256 t = ElasticMath.t(tokenHolder.lambda, token.k, token.m);
@@ -79,80 +152,83 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   /**
-   * @dev Returns the amount of shares owned by @param _account.
+   * @notice Returns the amount of shares ( lambda ) owned by _account.
+   *
    * @param _account - address of the account
+   *
    * @return lambda uint256 - lambda is the number of shares
    */
-  function balanceOfInShares(address _account) external override view returns (uint256 lambda) {
+  function balanceOfInShares(address _account) external view override returns (uint256) {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     return tokenHolder.lambda;
   }
 
   /**
-   * @dev Returns the amount of tokens owned by @param _account at the specific @param _blockNumber
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance is to be checked at
-   * @return t uint256 - the number of tokens
+   * @notice Returns the amount of tokens @param _account can vote with, using ElasticMath
+   *
+   * @param _account - the address of the account
+   *
+   * @dev checks if @param _account has more or less lambda than maxVotingLambda,
+   * based on which number of tokens (t) @param _account can vote with is calculated.
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
+   * @return balance uint256 numberOfTokens (t)
    */
-  function balanceOfAt(address _account, uint256 _blockNumber)
-    external
-    override
-    view
-    returns (uint256 t)
-  {
-    t = 0;
-    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
-    if (balance.blockNumber <= _blockNumber) {
-      t = ElasticMath.t(balance.lambda, balance.m, balance.k);
+  function balanceOfVoting(address _account) external view returns (uint256 balance) {
+    Token.Instance memory token = _getToken();
+    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
+    uint256 maxVotingLambda = _getDAO().maxVotingLambda;
+
+    if (tokenHolder.lambda > maxVotingLambda) {
+      return ElasticMath.t(maxVotingLambda, token.k, token.m);
+    } else {
+      return ElasticMath.t(tokenHolder.lambda, token.k, token.m);
     }
-    return t;
   }
 
   /**
-   * @dev Returns the amount of shares owned by @param _account at @param _blockNumber.
-   * @param _account - address of the account
-   * @param _blockNumber - the blockNumber at which the balance of shares has to be checked at
-   * @return lambda uint256 - lambda is the number of shares
-   */
-  function balanceOfInSharesAt(address _account, uint256 _blockNumber)
-    external
-    override
-    view
-    returns (uint256 lambda)
-  {
-    Balance.Instance memory balance = _balanceAt(_account, _blockNumber);
-
-    if (balance.blockNumber > _blockNumber) {
-      return 0;
-    }
-
-    return balance.lambda;
-  }
-
-  /**
-   * @dev Reduces the balance(tokens) of @param _account by @param _amount
+   * @notice Reduces the balance(tokens) of @param _account by  _amount
+   *
    * @param _account address of the account
+   *
    * @param _amount - the amount by which the number of tokens is to be reduced
+   *
    * @return bool
    */
-  function burn(address _account, uint256 _amount) external override onlyDAO returns (bool) {
+  function burn(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorBurner
+    nonReentrant
+    returns (bool)
+  {
     _burn(_account, _amount);
     return true;
   }
 
   /**
-   * @dev Reduces the balance(shares) of @param _account by @param _amount
+   * @notice Reduces the balance(lambda) of @param _account by  _amount
+   *
    * @param _account - address of the account
+   *
    * @param _amount - the amount by which the number of shares has to be reduced
+   *
    * @return bool
    */
-  function burnShares(address _account, uint256 _amount) external override returns (bool) {
+  function burnShares(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorBurner
+    nonReentrant
+    returns (bool)
+  {
     _burnShares(_account, _amount);
     return true;
   }
 
   /**
-   * @dev returns the number of decimals
+   * @notice returns the number of decimals
+   *
    * @return 18
    */
   function decimals() external pure returns (uint256) {
@@ -160,38 +236,56 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   /**
-   * @dev decreases the allowance of @param _spender by @param _subtractedValue
+   * @notice decreases the allowance of @param _spender by _subtractedValue
+   *
    * @param _spender - address of the spender
    * @param _subtractedValue - the value the allowance has to be decreased by
+   *
+   * @dev Requirement:
+   * Allowance cannot be lower than 0
+   *
    * @return bool
    */
-  function decreaseAllowance(address _spender, uint256 _subtractedValue) external returns (bool) {
+  function decreaseAllowance(address _spender, uint256 _subtractedValue)
+    external
+    nonReentrant
+    returns (bool)
+  {
     uint256 newAllowance = SafeMath.sub(_allowances[msg.sender][_spender], _subtractedValue);
-
-    require(newAllowance > 0, 'ElasticDAO: Allowance decrease less than 0');
-
     _approve(msg.sender, _spender, newAllowance);
     return true;
   }
 
   /**
-   * @dev increases the allowance of @param _spender by @param _addedValue
+   * @notice increases the allowance of @param _spender by _addedValue
+   *
    * @param _spender - address of the spender
    * @param _addedValue - the value the allowance has to be increased by
+   *
    * @return bool
    */
-  function increaseAllowance(address _spender, uint256 _addedValue) external returns (bool) {
+  function increaseAllowance(address _spender, uint256 _addedValue)
+    external
+    nonReentrant
+    returns (bool)
+  {
     _approve(msg.sender, _spender, SafeMath.add(_allowances[msg.sender][_spender], _addedValue));
     return true;
   }
 
   /**
    * @dev mints @param _amount tokens for @param _account
-   * @param _amount - the amount of tokens to be minted
    * @param _account - the address of the account for whom the token have to be minted to
+   * @param _amount - the amount of tokens to be minted
    * @return bool
    */
-  function mint(address _account, uint256 _amount) external onlyDAO returns (bool) {
+  function mint(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorMinter
+    nonReentrant
+    returns (bool)
+  {
     _mint(_account, _amount);
 
     return true;
@@ -203,7 +297,13 @@ contract ElasticGovernanceToken is IElasticToken {
    * @param _amount - the amount of shares to be minted
    * @return bool
    */
-  function mintShares(address _account, uint256 _amount) external override returns (bool) {
+  function mintShares(address _account, uint256 _amount)
+    external
+    override
+    onlyDAOorMinter
+    nonReentrant
+    returns (bool)
+  {
     _mintShares(_account, _amount);
     return true;
   }
@@ -216,13 +316,57 @@ contract ElasticGovernanceToken is IElasticToken {
     return _getToken().name;
   }
 
-  function numberOfTokenHolders() external override view returns (uint256) {
+  /**
+   * @notice Returns the number of token holders of ElasticGovernanceToken
+   *
+   * @return uint256 numberOfTokenHolders
+   */
+  function numberOfTokenHolders() external view override returns (uint256) {
     return _getToken().numberOfTokenHolders;
+  }
+
+  /**
+   * @notice sets the burner of the ElasticGovernanceToken
+   * a Burner is an address that can burn tokens(reduce the amount of tokens in circulation)
+   *
+   * @param _burner - the address of the burner
+   *
+   * @dev Requirement:
+   * - Address of the burner cannot be zero address
+   *
+   * @return bool
+   */
+  function setBurner(address _burner) external onlyDAO nonReentrant returns (bool) {
+    require(_burner != address(0), 'ElasticDAO: Address Zero');
+
+    burner = _burner;
+
+    return true;
+  }
+
+  /**
+   * @notice sets the minter of the ElasticGovernanceToken
+   * a Minter is an address that can mint tokens(increase the amount of tokens in circulation)
+   *
+   * @param _minter - address of the minter
+   *
+   * @dev Requirement:
+   * - Address of the minter cannot be zero address
+   *
+   * @return bool
+   */
+  function setMinter(address _minter) external onlyDAO nonReentrant returns (bool) {
+    require(_minter != address(0), 'ElasticDAO: Address Zero');
+
+    minter = _minter;
+
+    return true;
   }
 
   /**
    * @dev Returns the symbol of the token, usually a shorter version of the
    * name.
+   *
    * @return string - the symbol of the token
    */
   function symbol() external view returns (string memory) {
@@ -230,20 +374,29 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   /**
-   * @dev returns the totalSupply of tokens in thee DAO
+   * @notice returns the totalSupply of tokens in the DAO
+   *
+   * @dev
    * t - the total number of tokens in the DAO
    * lambda - the total number of shares outstanding in the DAO currently
    * m - current value of the share modifier
    * k - constant
    * t = ( lambda * m * k )
+   * Further math and documentaion of 't' can be found at ../libraries/ElasticMath.sol
+   *
    * @return uint256 - the value of t
    */
-  function totalSupply() external override view returns (uint256) {
+  function totalSupply() external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     return ElasticMath.t(token.lambda, token.k, token.m);
   }
 
-  function totalSupplyInShares() external override view returns (uint256) {
+  /**
+   * @notice Returns the current lambda value
+   *
+   * @return uint256 lambda
+   */
+  function totalSupplyInShares() external view override returns (uint256) {
     Token.Instance memory token = _getToken();
     return token.lambda;
   }
@@ -256,7 +409,7 @@ contract ElasticGovernanceToken is IElasticToken {
    * Emits a {Transfer} event
    * @return bool
    */
-  function transfer(address _to, uint256 _amount) external override returns (bool) {
+  function transfer(address _to, uint256 _amount) external override nonReentrant returns (bool) {
     _transfer(msg.sender, _to, _amount);
     return true;
   }
@@ -275,17 +428,15 @@ contract ElasticGovernanceToken is IElasticToken {
     address _from,
     address _to,
     uint256 _amount
-  ) external override returns (bool) {
+  ) external override nonReentrant returns (bool) {
     require(msg.sender == _from || _amount <= _allowances[_from][msg.sender], 'ERC20: Bad Caller');
-
-    _transfer(_from, _to, _amount);
 
     if (msg.sender != _from && _allowances[_from][msg.sender] != uint256(-1)) {
       _allowances[_from][msg.sender] = SafeMath.sub(_allowances[_from][msg.sender], _amount);
-
-      emit Approval(msg.sender, _to, _allowances[_from][msg.sender]);
+      emit Approval(_from, msg.sender, _allowances[_from][msg.sender]);
     }
 
+    _transfer(_from, _to, _amount);
     return true;
   }
 
@@ -304,19 +455,6 @@ contract ElasticGovernanceToken is IElasticToken {
     emit Approval(_owner, _spender, _amount);
   }
 
-  function _balanceAt(address _account, uint256 _blockNumber)
-    internal
-    view
-    returns (Balance.Instance memory)
-  {
-    Token.Instance memory token = _getToken();
-    TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance balanceStorage = Balance(ecosystem.balanceModelAddress);
-
-    return balanceStorage.deserialize(_blockNumber, ecosystem, token, tokenHolder);
-  }
-
   function _burn(address _account, uint256 _deltaT) internal {
     Token.Instance memory token = _getToken();
     uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
@@ -330,7 +468,9 @@ contract ElasticGovernanceToken is IElasticToken {
     TokenHolder.Instance memory tokenHolder = _getTokenHolder(_account);
     bool alreadyTokenHolder = tokenHolder.lambda > 0;
 
-    tokenHolder = _updateBalance(token, tokenHolder, false, _deltaLambda);
+    uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
+
+    tokenHolder = _updateBalance(tokenHolder, false, _deltaLambda);
 
     token.lambda = SafeMath.sub(token.lambda, _deltaLambda);
     tokenStorage.serialize(token);
@@ -338,6 +478,7 @@ contract ElasticGovernanceToken is IElasticToken {
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(tokenHolder);
     _updateNumberOfTokenHolders(alreadyTokenHolder, token, tokenHolder, tokenStorage);
+    emit Transfer(_account, address(0), deltaT);
   }
 
   function _mint(address _account, uint256 _deltaT) internal {
@@ -355,7 +496,7 @@ contract ElasticGovernanceToken is IElasticToken {
 
     uint256 deltaT = ElasticMath.t(_deltaLambda, token.k, token.m);
 
-    tokenHolder = _updateBalance(token, tokenHolder, true, _deltaLambda);
+    tokenHolder = _updateBalance(tokenHolder, true, _deltaLambda);
 
     token.lambda = SafeMath.add(token.lambda, _deltaLambda);
     tokenStorage.serialize(token);
@@ -372,6 +513,8 @@ contract ElasticGovernanceToken is IElasticToken {
     address _to,
     uint256 _deltaT
   ) internal {
+    require(_from != _to, 'ElasticDAO: Can not transfer to self');
+
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
@@ -384,8 +527,8 @@ contract ElasticGovernanceToken is IElasticToken {
     uint256 deltaLambda = ElasticMath.lambdaFromT(_deltaT, token.k, token.m);
     uint256 deltaT = ElasticMath.t(deltaLambda, token.k, token.m);
 
-    fromTokenHolder = _updateBalance(token, fromTokenHolder, false, deltaLambda);
-    toTokenHolder = _updateBalance(token, toTokenHolder, true, deltaLambda);
+    fromTokenHolder = _updateBalance(fromTokenHolder, false, deltaLambda);
+    toTokenHolder = _updateBalance(toTokenHolder, true, deltaLambda);
 
     TokenHolder tokenHolderStorage = TokenHolder(ecosystem.tokenHolderModelAddress);
     tokenHolderStorage.serialize(fromTokenHolder);
@@ -397,31 +540,15 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   function _updateBalance(
-    Token.Instance memory _token,
     TokenHolder.Instance memory _tokenHolder,
     bool _isIncreasing,
     uint256 _deltaLambda
-  ) internal returns (TokenHolder.Instance memory) {
-    Ecosystem.Instance memory ecosystem = _getEcosystem();
-    Balance.Instance memory balance;
-    balance.blockNumber = block.number;
-    balance.ecosystem = ecosystem;
-    balance.index = _tokenHolder.counter;
-    balance.k = _token.k;
-    balance.m = _token.m;
-    balance.token = _token;
-    balance.tokenHolder = _tokenHolder;
-    _tokenHolder.counter = SafeMath.add(_tokenHolder.counter, 1);
-
+  ) internal pure returns (TokenHolder.Instance memory) {
     if (_isIncreasing) {
       _tokenHolder.lambda = SafeMath.add(_tokenHolder.lambda, _deltaLambda);
     } else {
       _tokenHolder.lambda = SafeMath.sub(_tokenHolder.lambda, _deltaLambda);
     }
-
-    balance.lambda = _tokenHolder.lambda;
-
-    Balance(ecosystem.balanceModelAddress).serialize(balance);
 
     return _tokenHolder;
   }
@@ -442,6 +569,11 @@ contract ElasticGovernanceToken is IElasticToken {
   }
 
   // Private Getters
+
+  function _getDAO() internal view returns (DAO.Instance memory) {
+    Ecosystem.Instance memory ecosystem = _getEcosystem();
+    return DAO(ecosystem.daoModelAddress).deserialize(daoAddress, ecosystem);
+  }
 
   function _getEcosystem() internal view returns (Ecosystem.Instance memory) {
     return Ecosystem(ecosystemModelAddress).deserialize(daoAddress);
