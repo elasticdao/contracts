@@ -513,6 +513,8 @@ contract ElasticGovernanceToken is IElasticToken, ReentrancyGuard {
     address _to,
     uint256 _deltaT
   ) internal {
+    require(_from != _to, 'ElasticDAO: Can not transfer to self');
+
     Ecosystem.Instance memory ecosystem = _getEcosystem();
     Token tokenStorage = Token(ecosystem.tokenModelAddress);
     Token.Instance memory token = tokenStorage.deserialize(address(this), ecosystem);
